@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block contenido %}
+{% import "_macros.html" as macros %}
+
+<h1>Figuras Geométricas</h1>
+
+<form method="POST">
+    <p>Selecciona una figura:</p>
+    <label><input type="radio" name="figura" value="cuadrado"> Cuadrado</label><br>
+    <label><input type="radio" name="figura" value="triangulo"> Triángulo</label><br>
+    <label><input type="radio" name="figura" value="circulo"> Círculo</label><br>
+    <label><input type="radio" name="figura" value="pentagono"> Pentágono</label><br><br>
+    <button type="submit">Seleccionar</button>
+    {% if figura %}
+        <hr>
+        <h4>Ingresa los datos del {{figura}}:</h4>
+        {% if figura == 'cuadrado' %}
+            {{ macros.campo1('lado','Lado del cuadrado','number') }}
+        {% elif figura == 'triangulo' %}
+            {{ macros.campo1('base','Base del triángulo','number') }}
+            {{ macros.campo1('altura','Altura del triángulo','number') }}
+        {% elif figura == 'circulo' %}
+            {{ macros.campo1('radio','Radio del círculo','number') }}
+        {% elif figura == 'pentagono' %}
+            {{ macros.campo1('ladopent','Lado del pentágono','number') }}
+            {{ macros.campo1('apotema','Apotema del pentágono','number') }}
+        {% endif %}
+        <button type="submit">Calcular</button>
+    {% endif %}
+</form>
+
+{% if resultado %}
+    <h3>Area del {{figura}} es: {{resultado}}</h3>
+{% endif %}
+
+
+
+
+{% endblock %}

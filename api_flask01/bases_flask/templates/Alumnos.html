@@ -1,0 +1,28 @@
+{% extends "layout.html"%}
+{% block contenido %}
+{%import "_macros.html" as macros%}
+
+<h2>Lista de Alumnos</h2>
+<form action="/alumnos" method="post" novalidate>
+    {{macros.render_field(form.matricula)}}
+    {{macros.render_field(form.nombre)}}
+    {{macros.render_field(form.apellido)}}
+    {{macros.render_field(form.email)}}
+    <button type="submit" class="btn btn-primary">Registrar</button>    
+</form>
+
+<h2>Matricula: {{mat}}</h2>
+<h2>Nombre: {{nom}}</h2>
+<h2>Apellido: {{apell}}</h2>
+<h2>Email: {{email}}</h2>
+<br>
+<form action="/alumnos" method="post">
+    <button type="submit" class="btn btn-secondary">Eliminar Alumnos Registrados</button>
+</form>
+<br>
+<form action="/get_cookie" method="get">
+    <button type="submit" class="btn btn-info">Ver Alumnos Registrados (desde Cookie)</button>
+</form>
+
+
+{% endblock %}

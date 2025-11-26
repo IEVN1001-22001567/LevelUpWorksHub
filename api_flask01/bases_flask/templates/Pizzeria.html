@@ -1,0 +1,92 @@
+{% extends "layout.html"%}
+{% block contenido %}
+{% import "_macros.html" as macros %}
+
+
+<body class="pizzeria-page">    
+<h1>Pizzeria Waifu</h1>
+<form action="/pizzeria" method="post" id="datos" novalidate>
+<div class="row">
+    <div class="span4">
+    <div class="control-group">
+        {{macros.pizzeriacampos(form.nombre)}}
+    </div>
+    <div class="control-group">
+        {{macros.pizzeriacampos(form.tamano)}}
+    </div>
+</div>
+<div class="span4">
+    <div class="control-group">
+        {{macros.pizzeriacampos(form.direccion)}}
+    </div>
+    <div class="control-group">
+        {{ macros.pizzeriacampos(form.ingredientes) }}
+    </div>
+</div>
+
+<div class="span3">
+    <div class="control-group">
+        {{macros.pizzeriacampos(form.telefono)}}
+    </div>
+    <div class="control-group">
+        {{macros.pizzeriacampos(form.cantidad)}}
+    </div>
+    <button type="submit" name="action" value="agregar" class="btn btn-secondary">Agregar</button>
+</div>
+</div>
+</form>
+
+<div class="row">
+<div class="span8">
+    <table class="table table-bordered table-striped table-hover bg-white">
+<thead class="table-light">
+    <tr>
+        <th>Cliente</th>
+        <th>Tamaño</th>
+        <th>Ingredientes</th>
+        <th>Num. Pizzas</th>
+        <th>Sub Total</th>
+    </tr>
+</thead>
+<tbody>
+    {% for orden in orders %}
+    <tr>
+        <td>{{orden.nombre}}</td>
+        <td>{{orden.tamano}}</td>
+        <td>{{orden.ingredientes|join(', ')}}</td>
+        <td>{{orden.cantidad}}</td>
+        <td>${{orden.subtotal}}</td>
+    </tr>
+    {% endfor %}
+</tbody>
+</table>
+
+<form action="/pizza" method="post" novalidate>
+    <button type="submit" name="action" value="quitar" class="btn btn-secondary">Quitar</button>
+    <button type="submit" form="datos" name="action" value="terminar" class="btn btn-secondary">Terminar</button>
+</form>
+</div>
+
+<div class="span4">
+    <h2>Ventas del dia</h2>
+    {% for venta in ventas %}
+        <h4>{{venta.nombre}} total: ${{venta.total}}</h3>
+    {% endfor %}
+    {% if total_ventas_dia is defined %}
+    <h3>Ventas totales del día: ${{ total_ventas_dia }}</h3>
+    {% endif %}
+    <form action="/pizzeria" method="post" novalidate>
+        <button type="submit" name="action" value="ventas_total" class="btn btn-secondary">Calcular ventas totales del día</button>
+    </form>
+    <form action="/get_cookiespizzeria" method="get">
+        <button type="submit" class="btn btn-secondary">Ver ordenes (desde Cookie)</button>
+    </form>
+
+    <form action="/pizzeria" method="post">
+        <button type="submit" name="btnEliminaVentas" value="eliminar" class="btn btn-light">Borrar ventas</button>
+    </form>
+</div>
+</div>
+</body>
+
+{% endblock %}

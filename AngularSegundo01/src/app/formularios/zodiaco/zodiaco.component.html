@@ -1,0 +1,88 @@
+<h1 class="flex items-center justify-center w-full text-4xl font-extrabold dark:text-black mb-6">Zodiaco</h1>
+<form class="max-w-md mx-auto p-6 border border-gray-300 rounded-2xl shadow-md bg-white dark:bg-gray-800" [formGroup]="formulario">
+
+  <div class="flex items-center mb-4">
+    <label class="w-20 text-sm font-semibold text-gray-900 dark:text-white">Nombre:</label>
+    <input type="text" formControlName="nombre"
+      class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 
+      focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 
+      dark:text-white" placeholder="Nombre" required />
+  </div>
+
+  <div class="flex items-center mb-4">
+    <label class="w-20 text-sm font-semibold text-gray-900 dark:text-white">A. Paterno:</label>
+    <input type="text" formControlName="apaterno"
+      class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 
+      focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 
+      dark:text-white" placeholder="Apellido paterno" required />
+  </div>
+
+  <div class="flex items-center mb-4">
+    <label class="w-20 text-sm font-semibold text-gray-900 dark:text-white">A. Materno:</label>
+    <input type="text" formControlName="amaterno"
+      class="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 
+      focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 
+      dark:text-white" placeholder="Apellido materno" required />
+  </div>
+
+  <h2 class="text-lg font-bold mt-5 mb-2 dark:text-white">Fecha de nacimiento</h2>
+  <div class="flex items-center mb-3 gap-3">
+    <label class="w-10 text-sm font-semibold text-gray-900 dark:text-white">Día:</label>
+    <input type="number" formControlName="dia"
+      class="w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 
+      dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
+
+    <label class="w-10 text-sm font-semibold text-gray-900 dark:text-white">Mes:</label>
+    <input type="number" formControlName="mes"
+      class="w-16 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 
+      dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
+
+    <label class="w-10 text-sm font-semibold text-gray-900 dark:text-white">Año:</label>
+    <input type="number" formControlName="ano"
+      class="w-20 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg p-2 
+      dark:bg-gray-700 dark:border-gray-600 dark:text-white" required />
+  </div>
+
+
+  <div class="flex items-center mb-5">
+  <label class="w-32 text-sm font-semibold text-gray-900 dark:text-white">Sexo:</label>
+  <fieldset class="flex gap-4">
+    <div class="flex items-center">
+
+      <input id="sexo-masculino" type="radio" name="sexo" value="Masculino" formControlName="sexo"
+        class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600">
+      <label for="sexo-masculino" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        Masculino
+      </label>
+    </div>
+
+    <div class="flex items-center">
+      <input id="sexo-femenino" type="radio" name="sexo" value="Femenino" formControlName="sexo"
+        class="w-4 h-4 border-gray-300 focus:ring-2 focus:ring-blue-300 dark:focus:ring-blue-600 dark:bg-gray-700 dark:border-gray-600">
+      <label for="sexo-femenino" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+        Femenino
+      </label>
+    </div>
+  </fieldset>
+</div>
+
+
+  <div class="flex justify-center mt-6">
+    <button type="button" (click)="imprimir()" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-yellow-800 focus:outline-none">
+      Imprimir
+    </button>
+  </div>
+
+</form>
+
+<div *ngIf="signozodiacal" class="max-w-md mx-auto mt-6 p-6 border border-gray-300 rounded-2xl shadow-md bg-white dark:bg-gray-800">
+  <h2 class="text-2xl font-bold mb-4 dark:text-white">Resultado</h2><br>
+  <h2 class="text-2xl font-bold mb-4 dark:text-white">Hola: {{nombreCompleto}}</h2>
+  <h2 class="text-2xl font-bold mb-4 dark:text-white">Tienes: {{edadvuelta}} años</h2>
+  <h2 class="text-2xl font-bold mb-4 dark:text-white">Tu sexo es: {{sexoresultado}}</h2>
+  <h2 class="text-2xl font-bold mb-4 dark:text-white">Tu signo zodiacal es: {{signozodiacal}}</h2>
+<img class="h-auto max-w-full"[src]="'https://culturaasiatica.com/wp-content/uploads/2024/09/'+nombrezodiacovuelta">
+</div>
+
+
+

@@ -1,0 +1,65 @@
+/* Corrige la alineación de radios y checkboxes */
+input[type="radio"],
+input[type="checkbox"] {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+/* Alinea y separa las etiquetas */
+label {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 10px;
+}
+
+/* Opcional: mejora un poco la presentación general */
+.control-group h4 {
+    margin-bottom: 6px;
+}
+
+.form-inline label {
+    margin-right: 15px;
+}
+.form-inline .controls {
+    margin-left: 0;
+}
+
+
+body{
+    background-color: #7db5e6; /* azul muy claro */
+}
+
+/* ===== Estilos exclusivos para la página de Pizzería ===== */
+
+h3:contains("Ventas del día"),
+h3:has(+ p),
+.span4 h3 {
+    background-color: #e0e0e0;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+div.span4:last-child {
+    background-color: #e0e0e0;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+}
+
+.bg-white {
+    background-color: #fff !important;
+}
+
+.table th, 
+.table td {
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table thead {
+    font-weight: bold;
+}
+
+
+

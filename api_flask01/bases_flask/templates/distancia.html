@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block contenido %}
+<h1>Distancia entre dos puntos</h1>
+<form action="/distancia" method="post">
+    <div class="mb-3">
+        <label for="x1" class="form-label">x1:</label>
+        <input type="number" class="form-control" id="x1" name="x1" placeholder="X1" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="y1" class="form-label">y1:</label>
+        <input type="number" class="form-control" id="y1" name="y1" placeholder="Y1" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="x2" class="form-label">x2:</label>
+        <input type="number" class="form-control" id="x2" name="x2" placeholder="X2" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="y2" class="form-label">y2:</label>
+        <input type="number" class="form-control" id="y2" name="y2" placeholder="Y2" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Calcular</button>
+    {% if total %}
+        <h2 class="mt-3">{{ total }}</h2>
+    {% endif %}
+</form>
+{% endblock %}
