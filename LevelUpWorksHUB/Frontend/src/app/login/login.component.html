@@ -1,0 +1,73 @@
+<div class="min-h-screen bg-black/95 flex items-center justify-center p-4">
+
+  <div class="bg-[#1a1a1a] w-full max-w-md rounded-xl border border-yellow-600/50 shadow-2xl shadow-yellow-900/20 overflow-hidden relative">
+
+    <a routerLink="/home" class="absolute top-4 right-4 text-gray-500 hover:text-white transition cursor-pointer">
+      ✕
+    </a>
+
+    <div class="p-8">
+
+      <h2 class="text-2xl font-bold text-[#ffc107] mb-6 text-center">
+        Bienvenido a Level Up Hub
+      </h2>
+
+      <div class="flex bg-black/50 p-1 rounded-lg mb-6">
+        <button
+          (click)="toggleMode('login')"
+          class="flex-1 py-2 rounded-md text-sm font-semibold transition-all duration-300"
+          [ngClass]="isLoginMode ? 'bg-[#ffc107] text-black shadow-lg' : 'text-gray-400 hover:text-white'">
+          Iniciar Sesión
+        </button>
+        <button
+          (click)="toggleMode('register')"
+          class="flex-1 py-2 rounded-md text-sm font-semibold transition-all duration-300"
+          [ngClass]="!isLoginMode ? 'bg-[#ffc107] text-black shadow-lg' : 'text-gray-400 hover:text-white'">
+          Registrarse
+        </button>
+      </div>
+
+      <div *ngIf="isLoginMode" class="bg-yellow-900/20 border border-yellow-600/30 rounded-lg p-4 mb-6 text-sm">
+        <div class="flex items-center gap-2 text-[#ffc107] font-bold mb-1">
+          <span>💡</span> Credenciales de prueba:
+        </div>
+        <div class="text-gray-300 text-xs space-y-1">
+          <p><strong class="text-gray-400">Admin:</strong> admin&#64;leveluphub.com / admin123</p>
+          <p><strong class="text-gray-400">Cliente:</strong> cualquier otro email</p>
+        </div>
+      </div>
+
+      <form class="space-y-4">
+
+        <div *ngIf="!isLoginMode" class="space-y-1">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Nombre de Usuario</label>
+          <input type="text" placeholder="GamerPro123"
+            class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#ffc107] transition-colors">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Email</label>
+          <input type="email" placeholder="tu@email.com"
+            class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#ffc107] transition-colors">
+        </div>
+
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Contraseña</label>
+          <input type="password" placeholder="••••••••"
+            class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#ffc107] transition-colors">
+        </div>
+
+        <div *ngIf="isLoginMode" class="text-right">
+          <a href="#" class="text-[#ffc107] text-xs hover:underline">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button type="submit" class="w-full bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 rounded-lg transition-colors mt-6 shadow-lg shadow-yellow-900/20">
+          {{ isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta' }}
+        </button>
+
+      </form>
+    </div>
+
+    <div class="bg-[#ffc107] h-1 w-full"></div>
+  </div>
+</div>

@@ -39,7 +39,7 @@ export class TiendaComponent {
       titulo: 'Burnout',
       descripcion: 'Terror en primera persona diseñado exclusivamente para realidad virtual. Experimenta el horror más inmersivo con tu visor VR.',
       precio: 39.99,
-      imagen: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600', // Foto de Gaming/VR
+      imagen: '', // Foto de Gaming/VR
       categoria: 'Terror VR',
       rating: 4.7,
       reviews: '1,890',

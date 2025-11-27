@@ -26,6 +26,10 @@ export const routes: Routes = [
   loadChildren: () =>import('./tienda/tienda.routes').then(m => m.TIENDA_ROUTES)
 },
 
+{
+  path: 'login',
+  loadChildren: () => import('./login/login.routes').then(m => m.LOGIN_ROUTES)
+},
 
 
   {
