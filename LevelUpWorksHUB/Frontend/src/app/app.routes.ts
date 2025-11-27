@@ -21,6 +21,12 @@ export const routes: Routes = [
   path: 'eventos',
   loadChildren: () =>import('./eventos/eventos.routes').then(m => m.EVENTOS_ROUTES)
 },
+{
+  path: 'tienda',
+  loadChildren: () =>import('./tienda/tienda.routes').then(m => m.TIENDA_ROUTES)
+},
+
+
 
   {
     path: 'utl',
