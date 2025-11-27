@@ -1,0 +1,8 @@
+chat.svg
+correo.svg
+telefono.svg
+ayuda.svg
+documento.svg
+rayo.svg
+reloj.svg
+headphones.svg
