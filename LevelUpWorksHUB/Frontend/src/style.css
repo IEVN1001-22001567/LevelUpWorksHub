@@ -1,0 +1,95 @@
+.mobile-dropdown {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+/* Hover */
+.mobile-dropdown:hover {
+    background: #e6b800; /* Amarillo Figma */
+    color: #000;         /* Texto negro como en Figma */
+}
+
+
+.navbar {
+  width: 100%;
+  padding: 15px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--background);
+  color: var(--foreground);
+  border-bottom: 2px solid var(--primary);
+}
+
+.nav-left, .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* --- Dropdown --- */
+.dropdown {
+  position: relative;
+}
+
+.nav-btn {
+  background: transparent;
+  border: none;
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: var(--font-weight-medium);
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background: var(--card);
+  padding: 10px 0;
+  border-radius: var(--radius);
+  width: 240px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+
+.dropdown-content a {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: var(--foreground);
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.dropdown-content a:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* --- Action Buttons (Iniciar Sesión / Carrito) --- */
+.action-btn {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  background: var(--accent);
+}
