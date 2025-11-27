@@ -1,3 +1,4 @@
+import { SOPORTETEC_ROUTES } from './soportetec/soportetec.routes';
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -25,8 +26,23 @@ export const routes: Routes = [
   path: 'tienda',
   loadChildren: () =>import('./tienda/tienda.routes').then(m => m.TIENDA_ROUTES)
 },
+{
+  path: 'soportetec',
+  loadChildren: () =>import('./soportetec/soportetec.routes').then(m => m.SOPORTETEC_ROUTES)
+},
+{
+  path: 'social',
+  loadChildren: () =>import('./social/social.routes').then(m => m.SOCIAL_ROUTES)
+},
+{
+  path: 'licencias',
+  loadChildren: () =>import('./licencias/licencias.routes').then(m => m.LICENCIA_ROUTES)
+},
 
-
+{
+  path: 'actualizaciones',
+  loadChildren: () =>import('./actualizaciones/actualizaciones.routes').then(m => m.ACTUALIZACIONES_ROUTES)
+},
 
   {
     path: 'utl',

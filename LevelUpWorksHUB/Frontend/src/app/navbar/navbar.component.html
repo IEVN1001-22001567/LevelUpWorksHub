@@ -2,12 +2,10 @@
   <div class="max-w-screen-xl mx-auto px-4">
     <div class="flex items-center justify-between py-4">
 
-      <!-- LOGO -->
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full border-4 border-primary overflow-hidden bg-primary">
           <img
             src="https://images.unsplash.com/photo-1733681198831-eb4b838c6f77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400"
-            alt="Level Up Hub Logo"
             class="w-full h-full object-cover"
           />
         </div>
@@ -17,74 +15,92 @@
         </div>
       </div>
 
-      <!-- NAV DESKTOP -->
       <nav class="hidden lg:flex items-center space-x-8">
 
-        <a routerLink="/home"
-           class="text-card-foreground hover:text-primary transition-colors duration-200">
+        <a 
+          [routerLink]="['/inicio']"
+          routerLinkActive="text-primary"
+          class="text-card-foreground hover:text-primary transition-colors duration-200">
           Home
         </a>
 
-        <a routerLink="/tienda"
-           class="text-card-foreground hover:text-primary transition-colors duration-200">
+        <a 
+          [routerLink]="['/tienda']"
+          routerLinkActive="text-primary"
+          class="text-card-foreground hover:text-primary transition-colors duration-200">
           Tienda
         </a>
 
         <!-- HUB GAMER DROPDOWN -->
         <div class="relative group">
+
           <button class="flex items-center gap-2 text-card-foreground hover:text-primary transition duration-200">
             Hub Gamer
             <span class="text-sm">▼</span>
           </button>
 
           <!-- MENU -->
-         <div
-  class="absolute left-0 mt-2 w-64 bg-[#111] border-2 border-yellow-600 shadow-lg
-         opacity-0 invisible group-hover:opacity-100 group-hover:visible
-         transition-all duration-200 rounded-lg z-50 flex flex-col"
->
+          <div
+            class="absolute left-0 mt-2 w-64 bg-[#111] border-2 border-yellow-600 shadow-lg
+            opacity-0 invisible group-hover:opacity-100 group-hover:visible
+            transition-all duration-200 rounded-lg z-50 flex flex-col"
+          >
 
-  <button routerLink="/biblioteca"
-    class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-    Biblioteca de juegos
-  </button>
+            <a 
+              [routerLink]="['/biblioteca']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Biblioteca de juegos
+            </a>
 
-  <button routerLink="/actualizaciones"
-    class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-    Centro de actualizaciones
-  </button>
+            <a 
+              [routerLink]="['/gestioncompras']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Gestión de compras
+            </a>
 
-  <button routerLink="/noticias"
-    class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-    Noticias
-  </button>
+            <a 
+              [routerLink]="['/actualizaciones']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Centro de actualizaciones
+            </a>
 
-  <button routerLink="/eventos"
-    class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-    Eventos y promociones
-  </button>
+            <a 
+              [routerLink]="['/noticias']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Noticias
+            </a>
 
-  <button routerLink="/psicowellness"
-    class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-    PsicoWellness
-  </button>
+            <a 
+              [routerLink]="['/eventos']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Eventos y promociones
+            </a>
 
-  <button routerLink="/mensajeria"
-    class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-    Mensajería
-  </button>
+            <a 
+              [routerLink]="['/psicowellness']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              PsicoWellness
+            </a>
 
-  <button routerLink="/licencias"
-    class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-    Licencias y Credenciales
-  </button>
+            <a 
+              [routerLink]="['/social']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Mensajería
+            </a>
 
-</div>
+            <a 
+              [routerLink]="['/licencias']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Licencias y Credenciales
+            </a>
 
+          </div>
         </div>
 
-        <a routerLink="/soporte"
-           class="text-card-foreground hover:text-primary transition-colors duration-200">
+        <a 
+          [routerLink]="['/soportetec']"
+          routerLinkActive="text-primary"
+          class="text-card-foreground hover:text-primary transition-colors duration-200">
           Soporte Técnico
         </a>
       </nav>
@@ -98,39 +114,6 @@
         <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
           Carrito
         </button>
-      </div>
-    </div>
-
-    <!-- MOBILE NAV -->
-    <div class="lg:hidden pb-4">
-      <div class="flex flex-wrap gap-4">
-
-        <a routerLink="/home" class="mobile-nav-link">Home</a>
-        <a routerLink="/tienda" class="mobile-nav-link">Tienda</a>
-        <a routerLink="/soporte" class="mobile-nav-link">Soporte Técnico</a>
-
-      </div>
-
-      <!-- HUB GAMER mobile -->
-      <div class="mt-4">
-        <details class="bg-card border-2 border-border rounded-lg">
-          <summary class="cursor-pointer px-4 py-3 text-card-foreground flex items-center justify-between">
-            Hub Gamer
-            <span>▼</span>
-          </summary>
-
-          <div class="p-2 space-y-1">
-
-            <button routerLink="/biblioteca" class="mobile-dropdown">📚 Biblioteca de juegos</button>
-            <button routerLink="/actualizaciones" class="mobile-dropdown">🔔 Centro de actualizaciones</button>
-            <button routerLink="/noticias" class="mobile-dropdown">📰 Noticias</button>
-            <button routerLink="/eventos" class="mobile-dropdown">🎉 Eventos y promociones</button>
-            <button routerLink="/psicowellness" class="mobile-dropdown">🧠 PsicoWellness</button>
-            <button routerLink="/mensajeria" class="mobile-dropdown">💬 Mensajería</button>
-            <button routerLink="/licencias" class="mobile-dropdown">🔑 Licencias y Credenciales</button>
-
-          </div>
-        </details>
       </div>
     </div>
   </div>
