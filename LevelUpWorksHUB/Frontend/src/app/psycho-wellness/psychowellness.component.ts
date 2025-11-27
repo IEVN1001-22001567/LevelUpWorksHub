@@ -21,7 +21,7 @@ interface Recommendation {
 }
 
 @Component({
-  selector: 'psicowellness',
+  selector: 'app-psicowellness',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './psychowellness.component.html',
