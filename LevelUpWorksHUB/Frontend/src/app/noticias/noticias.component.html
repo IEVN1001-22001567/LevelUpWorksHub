@@ -1,0 +1,152 @@
+<div class="min-h-screen bg-background">
+
+  <!-- Hero Section -->
+  <section class="bg-primary text-primary-foreground py-16">
+    <div class="container mx-auto px-4">
+      <h1 class="text-primary-foreground mb-4">Noticias Gaming</h1>
+      <p class="text-lg max-w-2xl">
+        Mantente al día con las últimas novedades, actualizaciones y anuncios de Level Up Hub
+      </p>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="bg-card border-b-2 border-border py-6">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-wrap gap-3">
+
+        @for (category of categorias; track category) {
+          <button
+            class="px-6 py-2 rounded-full border-2 border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200">
+            {{ category }}
+          </button>
+        }
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Article -->
+  @if (articuloDestacado) {
+    <section class="py-12 bg-background">
+      <div class="container mx-auto px-4">
+        <div
+          class="bg-card border-2 border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-xl">
+
+          <div class="grid md:grid-cols-2 gap-0">
+
+            <div class="relative h-80 md:h-auto">
+              <img [src]="articuloDestacado.image" [alt]="articuloDestacado.title" class="w-full h-full object-cover" />
+              <div class="absolute top-4 left-4">
+                <span class="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm">
+                  ⭐ Destacado
+                </span>
+              </div>
+            </div>
+
+            <div class="p-8 flex flex-col justify-center">
+
+              <div class="flex items-center gap-4 mb-4 text-muted-foreground text-sm">
+                <div class="flex items-center gap-2">
+                  <span>📅</span>
+                  <span>{{ articuloDestacado.date }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span>👤</span>
+                  <span>{{ articuloDestacado.author }}</span>
+                </div>
+              </div>
+
+              <h2 class="text-primary mb-4">{{ articuloDestacado.title }}</h2>
+
+              <p class="text-card-foreground mb-6">
+                {{ articuloDestacado.excerpt }}
+              </p>
+
+              <button
+                class="bg-primary hover:bg-accent text-primary-foreground px-6 py-3 rounded-lg inline-flex items-center gap-2 transition-colors duration-200">
+                Leer Artículo Completo →
+              </button>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- News Grid -->
+  <section class="py-12 bg-card">
+    <div class="container mx-auto px-4">
+      <h2 class="text-primary mb-8">Últimas Noticias</h2>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        @for (article of articulosNormales; track article.id) {
+
+          <div
+            class="bg-background border-2 border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-xl group cursor-pointer">
+
+            <div class="relative h-48 overflow-hidden">
+              <img [src]="article.image" [alt]="article.title"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <div class="absolute top-3 right-3">
+                <span class="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs">
+                  {{ article.category }}
+                </span>
+              </div>
+            </div>
+
+            <div class="p-5">
+              <div class="flex items-center gap-3 mb-3 text-muted-foreground text-xs">
+                <span>📅</span>
+                <span>{{ article.date }}</span>
+              </div>
+
+              <h3 class="text-card-foreground mb-3 group-hover:text-primary transition-colors">
+                {{ article.title }}
+              </h3>
+
+              <p class="text-muted-foreground text-sm mb-4 line-clamp-2">
+                {{ article.excerpt }}
+              </p>
+
+              <button class="text-primary hover:text-accent inline-flex items-center gap-2 transition-colors duration-200">
+                Leer más →
+              </button>
+
+            </div>
+
+          </div>
+
+        }
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="py-16 bg-primary">
+    <div class="container mx-auto px-4 text-center">
+
+      <h2 class="text-primary-foreground mb-4">Suscríbete a Nuestro Newsletter</h2>
+
+      <p class="text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
+        Recibe las últimas noticias y actualizaciones directamente a tu correo
+      </p>
+
+      <div class="max-w-md mx-auto flex gap-2">
+        <input type="email"
+          placeholder="tu@email.com"
+          class="flex-1 px-4 py-3 rounded-lg border-2 border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:border-primary-foreground" />
+
+        <button class="bg-background hover:bg-card text-foreground px-6 py-3 rounded-lg transition-colors duration-200">
+          Suscribirse
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+</div>
