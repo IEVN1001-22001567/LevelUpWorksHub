@@ -1,0 +1,112 @@
+<div class="min-h-screen bg-background">
+
+  <!-- HERO -->
+  <section class="bg-primary text-primary-foreground py-16 text-center">
+    <h1 class="text-primary-foreground mb-4">Eventos y Promociones</h1>
+    <p class="text-lg max-w-2xl mx-auto text-primary-foreground/90">
+      Participa en torneos épicos, aprovecha descuentos únicos y más.
+    </p>
+  </section>
+
+  <!-- DESTACADO -->
+  <section *ngFor="let e of eventosDestacados" class="py-12">
+    <div class="container mx-auto px-4">
+      <div class="bg-card border-4 border-primary rounded-lg overflow-hidden">
+
+        <div class="grid md:grid-cols-2">
+          <div class="relative h-96 overflow-hidden">
+            <img [src]="e.imagen" class="w-full h-full object-cover">
+            <div class="absolute bottom-6 left-6 bg-primary text-primary-foreground text-6xl px-6 py-3 rounded-lg">
+              {{ e.descuento }}
+            </div>
+          </div>
+
+          <div class="p-8 bg-primary text-primary-foreground">
+            <h2 class="text-primary-foreground mb-4">{{ e.titulo }}</h2>
+            <p class="text-lg mb-6 text-primary-foreground/90">{{ e.descripcion }}</p>
+
+            <div class="flex gap-2 mb-6">
+              <span>{{ e.fechaInicio }} - {{ e.fechaFin }}</span>
+            </div>
+
+            <button class="bg-background hover:bg-card text-foreground px-8 py-4 rounded-lg">
+              Ver Todos los Descuentos
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTIVOS -->
+  <section class="py-12 bg-card">
+    <div class="container mx-auto px-4">
+      <h2 class="text-primary mb-8">Eventos Activos</h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div *ngFor="let e of eventosActivos" class="bg-background border-2 border-border rounded-lg overflow-hidden">
+
+          <div class="relative h-56">
+            <img [src]="e.imagen" class="w-full h-full object-cover">
+          </div>
+
+          <div class="p-6">
+            <h3 class="text-card-foreground mb-3">{{ e.titulo }}</h3>
+            <p class="text-muted-foreground mb-4">{{ e.descripcion }}</p>
+
+            <div class="flex justify-between text-sm mb-4">
+              <span>{{ e.fechaInicio }} - {{ e.fechaFin }}</span>
+              <span>{{ e.participantes }}</span>
+            </div>
+
+            <button class="bg-primary text-primary-foreground px-6 py-3 rounded-lg w-full">
+              Participar Ahora
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PRÓXIMOS -->
+  <section class="py-12 bg-background">
+    <div class="container mx-auto px-4">
+      <h2 class="text-primary mb-8">Próximos Eventos</h2>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div *ngFor="let e of eventosProximos" class="bg-card border-2 border-border p-6 rounded-lg">
+
+          <h3 class="text-card-foreground mb-3">{{ e.titulo }}</h3>
+          <p class="text-muted-foreground text-sm mb-4">{{ e.descripcion }}</p>
+
+          <div class="text-sm space-y-2">
+            <div>{{ e.fecha }}</div>
+            <div>{{ e.hora }}</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PASADOS -->
+  <section class="py-12 bg-card">
+    <div class="container mx-auto px-4">
+      <h2 class="text-primary mb-8">Eventos Pasados</h2>
+
+      <div class="space-y-4">
+        <div *ngFor="let p of eventosPasados" class="bg-background border-l-4 border-primary p-6 rounded-lg">
+          <h3 class="text-card-foreground mb-2">{{ p.titulo }}</h3>
+          <p class="text-muted-foreground">{{ p.descripcion }}</p>
+          <div class="text-primary text-sm">{{ p.fecha }}</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div>
