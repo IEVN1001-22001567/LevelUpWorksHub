@@ -43,6 +43,7 @@ export const routes: Routes = [
   path: 'login',
   loadChildren: () => import('./login/login.routes').then(m => m.LOGIN_ROUTES)
 },
+{
 
   path: 'actualizaciones',
   loadChildren: () =>import('./actualizaciones/actualizaciones.routes').then(m => m.ACTUALIZACIONES_ROUTES)
