@@ -4,10 +4,11 @@
 
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full border-4 border-primary overflow-hidden bg-primary">
-          <img
-            src="https://images.unsplash.com/photo-1733681198831-eb4b838c6f77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400"
-            class="w-full h-full object-cover"
+        <img
+          src="/img/LevelUpLogo.jpg"
+          class="w-full h-full object-cover"
           />
+
         </div>
 
         <div class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold tracking-wider">
@@ -111,9 +112,9 @@
           Iniciar Sesión
         </a>
 
-        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
+        <a [routerLink]="['/carrito']" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
           Carrito
-        </button>
+        </a>
       </div>
     </div>
   </div>
