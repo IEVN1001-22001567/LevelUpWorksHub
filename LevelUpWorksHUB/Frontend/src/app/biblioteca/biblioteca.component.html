@@ -1,0 +1,140 @@
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="min-h-screen bg-[#0f0f0f] text-white px-6 py-10 flex flex-col items-center">
+
+  <!-- TÍTULO -->
+  <h1 class="text-4xl font-bold text-yellow-400 mb-2 text-center">
+    Mi biblioteca de juegos
+  </h1>
+
+  <!-- SUBTÍTULO -->
+  <p class="text-gray-400 text-lg mb-6 text-center">
+    Gestiona tu colección de juegos
+  </p>
+
+  <!-- BUSCADOR + FILTROS (CENTRADO) -->
+  <div class="flex items-center gap-3 mb-10 w-full max-w-3xl justify-center">
+
+    <input
+      type="text"
+      class="w-full bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:border-yellow-400"
+      placeholder="Buscar juegos..."
+    >
+
+    <!-- ÍCONO DE FILTROS -->
+    <div class="p-3 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:bg-[#222] cursor-pointer transition">
+      <img src="assets/icons/filter.svg" class="w-6 h-6">
+    </div>
+  </div>
+
+
+  <!-- GRID DE JUEGOS (2 COLUMNAS, TODAS IGUALES) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+
+
+    <!-- ░░ JUEGO 1 – WIBERNS QUEST ░░ -->
+    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
+
+      <!-- IMAGEN -->
+      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
+        <img src="assets/juegos/wiberns-quest.jpg" class="w-full h-full object-cover">
+      </div>
+
+      <!-- INFO -->
+      <div class="flex flex-col flex-grow">
+        <h3 class="text-xl font-bold">Wiberns Quest</h3>
+
+        <div class="flex flex-wrap gap-2 mt-1">
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">RPG</span>
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Aventura</span>
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">2D</span>
+        </div>
+
+        <div class="flex items-center justify-between mt-3">
+          <p class="text-xs text-gray-400">Tiempo jugado: 45 h</p>
+
+          <div class="flex text-yellow-400">
+            <span>★</span><span>★</span><span>★</span><span>★</span>
+            <span class="text-gray-600">★</span>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-3">
+          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
+            Jugar
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- ░░ JUEGO 2 – CHAINSAW OF THE DEAD ░░ -->
+    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
+
+      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
+        <img src="assets/juegos/chainsaw-dead.jpg" class="w-full h-full object-cover">
+      </div>
+
+      <div class="flex flex-col flex-grow">
+        <h3 class="text-xl font-bold">Chainsaw of the Dead</h3>
+
+        <div class="flex flex-wrap gap-2 mt-1">
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Shooter</span>
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">2D</span>
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Supervivencia</span>
+        </div>
+
+        <div class="flex items-center justify-between mt-3">
+          <p class="text-xs text-gray-400">Tiempo jugado: 28 h</p>
+
+          <div class="flex text-yellow-400">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-3">
+          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
+            Descargar
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+
+    <!-- ░░ JUEGO 3 – BURNOUT ░░ -->
+    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
+
+      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
+        <img src="assets/juegos/burnout.jpg" class="w-full h-full object-cover">
+      </div>
+
+      <div class="flex flex-col flex-grow">
+        <h3 class="text-xl font-bold">Burnout</h3>
+
+        <div class="flex flex-wrap gap-2 mt-1">
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Terror</span>
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">VR</span>
+          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Psicológico</span>
+        </div>
+
+        <div class="flex items-center justify-between mt-3">
+          <p class="text-xs text-gray-400">Tiempo jugado: 67 h</p>
+
+          <div class="flex text-yellow-400">
+            <span>★</span><span>★</span><span>★</span><span>★</span>
+            <span class="text-gray-600">★</span>
+          </div>
+        </div>
+
+        <div class="flex justify-end mt-3">
+          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
+            Jugar
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
