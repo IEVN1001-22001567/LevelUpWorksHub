@@ -79,6 +79,21 @@ export const routes: Routes = [
   loadChildren: () =>import('./admin/adminjuegos/adminjuegos.routes').then(m => m.ADMINJUEGOS_ROUTES)
 },
 
+{
+    path: 'adminnoticias',
+    loadChildren: () => import('./admin/adminnoticias/adminnoticias.routes').then(m => m.ADMIN_NOTICIAS_ROUTES)
+  },
+
+{
+    path: 'adminmensajeria',
+    loadChildren: () => import('./admin/adminmensajeria/adminmensajeria.routes').then(m => m.ADMIN_MENSAJERIA_ROUTES)
+  },
+
+  {
+    path: 'adminlicencias',
+    loadChildren: () => import('./admin/adminlicencias/adminlicencias.routes').then(m => m.ADMIN_LICENCIAS_ROUTES)
+  },
+
   {
     path: 'utl',
     loadChildren: () => import('./utl/utlroutes').then((m) => m.default),
