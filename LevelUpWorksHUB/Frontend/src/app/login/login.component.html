@@ -1,5 +1,4 @@
 <div class="min-h-screen bg-black/95 flex items-center justify-center p-4">
-
   <div class="bg-[#1a1a1a] w-full max-w-md rounded-xl border border-yellow-600/50 shadow-2xl shadow-yellow-900/20 overflow-hidden relative">
 
     <a routerLink="/home" class="absolute top-4 right-4 text-gray-500 hover:text-white transition cursor-pointer">
@@ -37,32 +36,63 @@
         </div>
       </div>
 
-      <form class="space-y-4">
+      <form class="space-y-4" (ngSubmit)="onSubmit()">
 
         <div *ngIf="!isLoginMode" class="space-y-1">
           <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Nombre de Usuario</label>
-          <input type="text" placeholder="GamerPro123"
+          <input
+            type="text"
+            placeholder="GamerPro123"
+            [(ngModel)]="username"
+            name="username"
             class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#ffc107] transition-colors">
         </div>
 
         <div class="space-y-1">
           <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Email</label>
-          <input type="email" placeholder="tu@email.com"
+          <input
+            type="email"
+            placeholder="tu@email.com"
+            [(ngModel)]="email"
+            name="email"
+            required
             class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#ffc107] transition-colors">
         </div>
 
         <div class="space-y-1">
           <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Contraseña</label>
-          <input type="password" placeholder="••••••••"
+          <input
+            type="password"
+            placeholder="••••••••"
+            [(ngModel)]="password"
+            name="password"
+            required
             class="w-full bg-black/50 border border-gray-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#ffc107] transition-colors">
         </div>
 
-        <div *ngIf="isLoginMode" class="text-right">
-          <a href="#" class="text-[#ffc107] text-xs hover:underline">¿Olvidaste tu contraseña?</a>
+              <div *ngIf="isLoginMode" class="text-right">
+          <button
+            type="button"
+            (click)="olvidoContrasena()"
+            class="text-[#ffc107] text-xs hover:underline">
+            ¿Olvidaste tu contraseña?
+          </button>
         </div>
 
-        <button type="submit" class="w-full bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 rounded-lg transition-colors mt-6 shadow-lg shadow-yellow-900/20">
-          {{ isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta' }}
+
+        <div *ngIf="errorMsg" class="text-red-500 text-xs mt-2">
+          {{ errorMsg }}
+        </div>
+
+        <div *ngIf="successMsg" class="text-green-500 text-xs mt-2">
+          {{ successMsg }}
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 rounded-lg transition-colors mt-6 shadow-lg shadow-yellow-900/20"
+          [disabled]="cargando">
+          {{ cargando ? (isLoginMode ? 'Iniciando...' : 'Registrando...') : (isLoginMode ? 'Iniciar Sesión' : 'Crear Cuenta') }}
         </button>
 
       </form>

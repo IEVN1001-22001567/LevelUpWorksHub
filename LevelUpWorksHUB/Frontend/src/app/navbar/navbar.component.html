@@ -4,10 +4,11 @@
 
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full border-4 border-primary overflow-hidden bg-primary">
-          <img
-            src="https://images.unsplash.com/photo-1733681198831-eb4b838c6f77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400"
-            class="w-full h-full object-cover"
+        <img
+          src="/img/LevelUpLogo.jpg"
+          class="w-full h-full object-cover"
           />
+
         </div>
 
         <div class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold tracking-wider">
@@ -105,16 +106,72 @@
         </a>
       </nav>
 
-      <!-- USER & CART -->
-      <div class="flex items-center gap-3">
-        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
-          Iniciar Sesión
-        </button>
+   <!-- USER & CART -->
+<div class="flex items-center gap-3">
 
-        <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
-          Carrito
+  <!-- Si NO hay usuario logueado -->
+  <ng-container *ngIf="!user; else loggedIn">
+    <a [routerLink]="['/login']"
+       class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
+      Iniciar Sesión
+    </a>
+  </ng-container>
+
+  <!-- Si SÍ hay usuario logueado -->
+  <ng-template #loggedIn>
+    <div class="relative">
+
+      <!-- Botón que muestra el perfil -->
+      <button
+        type="button"
+        (click)="menuAbierto = !menuAbierto"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-accent transition"
+      >
+        <div class="w-8 h-8 rounded-full overflow-hidden bg-black/40 flex items-center justify-center font-bold">
+          <!-- inicial del username -->
+          {{ user?.username?.charAt(0) || '?' }}
+        </div>
+        <span class="text-sm font-semibold">
+          {{ user?.username || 'Usuario' }}
+        </span>
+        <span class="text-xs uppercase text-black/70 bg-yellow-300 px-2 py-0.5 rounded">
+          {{ user?.rol || 'USER' }}
+        </span>
+        <span class="text-xs ml-1">▼</span>
+      </button>
+
+      <!-- MENÚ DESPLEGABLE -->
+      <div
+        *ngIf="menuAbierto"
+        class="absolute right-0 mt-2 w-48 bg-[#111] border border-yellow-600 rounded-lg shadow-lg z-50"
+      >
+        <a
+          [routerLink]="['/personalizarperfil']"
+          (click)="menuAbierto = false"
+          class="block px-4 py-2 text-sm text-gray-200 hover:bg-yellow-600 hover:text-black transition"
+        >
+          Editar perfil
+        </a>
+
+        <button
+          type="button"
+          (click)="logout(); menuAbierto = false"
+          class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600 hover:text-white transition"
+        >
+          Cerrar sesión
         </button>
       </div>
     </div>
+  </ng-template>
+
+  <!-- Carrito siempre visible -->
+  <a [routerLink]="['/carrito']"
+     class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
+    Carrito
+  </a>
+</div>
+    </div>
   </div>
+
+  
 </header>

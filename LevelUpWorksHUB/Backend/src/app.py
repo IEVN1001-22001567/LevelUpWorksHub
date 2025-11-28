@@ -1,119 +1,155 @@
 from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
-from flask_cors import CORS, cross_origin
-
+from flask_cors import CORS
 from config import config
+import random
+import string
 
-app=Flask(__name__)
-CORS(app, resources={r"/alumnos/*": {"origins":"http://localhost:4200"}})
-#CORS(app)#http://localhost:4200/verAlumnos
-conectar=MySQL(app)
+def generar_password_temporal(longitud=8):
+    caracteres = string.ascii_letters + string.digits
+    return ''.join(random.choice(caracteres) for _ in range(longitud))
 
-@app.route('/alumnos', methods=['GET'])
-def lista_alumnos():
+
+
+app = Flask(__name__)
+app.config.from_object(config['development'])
+
+# CORS para todo desde Angular
+CORS(app, resources={r"/*": {"origins": "http://localhost:4200"}})
+
+mysql = MySQL(app)  # cambié el nombre a mysql para evitar confusiones
+
+@app.route('/login', methods=['POST'])
+def login():
     try:
-        cursor=conectar.connection.cursor()
-        sql="SELECT * FROM alumnos"
-        cursor.execute(sql)
-        datos=cursor.fetchall()
-        lista_alumnos=[]
-        for fila in datos:
-            alumno={'matricula':fila[0], 'nombre':fila[1], 'apaterno':fila[2], 'amaterno':fila[3],
-                    'correo':fila[4]}
-            lista_alumnos.append(alumno)
-        return jsonify({'alumnos':lista_alumnos, 'mensaje':'Alumnos encontrados','exito':True})
-    
-    except Exception as ex:
-                return jsonify({"message":"error{}".format(ex),'exito':False})
-    
-def leer_alumno_bd(matricula):
-    try:
-        cursor = conectar.connection.cursor()
-        sql = "SELECT matricula, nombre, apaterno, amaterno, correo FROM alumnos WHERE matricula = {0}".format(matricula)
-        cursor.execute(sql)
+        data = request.get_json()
+        print("Datos recibidos en /login:", data)  # DEBUG
+
+        email = data.get('email') if data else None
+        password = data.get('password') if data else None
+
+        if not email or not password:
+            return jsonify({'mensaje': 'Faltan datos', 'exito': False}), 400
+
+        cursor = mysql.connection.cursor()
+        # OJO: campo con acento y guion se escapa con backticks
+        sql = """
+            SELECT usuarioid, username, email, `contraseña-hash`, rol
+            FROM usuarios
+            WHERE email = %s
+        """
+        cursor.execute(sql, (email,))
         datos = cursor.fetchone()
-        if datos != None:
-            alumno = {'matricula': datos[0], 'nombre': datos[1],
-                      'apaterno': datos[2],'amaterno':datos[3],'correo':datos[4]}
-            return alumno
-        else:
-            return None
+        print("Resultado consulta login:", datos)  # DEBUG
+
+        if datos is None:
+            return jsonify({'mensaje': 'Usuario no encontrado', 'exito': False}), 401
+
+        usuarioid = datos[0]
+        username = datos[1]
+        email_bd = datos[2]
+        password_bd = datos[3]
+        rol = datos[4]
+
+        # Comparación directa por ahora
+        if password != password_bd:
+            return jsonify({'mensaje': 'Contraseña incorrecta', 'exito': False}), 401
+
+        user_data = {
+            'usuarioid': usuarioid,
+            'username': username,
+            'email': email_bd,
+            'rol': rol
+        }
+
+        return jsonify({'mensaje': 'Login exitoso', 'exito': True, 'usuario': user_data}), 200
+
     except Exception as ex:
-        raise ex
+        print("ERROR en /login:", ex) 
+        return jsonify({'mensaje': f'Error en el servidor: {ex}', 'exito': False}), 500
 
 
-
-@app.route("/alumnos/<mat>",methods=['GET'])
-def leer_alumno(mat):
+@app.route('/register', methods=['POST'])
+def register():
     try:
-        alumno=leer_alumno_bd(mat)
-        if alumno != None:
-            return jsonify({'alumno':alumno,'mensaje':'Alumno encontrado','exito':True})
-        else:
-            return jsonify({'alumno':alumno,'mensaje':'Alumno no encontrado','exito':False})
-       
+        data = request.get_json()
+        print("Datos recibidos en /register:", data)  # DEBUG
+
+        username = data.get('username') if data else None
+        email = data.get('email') if data else None
+        password = data.get('password') if data else None
+
+        if not username or not email or not password:
+            return jsonify({'mensaje': 'Faltan datos', 'exito': False}), 400
+
+        cursor = mysql.connection.cursor()
+
+        # 1. Verificar si ya existe ese email
+        sql_check = "SELECT usuarioid FROM usuarios WHERE email = %s"
+        cursor.execute(sql_check, (email,))
+        existe = cursor.fetchone()
+        print("¿Existe usuario?:", existe)  # DEBUG
+
+        if existe is not None:
+            return jsonify({'mensaje': 'El email ya está registrado', 'exito': False}), 409
+
+        # 2. Insertar usuario nuevo
+        sql_insert = """
+            INSERT INTO usuarios (username, email, `contraseña-hash`, avatar, rol, registrofecha)
+            VALUES (%s, %s, %s, %s, %s, NOW())
+        """
+        avatar_por_defecto = ''
+        rol_por_defecto = 'cliente'
+
+        cursor.execute(sql_insert, (username, email, password, avatar_por_defecto, rol_por_defecto))
+        mysql.connection.commit()
+
+        return jsonify({'mensaje': 'Usuario registrado correctamente', 'exito': True}), 201
+
     except Exception as ex:
-        return jsonify({"message": "error {}".format(ex),'exito':False})
+        print("ERROR en /register:", ex)  # MUY IMPORTANTE
+        return jsonify({'mensaje': f'Error en el servidor: {ex}', 'exito': False}), 500
 
-
-
-@app.route("/alumnos",methods=['POST'])
-def registrar_alumno():
+@app.route('/forgot-password', methods=['POST'])
+def forgot_password():
     try:
-        alumno=leer_alumno_bd(request.json['matricula'])
-        if alumno != None:
-            return jsonify({'mensaje':"Alumno ya existe, no se puede duplicar",
-                            'exito':False})
-        else:
-            cursor=conectar.connection.cursor()
-            sql="""insert into alumnos (matricula,nombre,apaterno,amaterno,correo)
-            values ('{0}','{1}','{2}','{3}','{4}')""".format(request.json['matricula'],
-                request.json['nombre'],request.json['apaterno'],request.json['amaterno'],
-                request.json['correo'])
-            cursor.execute(sql)
-            conectar.connection.commit()
-            return jsonify({'mensaje':"Alumno registrado","exito":True})
-       
+        data = request.get_json()
+        email = data.get('email') if data else None
+        new_password = data.get('password') if data else None
+        print("Solicitud de recuperación para:", email, "nueva pass:", new_password)
+
+        if not email or not new_password:
+            return jsonify({'mensaje': 'Debes proporcionar email y nueva contraseña', 'exito': False}), 400
+
+        cursor = mysql.connection.cursor()
+
+        # Verificar si el usuario existe
+        sql_check = "SELECT usuarioid FROM usuarios WHERE email = %s"
+        cursor.execute(sql_check, (email,))
+        usuario = cursor.fetchone()
+
+        if usuario is None:
+            return jsonify({'mensaje': 'No existe una cuenta con ese email', 'exito': False}), 404
+
+        # Actualizar con la nueva contraseña que el usuario escribió
+        sql_update = "UPDATE usuarios SET `contraseña-hash` = %s WHERE email = %s"
+        cursor.execute(sql_update, (new_password, email))
+        mysql.connection.commit()
+
+        return jsonify({
+            'mensaje': 'Contraseña actualizada correctamente. Ahora puedes iniciar sesión con la nueva contraseña.',
+            'exito': True
+        }), 200
+
     except Exception as ex:
-        return jsonify({'mensaje': "Error", 'exito': False})
+        print("ERROR en /forgot-password:", ex)
+        return jsonify({'mensaje': f'Error en el servidor: {ex}', 'exito': False}), 500
 
-
-@app.route('/alumnos/<mat>', methods=['PUT'])
-def actualizar_curso(mat):
-        try:
-            alumno = leer_alumno_bd(mat)
-            if alumno != None:
-                cursor = conectar.connection.cursor()
-                sql = """UPDATE alumnos SET nombre = '{0}', apaterno = '{1}', amaterno='{2}', correo='{3}'
-                WHERE matricula = {4}""".format(request.json['nombre'], request.json['apaterno'], request.json['amaterno'],request.json['correo'], mat)
-                cursor.execute(sql)
-                conectar.connection.commit()  # Confirma la acción de actualización.
-                return jsonify({'mensaje': "Alumno actualizado.", 'exito': True})
-            else:
-                return jsonify({'mensaje': "Alumno no encontrado.", 'exito': False})
-        except Exception as ex:
-            return jsonify({'mensaje': "Error {0} ".format(ex), 'exito': False})
- 
-
-@app.route('/alumnos/<mat>', methods=['DELETE'])
-def eliminar_alumno(mat):
-    try:
-        alumno = leer_alumno_bd(mat)
-        if alumno != None:
-            cursor = conectar.connection.cursor()
-            sql = "DELETE FROM alumnos WHERE matricula = {0}".format(mat)
-            cursor.execute(sql)
-            conectar.connection.commit()  # Confirma la acción de eliminación.
-            return jsonify({'mensaje': "Alumno eliminado.", 'exito': True})
-        else:
-            return jsonify({'mensaje': "Alumno no encontrado.", 'exito': False})
-    except Exception as ex:
-        return jsonify({'mensaje': "Error {0} ".format(ex), 'exito': False})
 
 def pagina_no_encontrada(error):
-    return "<h1>Pagina no encontrada</h1>"
- 
-if __name__=="__main__":
-    app.config.from_object(config['development'])
-    app.register_error_handler(404,pagina_no_encontrada)
-    app.run(host='0.0.0.0',port=5000)
+    return "<h1>Pagina no encontrada</h1>", 404
+
+
+if __name__ == "__main__":
+    app.register_error_handler(404, pagina_no_encontrada)
+    app.run(host='0.0.0.0', port=5000, debug=True)

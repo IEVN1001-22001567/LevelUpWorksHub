@@ -1,0 +1,431 @@
+<div class="container mx-auto px-4 py-8 text-sm">
+  <!-- Profile Header -->
+  <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-8 mb-8">
+    <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
+      <!-- Avatar -->
+      <div class="relative">
+        <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 flex items-center justify-center bg-yellow-500 text-black text-3xl">
+          <img
+            *ngIf="profileData.avatar"
+            [src]="profileData.avatar"
+            [alt]="profileData.name"
+            class="w-full h-full object-cover"
+          />
+          <span *ngIf="!profileData.avatar">{{ avatarInitial }}</span>
+        </div>
+
+        <!-- Botón cambiar avatar -->
+        <label
+          *ngIf="isEditing"
+          class="absolute bottom-0 right-0 bg-yellow-500 text-black p-2 rounded-full hover:bg-yellow-600 transition-colors cursor-pointer"
+        >
+          <!-- Ícono de cámara simplificado -->
+          <span class="text-xs font-bold">📷</span>
+          <input type="file" accept="image/*" class="hidden" (change)="onAvatarChange($event)" />
+        </label>
+      </div>
+
+      <!-- Info básica -->
+      <div class="flex-1">
+        <div class="flex items-center gap-3 mb-2">
+          <h1 class="text-white text-xl font-semibold">
+            {{ profileData.name }}
+          </h1>
+          <span
+            *ngIf="isAdmin"
+            class="bg-yellow-500 text-black px-3 py-1 rounded text-xs font-bold"
+          >
+            ADMIN
+          </span>
+        </div>
+
+        <p class="text-gray-400 mb-1">{{ profileData.gamerTag }}</p>
+        <p class="text-gray-400 mb-3">{{ profileData.email }}</p>
+
+        <div class="flex gap-6 text-xs md:text-sm">
+          <div>
+            <span class="text-yellow-400">{{ user.totalPurchases }}</span>
+            <span class="text-gray-400 ml-1">Juegos</span>
+          </div>
+          <div>
+            <span class="text-yellow-400">Gold</span>
+            <span class="text-gray-400 ml-1">Nivel</span>
+          </div>
+          <div>
+            <span class="text-yellow-400">Miembro desde {{ user.memberSince }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones editar/guardar -->
+      <div>
+        <button
+          *ngIf="!isEditing"
+          (click)="startEditing()"
+          class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded flex items-center gap-2"
+        >
+          ✏️
+          <span>Editar Perfil</span>
+        </button>
+
+        <div *ngIf="isEditing" class="flex gap-2">
+          <button
+            (click)="handleSaveProfile()"
+            class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2"
+          >
+            💾
+            <span>Guardar</span>
+          </button>
+          <button
+            (click)="handleCancelEdit()"
+            class="border border-gray-600 text-gray-200 px-4 py-2 rounded flex items-center gap-2"
+          >
+            ✖
+            <span>Cancelar</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="flex gap-2 mb-6 overflow-x-auto border-b border-yellow-500/20 pb-2">
+    <button
+      (click)="setActiveTab('info')"
+      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
+      [ngClass]="activeTab === 'info' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
+    >
+      👤 Información
+    </button>
+
+    <button
+      (click)="setActiveTab('orders')"
+      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
+      [ngClass]="activeTab === 'orders' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
+    >
+      🛍 Mis Pedidos
+    </button>
+
+    <button
+      (click)="setActiveTab('wishlist')"
+      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
+      [ngClass]="activeTab === 'wishlist' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
+    >
+      ❤️ Lista de Deseos
+    </button>
+
+    <button
+      (click)="setActiveTab('payment')"
+      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
+      [ngClass]="activeTab === 'payment' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
+    >
+      💳 Pagos
+    </button>
+
+    <button
+      (click)="setActiveTab('addresses')"
+      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
+      [ngClass]="activeTab === 'addresses' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
+    >
+      📍 Direcciones
+    </button>
+
+    <button
+      (click)="setActiveTab('settings')"
+      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
+      [ngClass]="activeTab === 'settings' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
+    >
+      🔔 Configuración
+    </button>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="mb-8">
+    <!-- Información Personal -->
+    <div *ngIf="activeTab === 'info'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Info Personal -->
+      <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+        <h3 class="text-white mb-4 text-lg">Información Personal</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">Nombre completo</label>
+            <input
+              [(ngModel)]="profileData.name"
+              name="name"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">Email</label>
+            <input
+              [(ngModel)]="profileData.email"
+              name="email"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">Teléfono</label>
+            <input
+              [(ngModel)]="profileData.phone"
+              name="phone"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">Fecha de nacimiento</label>
+            <input
+              type="date"
+              [(ngModel)]="profileData.birthdate"
+              name="birthdate"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Gamer -->
+      <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+        <h3 class="text-white mb-4 text-lg">Información de Gamer</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">Gamer Tag</label>
+            <input
+              [(ngModel)]="profileData.gamerTag"
+              name="gamerTag"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">País</label>
+            <input
+              [(ngModel)]="profileData.country"
+              name="country"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">Ciudad</label>
+            <input
+              [(ngModel)]="profileData.city"
+              name="city"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+          <div>
+            <label class="text-gray-400 text-xs block mb-2">Género favorito</label>
+            <input
+              [(ngModel)]="profileData.favoriteGenre"
+              name="favoriteGenre"
+              [disabled]="!isEditing"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Bio -->
+      <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6 md:col-span-2">
+        <h3 class="text-white mb-4 text-lg">Biografía</h3>
+        <textarea
+          [(ngModel)]="profileData.bio"
+          name="bio"
+          [disabled]="!isEditing"
+          rows="4"
+          class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+          placeholder="Cuéntanos sobre ti..."
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Mis Pedidos -->
+    <div *ngIf="activeTab === 'orders'" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+      <h3 class="text-white mb-4 text-lg">Historial de Pedidos</h3>
+      <div class="space-y-4" *ngIf="orders.length; else noOrders">
+        <div
+          *ngFor="let order of orders"
+          class="bg-black/30 rounded-lg p-4 border border-yellow-500/10 flex justify-between items-center"
+        >
+          <div>
+            <h4 class="text-yellow-400 mb-1">{{ order.game }}</h4>
+            <p class="text-gray-400 text-xs md:text-sm">
+              Pedido #{{ order.id }} · {{ order.date }}
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-white">{{ order.price }}</p>
+            <span class="text-green-400 text-xs md:text-sm">{{ order.status }}</span>
+          </div>
+        </div>
+      </div>
+      <ng-template #noOrders>
+        <p class="text-gray-400 text-sm">Aún no tienes pedidos.</p>
+      </ng-template>
+    </div>
+
+    <!-- Lista de Deseos -->
+    <div *ngIf="activeTab === 'wishlist'" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+      <h3 class="text-white mb-4 text-lg">Lista de Deseos</h3>
+      <div class="space-y-4" *ngIf="wishlist.length; else noWishlist">
+        <div
+          *ngFor="let item of wishlist"
+          class="bg-black/30 rounded-lg p-4 border border-yellow-500/10 flex justify-between items-center"
+        >
+          <div>
+            <h4 class="text-yellow-400 mb-1">{{ item.game }}</h4>
+            <p class="text-gray-400 text-xs md:text-sm">
+              Lanzamiento: {{ item.releaseDate }}
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-white mb-2">{{ item.price }}</p>
+            <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-3 py-1 rounded text-xs">
+              Pre-ordenar
+            </button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noWishlist>
+        <p class="text-gray-400 text-sm">Tu lista de deseos está vacía.</p>
+      </ng-template>
+    </div>
+
+    <!-- Métodos de Pago -->
+    <div *ngIf="activeTab === 'payment'" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-white text-lg">Métodos de Pago</h3>
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded text-sm">
+          + Agregar Tarjeta
+        </button>
+      </div>
+      <div class="space-y-4" *ngIf="paymentMethods.length; else noPayment">
+        <div
+          *ngFor="let method of paymentMethods"
+          class="bg-black/30 rounded-lg p-4 border border-yellow-500/10 flex justify-between items-center"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-yellow-400 text-2xl">💳</span>
+            <div>
+              <h4 class="text-white">
+                {{ method.type }} •••• {{ method.last4 }}
+              </h4>
+              <p class="text-gray-400 text-xs">Expira {{ method.expiry }}</p>
+            </div>
+          </div>
+          <button
+            (click)="removePaymentMethod(method.id)"
+            class="border border-red-500/30 text-red-400 px-3 py-1 rounded text-xs"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+      <ng-template #noPayment>
+        <p class="text-gray-400 text-sm">No tienes métodos de pago guardados.</p>
+      </ng-template>
+    </div>
+
+    <!-- Direcciones -->
+    <div *ngIf="activeTab === 'addresses'" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-white text-lg">Direcciones de Envío</h3>
+        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded text-sm">
+          + Agregar Dirección
+        </button>
+      </div>
+      <div class="space-y-4" *ngIf="addresses.length; else noAddresses">
+        <div
+          *ngFor="let address of addresses"
+          class="bg-black/30 rounded-lg p-4 border border-yellow-500/10 flex justify-between items-center"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-yellow-400 text-2xl">📍</span>
+            <div>
+              <h4 class="text-white">{{ address.type }}</h4>
+              <p class="text-gray-400 text-xs">{{ address.street }}</p>
+              <p class="text-gray-400 text-xs">
+                {{ address.city }} · CP {{ address.postal }}
+              </p>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button class="border border-yellow-500/30 text-yellow-300 px-2 py-1 rounded text-xs">
+              ✏
+            </button>
+            <button
+              (click)="removeAddress(address.id)"
+              class="border border-red-500/30 text-red-400 px-2 py-1 rounded text-xs"
+            >
+              ✖
+            </button>
+          </div>
+        </div>
+      </div>
+      <ng-template #noAddresses>
+        <p class="text-gray-400 text-sm">Aún no has agregado direcciones.</p>
+      </ng-template>
+    </div>
+
+    <!-- Configuración -->
+    <div *ngIf="activeTab === 'settings'" class="space-y-6">
+      <!-- Notificaciones -->
+      <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+        <h3 class="text-white mb-4 text-lg">Notificaciones</h3>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm">Nuevos juegos</p>
+              <p class="text-gray-400 text-xs">
+                Recibe notificaciones de nuevos lanzamientos
+              </p>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5" />
+          </div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm">Ofertas y promociones</p>
+              <p class="text-gray-400 text-xs">
+                Notificaciones de descuentos especiales
+              </p>
+            </div>
+            <input type="checkbox" checked class="w-5 h-5" />
+          </div>
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-white text-sm">Eventos y torneos</p>
+              <p class="text-gray-400 text-xs">
+                Información sobre eventos de la comunidad
+              </p>
+            </div>
+            <input type="checkbox" class="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Seguridad -->
+      <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
+        <h3 class="text-white mb-4 text-lg">Seguridad</h3>
+        <div class="space-y-3">
+          <button
+            class="bg-yellow-500 hover:bg-yellow-600 text-black w-full justify-start px-4 py-2 rounded flex items-center gap-2"
+          >
+            🔒
+            <span>Cambiar Contraseña</span>
+          </button>
+          <button
+            class="border border-yellow-500/30 w-full justify-start px-4 py-2 rounded flex items-center gap-2 text-yellow-300"
+          >
+            🛡
+            <span>Autenticación de dos factores</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
