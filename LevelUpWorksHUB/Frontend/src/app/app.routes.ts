@@ -6,6 +6,10 @@ export const routes: Routes = [
   loadChildren: () => import('./inicio/inicioroutes').then(m => m.default)
 },
 {
+  path: 'personalizarperfil',
+  loadChildren: () => import('./personalizarperfil/personalizarperfil.routes').then(m => m.PERSONALIZARPERFIL_ROUTES)
+},
+{
   path: '',
   loadChildren: () => import('./inicio/inicioroutes').then(m => m.default)
 },
