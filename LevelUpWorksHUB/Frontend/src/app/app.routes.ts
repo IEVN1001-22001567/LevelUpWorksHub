@@ -47,6 +47,21 @@ export const routes: Routes = [
   loadChildren: () =>import('./actualizaciones/actualizaciones.routes').then(m => m.ACTUALIZACIONES_ROUTES)
 },
 
+{
+  path: 'biblioteca',
+  loadChildren: () =>import('./biblioteca/biblioteca.routes').then(m => m.BIBLIOTECA_ROUTES)
+},
+
+{
+  path: 'gestion-compras',
+  loadChildren: () =>import('./gestion-compras/gestion-compras.routes').then(m => m.GESTIONCOMPRAS_ROUTES)
+},
+
+{
+  path: 'carrito',
+  loadChildren: () =>import('./carrito/carrito.routes').then(m => m.CARRITO_ROUTES)
+},
+
   {
     path: 'utl',
     loadChildren: () => import('./utl/utlroutes').then((m) => m.default),
