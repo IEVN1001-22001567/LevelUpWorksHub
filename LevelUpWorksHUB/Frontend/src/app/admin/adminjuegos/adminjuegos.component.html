@@ -1,0 +1,123 @@
+<div class="min-h-screen bg-background">
+
+  <!-- HERO -->
+  <section class="bg-primary text-primary-foreground py-10 px-6">
+    <div class="flex items-center justify-between max-w-6xl mx-auto">
+      <div>
+        <h1 class="text-3xl font-bold">Gestión de Juegos</h1>
+        <p class="opacity-80">Administra el catálogo de la tienda</p>
+      </div>
+
+      <button 
+        class="bg-background text-foreground px-4 py-2 rounded-lg hover:bg-card"
+        (click)="startAdd()"
+      >
+        ➕ Agregar Juego
+      </button>
+    </div>
+  </section>
+
+  <!-- FORMULARIO -->
+  <section *ngIf="isAdding || editingId" class="bg-card p-6 border-b-2 border-border">
+    <div class="max-w-5xl mx-auto bg-background border-2 border-primary p-6 rounded-lg">
+
+      <h2 class="text-xl font-bold mb-4">
+        {{ isAdding ? 'Agregar Nuevo Juego' : 'Editar Juego' }}
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        
+        <div>
+          <label>Título</label>
+          <input class="input" [(ngModel)]="formData.title" placeholder="Ej: Chainsaw of the Dead" />
+        </div>
+
+        <div>
+          <label>Precio</label>
+          <input class="input" type="number" [(ngModel)]="formData.price" />
+        </div>
+
+        <div>
+          <label>Género</label>
+          <input class="input" [(ngModel)]="formData.genre" />
+        </div>
+
+        <div>
+          <label>URL Imagen</label>
+          <input class="input" [(ngModel)]="formData.image" />
+        </div>
+
+        <div class="md:col-span-2">
+          <label>Descripción</label>
+          <textarea class="input" rows="3" [(ngModel)]="formData.description"></textarea>
+        </div>
+
+        <div>
+          <label>Rating (0-5)</label>
+          <input class="input" type="number" [(ngModel)]="formData.rating" />
+        </div>
+
+        <div>
+          <label>Reviews</label>
+          <input class="input" type="number" [(ngModel)]="formData.reviews" />
+        </div>
+
+      </div>
+
+      <div class="flex gap-4 mt-6">
+        <button class="btn-primary" (click)="saveGame()">💾 Guardar</button>
+        <button class="btn-outline" (click)="cancel()">❌ Cancelar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LISTA DE JUEGOS -->
+  <section class="py-10">
+    <div class="max-w-6xl mx-auto px-6">
+
+      <h2 class="text-primary text-2xl font-bold mb-6">
+        Juegos en Catálogo ({{ games.length }})
+      </h2>
+
+      <div class="space-y-4">
+
+        <div 
+          *ngFor="let game of games"
+          class="bg-card border-2 border-border hover:border-primary p-5 rounded-lg flex gap-6"
+        >
+          <img 
+            [src]="game.image" 
+            class="w-48 h-32 object-cover rounded-lg"
+            alt="game image"
+          />
+
+          <div class="flex-1">
+
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="text-xl font-bold">{{ game.title }}</h3>
+                <p class="text-primary">${{ game.price.toFixed(2) }}</p>
+              </div>
+
+              <div class="flex gap-2">
+                <button class="btn-outline" (click)="startEdit(game)">✏️ Editar</button>
+                <button class="btn-delete" (click)="deleteGame(game.id)">🗑 Eliminar</button>
+              </div>
+            </div>
+
+            <div class="text-sm mt-2 opacity-80 flex gap-4">
+              <span class="bg-secondary px-3 py-1 rounded">{{ game.genre }}</span>
+              ⭐ {{ game.rating }}/5 — {{ game.reviews }} reviews
+            </div>
+
+            <p class="text-muted mt-2">{{ game.description }}</p>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+</div>

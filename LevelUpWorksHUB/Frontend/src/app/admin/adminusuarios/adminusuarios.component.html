@@ -1,0 +1,214 @@
+<div class="min-h-screen bg-background">
+
+  <!-- Hero -->
+  <section class="bg-primary text-primary-foreground py-16">
+    <div class="container mx-auto px-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <!-- icono simple: -->
+            <span class="inline-block w-8 h-8 bg-primary rounded flex items-center justify-center text-primary-foreground font-bold">U</span>
+            <h1 class="text-primary-foreground text-2xl font-semibold">Gestión de Usuarios</h1>
+          </div>
+          <p class="text-primary-foreground/90">Administra todos los usuarios registrados en la plataforma</p>
+        </div>
+
+        <button class="bg-background hover:bg-card text-foreground px-4 py-2 rounded-lg">
+          <!-- Agregar usuario (puedes conectar esto luego) -->
+          + Agregar Usuario
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Estadísticas -->
+  <section class="py-8 bg-card border-b-2 border-border">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div class="bg-background border-2 border-border rounded-lg p-4">
+          <p class="text-2xl text-primary">{{ totalUsuarios }}</p>
+          <p class="text-xs text-muted-foreground">Total Usuarios</p>
+        </div>
+
+        <div class="bg-background border-2 border-border rounded-lg p-4">
+          <p class="text-2xl text-blue-500">{{ cantidadAdmins }}</p>
+          <p class="text-xs text-muted-foreground">Administradores</p>
+        </div>
+
+        <div class="bg-background border-2 border-border rounded-lg p-4">
+          <p class="text-2xl text-green-500">{{ cantidadClientes }}</p>
+          <p class="text-xs text-muted-foreground">Clientes</p>
+        </div>
+
+        <div class="bg-background border-2 border-border rounded-lg p-4">
+          <p class="text-2xl text-primary">{{ usuariosActivos }}</p>
+          <p class="text-xs text-muted-foreground">Activos</p>
+        </div>
+
+        <div class="bg-background border-2 border-border rounded-lg p-4">
+          <p class="text-2xl text-purple-500">{{ nuevosEsteMes }}</p>
+          <p class="text-xs text-muted-foreground">Nuevos (mes)</p>
+        </div>
+
+        <div class="bg-background border-2 border-border rounded-lg p-4">
+          <p class="text-2xl text-green-500">${{ ingresosTotales | number:'1.0-0' }}</p>
+          <p class="text-xs text-muted-foreground">Ingresos Totales</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filtros y búsqueda -->
+  <section class="py-6 bg-background border-b-2 border-border">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col md:flex-row gap-4 items-center">
+        <div class="flex-1 relative">
+          <input
+            [(ngModel)]="terminoBusqueda"
+            type="text"
+            placeholder="Buscar por nombre o email..."
+            class="w-full pl-4 pr-3 py-2 border border-border rounded-lg bg-card text-card-foreground"
+          />
+        </div>
+
+        <select [(ngModel)]="filtroRol" class="px-3 py-2 border border-border rounded-lg bg-card">
+          <option value="all">Todos los roles</option>
+          <option value="admin">Administradores</option>
+          <option value="client">Clientes</option>
+        </select>
+
+        <select [(ngModel)]="filtroEstado" class="px-3 py-2 border border-border rounded-lg bg-card">
+          <option value="all">Todos los estados</option>
+          <option value="active">Activos</option>
+          <option value="inactive">Inactivos</option>
+        </select>
+
+        <button *ngIf="terminoBusqueda || filtroRol !== 'all' || filtroEstado !== 'all'"
+                (click)="limpiarFiltros()"
+                class="px-4 py-2 border border-border rounded-lg bg-background">
+          Limpiar
+        </button>
+      </div>
+
+      <p class="text-sm text-muted-foreground mt-3">
+        Mostrando {{ usuariosFiltrados.length }} de {{ totalUsuarios }} usuarios
+      </p>
+    </div>
+  </section>
+
+  <!-- Lista de usuarios -->
+  <section class="py-8 bg-background">
+    <div class="container mx-auto px-4">
+      <div class="space-y-4">
+        <div *ngFor="let user of usuariosFiltrados" class="bg-card border-2 rounded-lg overflow-hidden">
+          <div class="p-6">
+            <div class="flex flex-col lg:flex-row gap-6 items-start lg:items-center">
+              <!-- Avatar + info -->
+              <div class="flex items-center gap-4 flex-1">
+                <div class="w-16 h-16 rounded-full overflow-hidden bg-primary flex items-center justify-center">
+                  <img *ngIf="user.avatar" [src]="user.avatar" [alt]="user.nombre" class="w-full h-full object-cover"/>
+                  <span *ngIf="!user.avatar" class="text-primary-foreground font-bold">{{ user.nombre?.charAt(0) }}</span>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2 mb-1">
+                    <h3 class="text-card-foreground font-medium">{{ user.nombre }}</h3>
+                    <span *ngIf="user.rol === 'admin'" class="px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded">ADMIN</span>
+                    <span *ngIf="user.estado === 'inactive'" class="px-2 py-0.5 border border-red-500 text-red-500 text-xs rounded">Inactivo</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M3 8.5A4.5 4.5 0 0 1 7.5 4h9A4.5 4.5 0 0 1 21 8.5V8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    {{ user.email }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Stats -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
+                <div>
+                  <p class="text-xs text-muted-foreground">Miembro desde</p>
+                  <p class="text-sm text-card-foreground">{{ formatoFecha(user.miembroDesde) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-muted-foreground">Último acceso</p>
+                  <p class="text-sm text-card-foreground">{{ formatoFecha(user.ultimoAcceso) }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-muted-foreground">Compras</p>
+                  <p class="text-sm text-primary">{{ user.comprasTotales }} juegos</p>
+                </div>
+                <div>
+                  <p class="text-xs text-muted-foreground">Gasto total</p>
+                  <p class="text-sm text-green-500">${{ user.gastoTotal.toFixed(2) }}</p>
+                </div>
+              </div>
+
+              <!-- Acciones -->
+              <div class="flex flex-wrap gap-2 lg:flex-col lg:w-auto">
+                <button (click)="editarUsuario(user)" class="px-3 py-2 border border-border rounded hover:border-primary">Editar</button>
+
+                <button (click)="alternarEstado(user.id)"
+                        class="px-3 py-2 border border-border rounded hover:border-green-500"
+                        [title]="user.estado === 'active' ? 'Desactivar' : 'Activar'">
+                  {{ user.estado === 'active' ? 'Desactivar' : 'Activar' }}
+                </button>
+
+                <button (click)="eliminarUsuario(user.id)" class="px-3 py-2 border border-border rounded hover:border-red-500 text-red-500">Eliminar</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- vacío -->
+        <div *ngIf="usuariosFiltrados.length === 0" class="bg-card border-2 rounded-lg p-12 text-center">
+          <p class="text-card-foreground mb-2">No se encontraron usuarios</p>
+          <p class="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Modal edición (simple) -->
+  <div *ngIf="modalEditarOpen" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/60" (click)="cancelarEdicion()"></div>
+
+    <div class="relative bg-card border-2 border-border rounded-lg p-6 w-full max-w-lg z-10">
+      <h3 class="text-card-foreground text-lg mb-4">Editar Usuario</h3>
+
+      <div *ngIf="usuarioEditando" class="space-y-4">
+        <div>
+          <label class="block text-sm text-muted-foreground">Nombre</label>
+          <input [(ngModel)]="usuarioEditando.nombre" class="w-full mt-2 p-2 border border-border rounded bg-background" />
+        </div>
+
+        <div>
+          <label class="block text-sm text-muted-foreground">Email</label>
+          <input [(ngModel)]="usuarioEditando.email" type="email" class="w-full mt-2 p-2 border border-border rounded bg-background" />
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm text-muted-foreground">Rol</label>
+            <select [(ngModel)]="usuarioEditando.rol" class="w-full mt-2 p-2 border border-border rounded bg-background">
+              <option value="client">Cliente</option>
+              <option value="admin">Administrador</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm text-muted-foreground">Estado</label>
+            <select [(ngModel)]="usuarioEditando.estado" class="w-full mt-2 p-2 border border-border rounded bg-background">
+              <option value="active">Activo</option>
+              <option value="inactive">Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 mt-4">
+          <button (click)="cancelarEdicion()" class="px-4 py-2 border border-border rounded">Cancelar</button>
+          <button (click)="guardarEdicion()" class="px-4 py-2 bg-primary text-primary-foreground rounded">Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
