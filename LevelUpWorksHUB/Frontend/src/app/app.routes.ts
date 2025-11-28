@@ -1,4 +1,3 @@
-import { SOPORTETEC_ROUTES } from './soportetec/soportetec.routes';
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
@@ -43,7 +42,7 @@ export const routes: Routes = [
   path: 'login',
   loadChildren: () => import('./login/login.routes').then(m => m.LOGIN_ROUTES)
 },
-
+{
   path: 'actualizaciones',
   loadChildren: () =>import('./actualizaciones/actualizaciones.routes').then(m => m.ACTUALIZACIONES_ROUTES)
 },
@@ -54,13 +53,22 @@ export const routes: Routes = [
 },
 
 {
-  path: 'gestion-compras',
+  path: 'gestioncompras',
   loadChildren: () =>import('./gestion-compras/gestion-compras.routes').then(m => m.GESTIONCOMPRAS_ROUTES)
 },
 
 {
   path: 'carrito',
   loadChildren: () =>import('./carrito/carrito.routes').then(m => m.CARRITO_ROUTES)
+},
+
+{
+  path: 'adminusuarios',
+  loadChildren: () =>import('./admin/adminusuarios/adminusuarios.routes').then(m => m.ADMINUSUARIOS_ROUTES)
+},
+{
+  path: 'adminjuegos',
+  loadChildren: () =>import('./admin/adminjuegos/adminjuegos.routes').then(m => m.ADMINJUEGOS_ROUTES)
 },
 
   {
