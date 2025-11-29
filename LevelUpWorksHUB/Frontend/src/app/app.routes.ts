@@ -80,7 +80,8 @@ export const routes: Routes = [
   path: 'adminjuegos',
   loadChildren: () =>import('./admin/adminjuegos/adminjuegos.routes').then(m => m.ADMINJUEGOS_ROUTES)
 },
-  {
+
+{
     path: 'adminnoticias',
     loadChildren: () => import('./admin/adminnoticias/adminnoticias.routes').then(m => m.ADMIN_NOTICIAS_ROUTES)
   },
