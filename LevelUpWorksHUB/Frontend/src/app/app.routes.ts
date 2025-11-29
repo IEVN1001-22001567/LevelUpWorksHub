@@ -46,10 +46,14 @@ export const routes: Routes = [
   path: 'login',
   loadChildren: () => import('./login/login.routes').then(m => m.LOGIN_ROUTES)
 },
+
+
 {
+
   path: 'actualizaciones',
   loadChildren: () =>import('./actualizaciones/actualizaciones.routes').then(m => m.ACTUALIZACIONES_ROUTES)
 },
+
 
 {
   path: 'biblioteca',
@@ -74,6 +78,21 @@ export const routes: Routes = [
   path: 'adminjuegos',
   loadChildren: () =>import('./admin/adminjuegos/adminjuegos.routes').then(m => m.ADMINJUEGOS_ROUTES)
 },
+
+{
+    path: 'adminnoticias',
+    loadChildren: () => import('./admin/adminnoticias/adminnoticias.routes').then(m => m.ADMIN_NOTICIAS_ROUTES)
+  },
+
+{
+    path: 'adminmensajeria',
+    loadChildren: () => import('./admin/adminmensajeria/adminmensajeria.routes').then(m => m.ADMIN_MENSAJERIA_ROUTES)
+  },
+
+  {
+    path: 'adminlicencias',
+    loadChildren: () => import('./admin/adminlicencias/adminlicencias.routes').then(m => m.ADMIN_LICENCIAS_ROUTES)
+  },
 
   {
     path: 'utl',
