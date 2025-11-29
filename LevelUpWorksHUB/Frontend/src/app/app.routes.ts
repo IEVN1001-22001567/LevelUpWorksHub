@@ -70,6 +70,8 @@ export const routes: Routes = [
   loadChildren: () =>import('./carrito/carrito.routes').then(m => m.CARRITO_ROUTES)
 },
 
+
+//RutasADmin
 {
   path: 'adminusuarios',
   loadChildren: () =>import('./admin/adminusuarios/adminusuarios.routes').then(m => m.ADMINUSUARIOS_ROUTES)
@@ -78,8 +80,7 @@ export const routes: Routes = [
   path: 'adminjuegos',
   loadChildren: () =>import('./admin/adminjuegos/adminjuegos.routes').then(m => m.ADMINJUEGOS_ROUTES)
 },
-
-{
+  {
     path: 'adminnoticias',
     loadChildren: () => import('./admin/adminnoticias/adminnoticias.routes').then(m => m.ADMIN_NOTICIAS_ROUTES)
   },
