@@ -1,107 +1,138 @@
+// src/app/login/login.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-import { AuthService } from '../services/auth.service'; // ajusta la ruta
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, HttpClientModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
 
-  isLoginMode: boolean = true;
+  isLoginMode: boolean = true; // login = true, registro = false
 
   username: string = '';
   email: string = '';
   password: string = '';
+  newPassword: string = '';
 
-  cargando = false;
-  errorMsg = '';
-  successMsg = '';
+  cargando: boolean = false;
+  errorMsg: string = '';
+  successMsg: string = '';
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
 
+  // ===== MODO LOGIN / REGISTRO (coincide con tu HTML) =====
   toggleMode(mode: 'login' | 'register') {
     this.isLoginMode = (mode === 'login');
     this.errorMsg = '';
     this.successMsg = '';
   }
 
+  // ===== FORM SUBMIT (coincide con tu HTML) =====
   onSubmit() {
-    this.errorMsg = '';
-    this.successMsg = '';
-    this.cargando = true;
-
     if (this.isLoginMode) {
-      // LOGIN
-      this.authService.login(this.email, this.password).subscribe({
-        next: (res: any) => {
-          this.cargando = false;
-
-          if (res.exito && res.usuario) {
-            this.successMsg = 'Login exitoso';
-            // el AuthService ya guardó user y emitió user$
-            this.router.navigate(['/inicio']);
-          } else {
-            this.errorMsg = res.mensaje || 'Error al iniciar sesión';
-          }
-        },
-        error: (err) => {
-          this.cargando = false;
-          this.errorMsg = err.error?.mensaje || 'Error en el servidor';
-        }
-      });
-
+      this.onLogin();
     } else {
-      // REGISTER
-      this.authService.register(this.username, this.email, this.password).subscribe({
-        next: (res: any) => {
-          this.cargando = false;
-          if (res.exito) {
-            this.successMsg = 'Usuario registrado, ahora puedes iniciar sesión';
-            this.isLoginMode = true;
-          } else {
-            this.errorMsg = res.mensaje || 'No se pudo registrar';
-          }
-        },
-        error: (err) => {
-          this.cargando = false;
-          this.errorMsg = err.error?.mensaje || 'Error en el servidor';
-        }
-      });
+      this.onRegister();
     }
   }
 
-  olvidoContrasena() {
-    this.errorMsg = '';
-    this.successMsg = '';
-
+  // ===== LOGIN (igual a como te funcionaba antes) =====
+  onLogin() {
     if (!this.email || !this.password) {
-      this.errorMsg = 'Escribe tu correo y la nueva contraseña que quieres usar';
+      this.errorMsg = 'Ingresa tu correo y contraseña';
       return;
     }
 
     this.cargando = true;
-    this.authService.forgotPassword(this.email, this.password).subscribe({
+    this.errorMsg = '';
+    this.successMsg = '';
+
+    this.authService.login(this.email, this.password).subscribe({
       next: (res: any) => {
         this.cargando = false;
+        console.log('Respuesta login:', res);
+
         if (res.exito) {
-          this.successMsg = res.mensaje;
-          this.password = '';
+          this.successMsg = 'Inicio de sesión exitoso';
+          this.router.navigate(['/inicio']);
+        } else {
+          this.errorMsg = res.mensaje || 'Credenciales incorrectas';
+        }
+      },
+      error: (err: any) => {
+        this.cargando = false;
+        console.error('Error login:', err);
+        this.errorMsg = err.error?.mensaje || 'Error en el servidor';
+      }
+    });
+  }
+
+  // ===== REGISTRO (mismo estilo que antes) =====
+  onRegister() {
+    if (!this.username || !this.email || !this.password) {
+      this.errorMsg = 'Completa todos los campos';
+      return;
+    }
+
+    this.cargando = true;
+    this.errorMsg = '';
+    this.successMsg = '';
+
+    this.authService.register(this.username, this.email, this.password).subscribe({
+      next: (res: any) => {
+        this.cargando = false;
+        console.log('Respuesta register:', res);
+
+        if (res.exito) {
+          this.successMsg = 'Registro exitoso, sesión iniciada';
+          this.router.navigate(['/inicio']);
+        } else {
+          this.errorMsg = res.mensaje || 'No se pudo registrar';
+        }
+      },
+      error: (err: any) => {
+        this.cargando = false;
+        console.error('Error registro:', err);
+        this.errorMsg = err.error?.mensaje || 'Error en el servidor';
+      }
+    });
+  }
+
+  // ===== OLVIDÓ CONTRASEÑA (coincide con tu HTML: olvidoContrasena) =====
+  olvidoContrasena() {
+    if (!this.email || !this.newPassword) {
+      this.errorMsg = 'Ingresa tu correo y la nueva contraseña';
+      return;
+    }
+
+    this.cargando = true;
+    this.errorMsg = '';
+    this.successMsg = '';
+
+    this.authService.forgotPassword(this.email, this.newPassword).subscribe({
+      next: (res: any) => {
+        this.cargando = false;
+        console.log('Respuesta forgotPassword:', res);
+
+        if (res.exito) {
+          this.successMsg = 'Contraseña actualizada, ahora inicia sesión';
         } else {
           this.errorMsg = res.mensaje || 'No se pudo actualizar la contraseña';
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.cargando = false;
+        console.error('Error forgotPassword:', err);
         this.errorMsg = err.error?.mensaje || 'Error en el servidor';
       }
     });
