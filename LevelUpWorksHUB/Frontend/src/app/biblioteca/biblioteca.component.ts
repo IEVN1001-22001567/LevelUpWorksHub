@@ -1,50 +1,83 @@
-import { Component } from '@angular/core';
+// src/app/biblioteca/biblioteca.component.ts
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { BibliotecaService, JuegoBiblioteca } from '../services/biblioteca.service';
+import { AuthService, Usuario } from '../services/auth.service';
 
 @Component({
   selector: 'app-biblioteca',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './biblioteca.component.html',
   styleUrls: ['./biblioteca.component.css']
 })
-export class BibliotecaComponent {
+export class BibliotecaComponent implements OnInit {
+
+  usuario: Usuario | null = null;
 
   searchTerm: string = '';
+  juegos: JuegoBiblioteca[] = [];
 
-  juegos = [
-    {
-      nombre: 'Cyber Strike',
-      categoria: 'Acción',
-      portada: 'assets/img/juegos/cyberstrike_portada.jpg',
-      banner: 'assets/img/juegos/cyberstrike_banner.jpg',
-      descripcion: 'Shooter futurista con combate intenso y ambientación cyberpunk.'
-    },
-    {
-      nombre: 'Forest Legends',
-      categoria: 'Aventura',
-      portada: 'assets/img/juegos/forest_portada.jpg',
-      banner: 'assets/img/juegos/forest_banner.jpg',
-      descripcion: 'Exploración en un bosque mágico lleno de secretos y criaturas místicas.'
-    },
-    {
-      nombre: 'Racing X',
-      categoria: 'Carreras',
-      portada: 'assets/img/juegos/racing_portada.jpg',
-      banner: 'assets/img/juegos/racing_banner.jpg',
-      descripcion: 'Carreras a toda velocidad en circuitos futuristas llenos de obstáculos.'
+  cargando = false;
+  errorMsg = '';
+
+  constructor(
+    private bibliotecaSvc: BibliotecaService,
+    private authSvc: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.usuario = this.authSvc.obtenerUsuario();
+
+    if (!this.usuario) {
+      console.warn('No hay usuario logueado, no se puede cargar biblioteca');
+      this.errorMsg = 'Debes iniciar sesión para ver tu biblioteca.';
+      return;
     }
-  ];
 
-  juegoSeleccionado = this.juegos[0];
+    const usuarioid = this.usuario.usuarioid;
+    this.cargarBiblioteca(usuarioid);
+  }
 
-  // Filtro de búsqueda
-  juegosFiltrados() {
+  private cargarBiblioteca(usuarioid: number): void {
+    this.cargando = true;
+    this.errorMsg = '';
+
+    this.bibliotecaSvc.obtenerBiblioteca(usuarioid).subscribe({
+      next: (res) => {
+        if (res.exito) {
+          this.juegos = res.juegos;
+          console.log('Juegos en biblioteca:', this.juegos);
+        } else {
+          this.errorMsg = 'No se pudo cargar la biblioteca.';
+        }
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error HTTP al cargar biblioteca:', err);
+        this.errorMsg = 'Error en el servidor al cargar la biblioteca.';
+        this.cargando = false;
+      }
+    });
+  }
+
+  // Filtro simple por nombre
+  juegosFiltrados(): JuegoBiblioteca[] {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) return this.juegos;
     return this.juegos.filter(j =>
-      j.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())
+      j.nombre.toLowerCase().includes(term)
     );
   }
 
-  // Selección
-  seleccionarJuego(juego: any) {
-    this.juegoSeleccionado = juego;
+  // Solo para que no truene el HTML si tienes botones "Descargar/Jugar"
+  descargar(juego: JuegoBiblioteca) {
+    console.log('Descargar juego:', juego);
+    alert('Descarga simulada de: ' + juego.nombre);
+  }
+
+  jugar(juego: JuegoBiblioteca) {
+    console.log('Jugar juego:', juego);
+    alert('Simulando inicio de: ' + juego.nombre);
   }
 }
