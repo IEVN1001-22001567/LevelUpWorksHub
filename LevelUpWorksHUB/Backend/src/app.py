@@ -413,6 +413,114 @@ def crear_usuario_admin():
             'mensaje': f'Error en el servidor: {ex}'
         }), 500
 
+
+""" ---------------------NOTICIAS------------------------------------------ """
+
+@app.route('/noticias', methods=['GET'])
+def obtener_noticias():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM noticias")
+    data = cursor.fetchall()
+
+    columnas = [col[0] for col in cursor.description]
+    resultado = [dict(zip(columnas, fila)) for fila in data]
+
+    cursor.close()
+    return jsonify(resultado)
+
+
+@app.route('/noticias', methods=['POST'])
+def crear_noticia():
+    datos = request.json
+    cursor = mysql.connection.cursor()
+
+    sql = """
+        INSERT INTO noticias (titulo, tipo, fecha, autor, descripcion, imagen)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+
+    valores = (
+        datos['titulo'],
+        datos['tipo'],
+        datos['fecha'],
+        datos['autor'],
+        datos['descripcion'],
+        datos['imagen']  
+    )
+
+    cursor.execute(sql, valores)
+    mysql.connection.commit()
+
+    cursor.close()
+    return jsonify({ "exito": True, "mensaje": "Noticia creada correctamente" })
+
+
+@app.route('/noticias/<int:noticiaid>', methods=['PUT'])
+def editar_noticia(noticiaid):
+    datos = request.json
+    cursor = mysql.connection.cursor()
+
+    sql = """
+        UPDATE noticias
+        SET titulo=%s, tipo=%s, fecha=%s, autor=%s,
+            descripcion=%s, imagen=%s
+        WHERE noticiaid=%s
+    """
+
+    valores = (
+        datos['titulo'],
+        datos['tipo'],
+        datos['fecha'],
+        datos['autor'],
+        datos['descripcion'],
+        datos['imagen'],
+        noticiaid
+    )
+
+    cursor.execute(sql, valores)
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({ "exito": True, "mensaje": "Noticia actualizada correctamente" })
+
+
+@app.route('/noticias/<int:noticiaid>', methods=['DELETE'])
+def eliminar_noticia(noticiaid):
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("DELETE FROM noticias WHERE noticiaid=%s", (noticiaid,))
+    mysql.connection.commit()
+
+    cursor.close()
+    return jsonify({ "exito": True, "mensaje": "Noticia eliminada" })
+
+@app.route('/api/upload_news', methods=['POST'])
+def upload_news():
+    title = request.form.get("title")
+    content = request.form.get("content")
+
+    image = request.files.get("image")  # <-- NO JSON
+
+    filename = None
+    if image:
+        filename = secure_filename(image.filename)
+        image.save(os.path.join("static/uploads", filename))
+
+    # aquí insertas a tu base de datos
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        INSERT INTO news (title, content, image)
+        VALUES (%s, %s, %s)
+    """, (title, content, filename))
+    mysql.connection.commit()
+
+    return jsonify({"status": "ok", "message": "Noticia guardada"})
+
+
+
+
+
+
 def pagina_no_encontrada(error):
     return "<h1>Pagina no encontrada</h1>", 404
 

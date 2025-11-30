@@ -1,51 +1,122 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-admin-noticias',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './adminnoticias.component.html',
-  styles: []
+  styleUrls: ['./adminnoticias.component.css']
 })
-export class AdminNoticiasComponent {
+export class AdminNoticiasComponent implements OnInit {
 
-  // Simulamos datos de noticias
-  noticias = [
-    {
-      id: 1,
-      titulo: 'Nueva Actualización de Wyvern Quest: El Reino Olvidado',
-      tipo: 'Actualización',
-      fecha: '2025-11-08',
-      autor: 'Equipo Level Up Hub',
-      descripcion: 'Descubre la nueva expansión que añade 20+ horas de contenido.',
-      imagen: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=300' // Placeholder
-    },
-    {
-      id: 2,
-      titulo: 'Chainsaw of the Dead alcanza 1 millón de descargas',
-      tipo: 'Logro',
-      fecha: '2025-11-05',
-      autor: 'Ana Rodríguez',
-      descripcion: 'Celebramos este increíble hito con nuestra comunidad.',
-      imagen: 'https://images.unsplash.com/photo-1552820728-8b83bb6b773f?q=80&w=300' // Placeholder
-    }
-  ];
+  private apiUrl = 'http://127.0.0.1:5000/noticias';
 
-  // Función para ELIMINAR una noticia de la lista
-  eliminarNoticia(id: number) {
-    if(confirm('¿Estás seguro de que deseas eliminar esta noticia?')) {
-      this.noticias = this.noticias.filter(n => n.id !== id);
-    }
+  mostrarFormulario = false;
+  editando = false;
+  imagenPreview: string | null = null;
+
+  noticias: any[] = [];
+
+  noticiaForm: any = {
+    noticiaid: null,
+    titulo: '',
+    tipo: '',
+    fecha: '',
+    autor: '',
+    descripcion: '',
+    imagen: ''
+  };
+
+  constructor(private http: HttpClient) {}
+
+  // 🚀 Cargar noticias desde la base de datos al iniciar
+  ngOnInit(): void {
+    this.cargarNoticias();
   }
 
-  // Función simulada para EDITAR (Aquí conectarías tu formulario más adelante)
-  editarNoticia(noticia: any) {
-    alert(`Editando: ${noticia.titulo}\n(Aquí se abriría el formulario de edición)`);
+  cargarNoticias() {
+    this.http.get<any[]>(this.apiUrl).subscribe({
+      next: (data) => this.noticias = data,
+      error: (err) => console.error("Error al cargar noticias:", err)
+    });
   }
 
-  // Función simulada para AGREGAR
   nuevaNoticia() {
-    alert('Aquí se abriría el formulario para crear una nueva noticia.');
+    this.editando = false;
+    this.mostrarFormulario = true;
+    this.imagenPreview = null;
+
+    this.noticiaForm = {
+      id: null,
+      titulo: '',
+      tipo: '',
+      fecha: '',
+      autor: '',
+      descripcion: '',
+      imagen: ''
+    };
+  }
+
+  editarNoticia(noticia: any) {
+  this.editando = true;
+  this.mostrarFormulario = true;
+
+  this.noticiaForm = { ...noticia };
+  this.imagenPreview = noticia.imagen || null;
+}
+
+  // 📌 Convertir imagen local a BASE64
+  onImagenSeleccionada(event: any) {
+    const archivo = event.target.files[0];
+    if (!archivo) return;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      this.imagenPreview = reader.result as string;
+      this.noticiaForm.imagen = reader.result;
+    };
+
+    reader.readAsDataURL(archivo);
+  }
+
+  // 📌 Guardar en base de datos
+  guardarNoticia() {
+    if (this.editando) {
+      // --- PUT actualizar ---
+      this.http.put(`${this.apiUrl}/${this.noticiaForm.noticiaid}`, this.noticiaForm) .subscribe({
+        next: () => {
+          this.cargarNoticias();
+          this.cerrarFormulario();
+        },
+        error: (err) => console.error("Error al editar noticia:", err)
+      });
+
+    } else {
+      // --- POST crear ---
+      this.http.post(this.apiUrl, this.noticiaForm).subscribe({
+        next: () => {
+          this.cargarNoticias();
+          this.cerrarFormulario();
+        },
+        error: (err) => console.error("Error al crear noticia:", err)
+      });
+    }
+  }
+
+  cerrarFormulario() {
+    this.mostrarFormulario = false;
+  }
+
+  eliminarNoticia(noticiaid: number) {
+    if (!confirm("¿Seguro que deseas eliminar esta noticia?")) return;
+
+    this.http.delete(`${this.apiUrl}/${noticiaid}`).subscribe({
+      next: () => this.cargarNoticias(),
+      error: (err) => console.error("Error al eliminar noticia:", err)
+    });
   }
 }
