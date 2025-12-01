@@ -4,12 +4,11 @@
 
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full border-4 border-primary overflow-hidden bg-primary">
-        <img
-           src="/assets/img/LevelUpLogo.jpg"
-          alt="Logo"
-          class="w-full h-full object-cover"
-        />
-
+          <img
+            src="/assets/img/LevelUpLogo.jpg"
+            alt="Logo"
+            class="w-full h-full object-cover"
+          />
         </div>
 
         <div class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold tracking-wider">
@@ -45,8 +44,7 @@
           <div
             class="absolute left-0 mt-2 w-64 bg-[#111] border-2 border-yellow-600 shadow-lg
             opacity-0 invisible group-hover:opacity-100 group-hover:visible
-            transition-all duration-200 rounded-lg z-50 flex flex-col"
-          >
+            transition-all duration-200 rounded-lg z-50 flex flex-col">
 
             <a
               [routerLink]="['/biblioteca']"
@@ -74,10 +72,11 @@
               Eventos y promociones
             </a>
 
+            <!-- Ruta corregida de PsychoWellness -->
             <a
-              [routerLink]="['/psicowellness']"
+              [routerLink]="['/psychowellness']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-              PsicoWellness
+              PsychoWellness
             </a>
 
             <a
@@ -112,8 +111,8 @@
           <div
             class="absolute left-0 mt-2 w-72 bg-[#111] border-2 border-red-600 shadow-lg
             opacity-0 invisible group-hover:opacity-100 group-hover:visible
-            transition-all duration-200 rounded-lg z-50 flex flex-col"
-          >
+            transition-all duration-200 rounded-lg z-50 flex flex-col">
+
             <a 
               [routerLink]="['/adminjuegos']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
@@ -139,13 +138,7 @@
             </a>
 
             <a 
-              [routerLink]="['/adminneventos']"
-              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
-              Gestión de eventos
-            </a>
-
-            <a 
-              [routerLink]="['/admin/adminpsicowellness']"
+              [routerLink]="['/adminpsycho']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
               Gestión de PsicoWellness
             </a>
@@ -186,6 +179,7 @@
             <button
               (click)="toggleMenuUsuario()"
               class="flex items-center gap-2 bg-primary text-primary-foreground px-3 py-2 rounded-lg hover:bg-accent transition">
+
               <div class="w-10 h-10 rounded-full overflow-hidden bg-yellow-500 flex items-center justify-center text-black font-bold">
                 <img
                   *ngIf="user?.avatar"
@@ -206,27 +200,26 @@
                   {{ user?.rol || 'Cliente' }}
                 </span>
               </div>
+
               <span class="text-xs">▼</span>
             </button>
 
             <div
               *ngIf="menuAbierto"
-              class="absolute right-0 mt-2 w-48 bg-[#111] border border-yellow-600 rounded-lg shadow-lg z-50"
-            >
+              class="absolute right-0 mt-2 w-48 bg-[#111] border border-yellow-600 rounded-lg shadow-lg z-50">
+
               <button
                 class="w-full text-left px-4 py-2 text-sm hover:bg-yellow-600 hover:text-black flex items-center gap-2"
-                (click)="irAPerfil()"
-              >
-                👤
-                <span>Editar perfil</span>
+                (click)="irAPerfil()">
+                👤 <span>Editar perfil</span>
               </button>
+
               <button
                 class="w-full text-left px-4 py-2 text-sm hover:bg-yellow-600 hover:text-black flex items-center gap-2"
-                (click)="logout()"
-              >
-                🚪
-                <span>Cerrar sesión</span>
+                (click)="logout()">
+                🚪 <span>Cerrar sesión</span>
               </button>
+
             </div>
           </div>
 
@@ -238,6 +231,4 @@
       </div>
     </div>
   </div>
-
-
 </header>

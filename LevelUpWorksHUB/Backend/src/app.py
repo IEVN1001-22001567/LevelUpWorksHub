@@ -452,6 +452,127 @@ def crear_usuario_admin():
             'exito': False,
             'mensaje': f'Error en el servidor: {ex}'
         }), 500
+###############################################
+#                 ADMIN PSYCHO               
+###############################################
+
+# ---- OBTENER TODOS LOS ARTÍCULOS ----
+@app.route('/psycho/articulos', methods=['GET'])
+def obtener_articulos():
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM articulos_psycho")
+        datos = cur.fetchall()
+        cur.close()
+
+        articulos = []
+        for fila in datos:
+            articulos.append({
+                "id_articulo": fila[0],
+                "titulo": fila[1],
+                "categoria": fila[2],
+                "resumen": fila[3],
+                "contenido": fila[4],
+                "tiempo_lectura": fila[5],
+                "url_imagen": fila[6],
+                "fecha_publicacion": str(fila[7])
+            })
+
+        return jsonify({
+            "exito": True,
+            "articulos": articulos
+        })
+
+    except Exception as ex:
+        print("ERROR:", ex)
+        return jsonify({"exito": False, "mensaje": str(ex)}), 500
+
+
+# ---- CREAR ARTÍCULO ----
+@app.route('/psycho/articulos', methods=['POST'])
+def crear_articulo():
+    try:
+        data = request.json
+
+        campos = ["titulo", "categoria", "resumen", "contenido", "tiempo_lectura"]
+        for c in campos:
+            if c not in data:
+                return jsonify({"exito": False, "mensaje": f"Falta el campo {c}"}), 400
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO articulos_psycho 
+            (titulo, categoria, resumen, contenido, tiempo_lectura, url_imagen, fecha_publicacion)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW())
+        """, (
+            data['titulo'],
+            data['categoria'],
+            data['resumen'],
+            data['contenido'],
+            data['tiempo_lectura'],
+            data.get('url_imagen', '')
+        ))
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({"exito": True, "message": "Artículo creado correctamente"}), 201
+
+    except Exception as ex:
+        print("ERROR:", ex)
+        return jsonify({"exito": False, "mensaje": str(ex)}), 500
+
+
+# ---- EDITAR ARTÍCULO ----
+@app.route('/psycho/articulos/<int:id_articulo>', methods=['PUT'])
+def editar_articulo(id_articulo):
+    try:
+        data = request.json
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            UPDATE articulos_psycho SET
+                titulo=%s,
+                categoria=%s,
+                resumen=%s,
+                contenido=%s,
+                tiempo_lectura=%s,
+                url_imagen=%s
+            WHERE id_articulo=%s
+        """, (
+            data['titulo'],
+            data['categoria'],
+            data['resumen'],
+            data['contenido'],
+            data['tiempo_lectura'],
+            data.get('url_imagen', ''),
+            id_articulo
+        ))
+
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({"exito": True, "message": "Artículo actualizado correctamente"})
+
+    except Exception as ex:
+        print("ERROR:", ex)
+        return jsonify({"exito": False, "mensaje": str(ex)}), 500
+
+
+# ---- ELIMINAR ARTÍCULO ----
+@app.route('/psycho/articulos/<int:id_articulo>', methods=['DELETE'])
+def eliminar_articulo(id_articulo):
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute("DELETE FROM articulos_psycho WHERE id_articulo=%s", (id_articulo,))
+        mysql.connection.commit()
+        cur.close()
+
+        return jsonify({"exito": True, "message": "Artículo eliminado correctamente"})
+
+    except Exception as ex:
+        print("ERROR:", ex)
+        return jsonify({"exito": False, "mensaje": str(ex)}), 500
+
 
 
 """ ---------------------NOTICIAS------------------------------------------ """
