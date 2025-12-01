@@ -4,10 +4,12 @@
 
       <div class="flex items-center gap-4">
         <div class="w-16 h-16 rounded-full border-4 border-primary overflow-hidden bg-primary">
-          <img
-            src="/img/LevelUpLogo.jpg"
-            class="w-full h-full object-cover"
-          />
+        <img
+           src="/assets/img/LevelUpLogo.jpg"
+          alt="Logo"
+          class="w-full h-full object-cover"
+        />
+
         </div>
 
         <div class="bg-primary text-primary-foreground px-6 py-3 rounded-lg font-semibold tracking-wider">
@@ -17,14 +19,14 @@
 
       <nav class="hidden lg:flex items-center space-x-8">
 
-        <a 
+        <a
           [routerLink]="['/inicio']"
           routerLinkActive="text-primary"
           class="text-card-foreground hover:text-primary transition-colors duration-200">
           Home
         </a>
 
-        <a 
+        <a
           [routerLink]="['/tienda']"
           routerLinkActive="text-primary"
           class="text-card-foreground hover:text-primary transition-colors duration-200">
@@ -46,49 +48,49 @@
             transition-all duration-200 rounded-lg z-50 flex flex-col"
           >
 
-            <a 
+            <a
               [routerLink]="['/biblioteca']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               Biblioteca de juegos
             </a>
 
-            <a 
+            <a
               [routerLink]="['/gestioncompras']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               Gestión de compras
             </a>
 
-            <a 
+            <a
               [routerLink]="['/actualizaciones']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               Centro de actualizaciones
             </a>
 
-            <a 
+            <a
               [routerLink]="['/noticias']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               Noticias
             </a>
 
-            <a 
+            <a
               [routerLink]="['/eventos']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               Eventos y promociones
             </a>
 
-            <a 
+            <a
               [routerLink]="['/psicowellness']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               PsicoWellness
             </a>
 
-            <a 
+            <a
               [routerLink]="['/social']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               Mensajería
             </a>
 
-            <a 
+            <a
               [routerLink]="['/licencias']"
               class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
               Licencias y Credenciales
@@ -97,7 +99,7 @@
           </div>
         </div>
 
-        <a 
+        <a
           [routerLink]="['/soportetec']"
           routerLinkActive="text-primary"
           class="text-card-foreground hover:text-primary transition-colors duration-200">
@@ -234,4 +236,6 @@
       </div>
     </div>
   </div>
+
+
 </header>
