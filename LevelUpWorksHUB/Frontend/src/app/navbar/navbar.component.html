@@ -105,72 +105,135 @@
           class="text-card-foreground hover:text-primary transition-colors duration-200">
           Soporte Técnico
         </a>
+
+        <!-- 🔐 PANEL ADMIN SOLO PARA ADMIN -->
+        <div class="relative group" *ngIf="esAdmin">
+          <button class="flex items-center gap-2 text-red-400 hover:text-red-300 transition duration-200">
+            Panel Admin
+            <span class="text-sm">▼</span>
+          </button>
+
+          <div
+            class="absolute left-0 mt-2 w-72 bg-[#111] border-2 border-red-600 shadow-lg
+            opacity-0 invisible group-hover:opacity-100 group-hover:visible
+            transition-all duration-200 rounded-lg z-50 flex flex-col"
+          >
+            <a 
+              [routerLink]="['/adminjuegos']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de tienda
+            </a>
+
+            <a 
+              [routerLink]="['/adminusuarios']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de usuarios
+            </a>
+
+            <a 
+              [routerLink]="['/adminnoticias']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de noticias
+            </a>
+
+            <a 
+              [routerLink]="['/adminneventos']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de noticias
+            </a>
+
+            <a 
+              [routerLink]="['/admin/adminpsicowellness']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de PsicoWellness
+            </a>
+
+            <a 
+              [routerLink]="['/admin/adminmensajeria']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de mensajería
+            </a>
+
+            <a 
+              [routerLink]="['/admin/adminlicencias']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de licencias
+            </a>
+          </div>
+        </div>
+
       </nav>
 
-   <!-- USER & CART -->
-<div class="flex items-center gap-3">
+      <!-- USER & CART -->
+      <div class="flex items-center gap-3">
 
-  <!-- Si NO hay usuario logueado -->
-  <ng-container *ngIf="!user; else loggedIn">
-    <a [routerLink]="['/login']"
-       class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
-      Iniciar Sesión
-    </a>
-  </ng-container>
+        <!-- Si NO hay usuario logueado -->
+        <ng-container *ngIf="!user; else usuarioLogueado">
+          <a [routerLink]="['/login']" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
+            Iniciar Sesión
+          </a>
 
-  <!-- Si SÍ hay usuario logueado -->
-  <ng-template #loggedIn>
-    <div class="relative">
+          <a [routerLink]="['/carrito']" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
+            Carrito
+          </a>
+        </ng-container>
 
-      <!-- Botón que muestra el perfil -->
-      <button
-        type="button"
-        (click)="menuAbierto = !menuAbierto"
-        class="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-accent transition"
-      >
-        <div class="w-8 h-8 rounded-full overflow-hidden bg-black/40 flex items-center justify-center font-bold">
-          <!-- inicial del username -->
-          {{ user?.username?.charAt(0) || '?' }}
-        </div>
-        <span class="text-sm font-semibold">
-          {{ user?.username || 'Usuario' }}
-        </span>
-        <span class="text-xs uppercase text-black/70 bg-yellow-300 px-2 py-0.5 rounded">
-          {{ user?.rol || 'USER' }}
-        </span>
-        <span class="text-xs ml-1">▼</span>
-      </button>
+        <!-- Si SÍ hay usuario -->
+        <ng-template #usuarioLogueado>
+          <div class="relative">
+            <button
+              (click)="toggleMenuUsuario()"
+              class="flex items-center gap-2 bg-primary text-primary-foreground px-3 py-2 rounded-lg hover:bg-accent transition">
+              <div class="w-10 h-10 rounded-full overflow-hidden bg-yellow-500 flex items-center justify-center text-black font-bold">
+                <img
+                  *ngIf="user?.avatar"
+                  [src]="'http://127.0.0.1:5000/static/avatars/' + user!.avatar"
+                  alt="avatar"
+                  class="w-full h-full object-cover"
+                />
+                <span *ngIf="!user?.avatar">
+                  {{ avatarInitial }}
+                </span>
+              </div>
 
-      <!-- MENÚ DESPLEGABLE -->
-      <div
-        *ngIf="menuAbierto"
-        class="absolute right-0 mt-2 w-48 bg-[#111] border border-yellow-600 rounded-lg shadow-lg z-50"
-      >
-        <a
-          [routerLink]="['/personalizarperfil']"
-          (click)="menuAbierto = false"
-          class="block px-4 py-2 text-sm text-gray-200 hover:bg-yellow-600 hover:text-black transition"
-        >
-          Editar perfil
-        </a>
+              <div class="flex flex-col text-left">
+                <span class="text-xs leading-tight">
+                  {{ user?.username || 'Usuario' }}
+                </span>
+                <span class="text-[10px] leading-tight opacity-80">
+                  {{ user?.rol || 'Cliente' }}
+                </span>
+              </div>
+              <span class="text-xs">▼</span>
+            </button>
 
-        <button
-          type="button"
-          (click)="logout(); menuAbierto = false"
-          class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-600 hover:text-white transition"
-        >
-          Cerrar sesión
-        </button>
+            <div
+              *ngIf="menuAbierto"
+              class="absolute right-0 mt-2 w-48 bg-[#111] border border-yellow-600 rounded-lg shadow-lg z-50"
+            >
+              <button
+                class="w-full text-left px-4 py-2 text-sm hover:bg-yellow-600 hover:text-black flex items-center gap-2"
+                (click)="irAPerfil()"
+              >
+                👤
+                <span>Editar perfil</span>
+              </button>
+              <button
+                class="w-full text-left px-4 py-2 text-sm hover:bg-yellow-600 hover:text-black flex items-center gap-2"
+                (click)="logout()"
+              >
+                🚪
+                <span>Cerrar sesión</span>
+              </button>
+            </div>
+          </div>
+
+          <a [routerLink]="['/carrito']" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
+            Carrito
+          </a>
+        </ng-template>
+
       </div>
-    </div>
-  </ng-template>
-
-  <!-- Carrito siempre visible -->
-  <a [routerLink]="['/carrito']"
-     class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
-    Carrito
-  </a>
-</div>
     </div>
   </div>
 

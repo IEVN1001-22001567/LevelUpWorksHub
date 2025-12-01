@@ -1,72 +1,78 @@
-// src/app/services/auth.service.ts  (por ejemplo)
-
+// src/app/services/auth.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+
+export interface Usuario {
+  usuarioid: number;
+  username: string;
+  email: string;
+  rol: string;
+  saldo?: number;
+  avatar?: string;
+  nombre?: string;
+  telefono?: string;
+  biografia?: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private apiUrl = 'http://localhost:5000'; // tu Flask
+  // OJO: sin /api aquí
+  private baseUrl = 'http://127.0.0.1:5000';
 
-  // Estado del usuario en tiempo real
-  private userSubject = new BehaviorSubject<any>(null);
-  user$ = this.userSubject.asObservable();
+  private usuarioSubject = new BehaviorSubject<Usuario | null>(this.obtenerUsuario());
+  user$ = this.usuarioSubject.asObservable();
 
-  constructor(private http: HttpClient) {
-    // al recargar, leer de localStorage
-    const userJson = localStorage.getItem('user');
-    const user = userJson ? JSON.parse(userJson) : null;
-    this.userSubject.next(user);
-  }
+  constructor(private http: HttpClient) {}
 
-  // LOGIN
   login(email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, { email, password }).pipe(
-      tap((res: any) => {
+    const body = { email, password };
+
+    return this.http.post<any>(`${this.baseUrl}/login`, body).pipe(
+      tap(res => {
         if (res.exito && res.usuario) {
-          localStorage.setItem('user', JSON.stringify(res.usuario));
-          if (res.token) {
-            localStorage.setItem('token', res.token);
-          }
-          this.userSubject.next(res.usuario);
+          this.guardarUsuario(res.usuario);
         }
       })
     );
   }
 
-  // REGISTER
   register(username: string, email: string, password: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, { username, email, password });
+    const body = { username, email, password };
+    return this.http.post<any>(`${this.baseUrl}/register`, body).pipe(
+      tap(res => {
+        if (res.exito && res.usuario) {
+          this.guardarUsuario(res.usuario);
+        }
+      })
+    );
   }
 
-  // FORGOT PASSWORD
   forgotPassword(email: string, newPassword: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, { email, newPassword });
+    const body = { email, new_password: newPassword };
+    return this.http.post<any>(`${this.baseUrl}/forgot_password`, body);
   }
 
-  // Obtener usuario actual sincrónico
-  getUserSync() {
-    return this.userSubject.value;
+  guardarUsuario(usuario: Usuario) {
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    this.usuarioSubject.next(usuario);
   }
 
-  // Setear usuario manualmente (por si lo necesitas después)
-  setUser(user: any) {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+  obtenerUsuario(): Usuario | null {
+    const data = localStorage.getItem('usuario');
+    if (!data) return null;
+    try {
+      return JSON.parse(data) as Usuario;
+    } catch {
+      return null;
     }
-    this.userSubject.next(user);
   }
 
-  logout() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    this.userSubject.next(null);
+  limpiarUsuario() {
+    localStorage.removeItem('usuario');
+    this.usuarioSubject.next(null);
   }
 }

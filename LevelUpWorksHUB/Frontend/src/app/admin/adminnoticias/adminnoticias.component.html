@@ -1,13 +1,10 @@
-<div class="min-h-screen bg-[#121212] font-sans">
+<div *ngIf="!mostrarFormulario" class="min-h-screen bg-[#121212] font-sans">
 
-  <!-- CABECERA AMARILLA (Header) -->
   <header class="bg-[#ffc107] py-12 px-6 shadow-lg">
     <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
 
-      <!-- Títulos -->
       <div>
         <div class="flex items-center gap-3 mb-2">
-          <!-- Icono de periódico simulado -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
           </svg>
@@ -16,50 +13,36 @@
         <p class="text-black/80 font-medium">Administra todas las noticias y artículos</p>
       </div>
 
-      <!-- Botón Nueva Noticia -->
       <button (click)="nuevaNoticia()" class="bg-black text-[#ffc107] hover:bg-gray-900 px-6 py-3 rounded-lg font-bold flex items-center gap-2 transition-transform hover:scale-105 shadow-xl">
         <span>+</span> Nueva Noticia
       </button>
+
     </div>
   </header>
 
-  <!-- CONTENIDO PRINCIPAL -->
   <main class="container mx-auto px-4 py-12">
-
-    <!-- Contador de noticias -->
     <h2 class="text-[#ffc107] mb-6 text-lg font-semibold">
       Noticias Publicadas ({{ noticias.length }})
     </h2>
 
-    <!-- LISTA DE NOTICIAS -->
     <div class="space-y-6">
 
-      <!-- Tarjeta de Noticia (Loop) -->
       <div *ngFor="let item of noticias"
-           class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-6 flex flex-col md:flex-row gap-6 hover:border-[#ffc107]/50 transition-colors shadow-lg">
+        class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-6 flex flex-col md:flex-row gap-6 hover:border-[#ffc107]/50 transition-colors shadow-lg">
 
-        <!-- Imagen -->
         <div class="w-full md:w-48 h-32 bg-gray-700 rounded-lg overflow-hidden flex-shrink-0">
           <img [src]="item.imagen" alt="Noticia" class="w-full h-full object-cover">
         </div>
 
-        <!-- Información -->
         <div class="flex-grow">
           <h3 class="text-xl font-bold text-gray-100 mb-2">
             {{ item.titulo }}
           </h3>
 
-          <!-- Metadatos -->
           <div class="flex flex-wrap items-center gap-4 text-sm text-gray-400 mb-3">
-            <span class="bg-gray-800 px-3 py-1 rounded text-gray-300 border border-gray-700">
-              {{ item.tipo }}
-            </span>
-            <span class="flex items-center gap-1">
-              📅 {{ item.fecha }}
-            </span>
-            <span>
-              Por <span class="text-gray-300">{{ item.autor }}</span>
-            </span>
+            <span class="bg-gray-800 px-3 py-1 rounded text-gray-300 border border-gray-700">{{ item.tipo }}</span>
+            <span>📅 {{ item.fecha }}</span>
+            <span>Por <span class="text-gray-300">{{ item.autor }}</span></span>
           </div>
 
           <p class="text-gray-500 text-sm leading-relaxed">
@@ -67,18 +50,13 @@
           </p>
         </div>
 
-        <!-- Botones de Acción -->
         <div class="flex md:flex-col gap-3 justify-center min-w-[120px]">
 
-          <!-- Botón Editar -->
           <button (click)="editarNoticia(item)" class="flex items-center justify-center gap-2 px-4 py-2 rounded border border-[#ffc107] text-[#ffc107] hover:bg-[#ffc107] hover:text-black transition-all text-sm font-bold">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
             Editar
           </button>
 
-          <!-- Botón Eliminar -->
-          <button (click)="eliminarNoticia(item.id)" class="flex items-center justify-center gap-2 px-4 py-2 rounded border border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500 transition-all text-sm font-bold">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          <button (click)="eliminarNoticia(item.noticiaid)" class="flex items-center justify-center gap-2 px-4 py-2 rounded border border-gray-600 text-gray-400 hover:border-red-500 hover:text-red-500 transition-all text-sm font-bold">
             Eliminar
           </button>
 
@@ -88,6 +66,76 @@
     </div>
   </main>
 
-  <!-- Decoración Footer (Línea amarilla) -->
   <div class="h-1 bg-[#ffc107] w-full mt-12"></div>
+</div>
+
+
+
+<!-- FORMULARIO -->
+<div *ngIf="mostrarFormulario" class="min-h-screen bg-[#121212] px-6 py-12 text-white">
+
+  <div class="max-w-2xl mx-auto bg-[#1a1a1a] p-8 rounded-xl border border-gray-800 shadow-xl">
+
+    <h2 class="text-[#ffc107] text-2xl font-bold mb-6">
+      {{ editando ? 'Editar Noticia' : 'Nueva Noticia' }}
+    </h2>
+
+    <form>
+
+      <label class="block mb-3">
+        <span>Título</span>
+        <input [(ngModel)]="noticiaForm.titulo" name="titulo" class="w-full p-3 rounded bg-gray-800 mt-1" />
+      </label>
+
+      <label class="block mb-3">
+        <span>Tipo</span>
+        <input [(ngModel)]="noticiaForm.tipo" name="tipo" class="w-full p-3 rounded bg-gray-800 mt-1" />
+      </label>
+
+      <label class="block mb-3">
+        <span>Fecha</span>
+        <input type="date" [(ngModel)]="noticiaForm.fecha" name="fecha" class="w-full p-3 rounded bg-gray-800 mt-1" />
+      </label>
+
+      <label class="block mb-3">
+        <span>Autor</span>
+        <input [(ngModel)]="noticiaForm.autor" name="autor" class="w-full p-3 rounded bg-gray-800 mt-1" />
+      </label>
+
+      <label class="block mb-3">
+        <span>Descripción</span>
+        <textarea [(ngModel)]="noticiaForm.descripcion" name="descripcion" rows="4" class="w-full p-3 rounded bg-gray-800 mt-1"></textarea>
+      </label>
+
+
+      <!-- INPUT DE IMAGEN -->
+      <label class="block mb-3">
+        <span>Imagen</span>
+
+        <input type="file"
+               accept="image/*"
+               (change)="onImagenSeleccionada($event)"
+               class="w-full p-3 rounded bg-gray-800 mt-1" />
+
+      </label>
+
+      <!-- PREVIEW -->
+      <div *ngIf="imagenPreview" class="mt-4">
+        <p class="text-gray-400 text-sm mb-2">Vista previa:</p>
+        <img [src]="imagenPreview" class="w-40 h-40 object-cover rounded border border-gray-700">
+      </div>
+
+
+      <div class="flex justify-between mt-6">
+        <button type="button" (click)="cerrarFormulario()" class="px-6 py-3 rounded bg-gray-700 hover:bg-gray-600">
+          Cancelar
+        </button>
+        <button type="button" (click)="guardarNoticia()" class="px-6 py-3 rounded bg-[#ffc107] text-black font-bold hover:bg-yellow-400">
+          Guardar
+        </button>
+      </div>
+
+    </form>
+
+  </div>
 </div>

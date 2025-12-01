@@ -70,6 +70,8 @@ export const routes: Routes = [
   loadChildren: () =>import('./carrito/carrito.routes').then(m => m.CARRITO_ROUTES)
 },
 
+
+//RutasADmin
 {
   path: 'adminusuarios',
   loadChildren: () =>import('./admin/adminusuarios/adminusuarios.routes').then(m => m.ADMINUSUARIOS_ROUTES)

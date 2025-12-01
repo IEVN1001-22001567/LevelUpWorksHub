@@ -1,25 +1,35 @@
 <div class="container mx-auto px-4 py-8 text-sm">
+  <!-- Mensajes -->
+  <div *ngIf="errorMsg" class="mb-4 text-red-400 text-sm">
+    {{ errorMsg }}
+  </div>
+  <div *ngIf="successMsg" class="mb-4 text-green-400 text-sm">
+    {{ successMsg }}
+  </div>
+
   <!-- Profile Header -->
   <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-8 mb-8">
     <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
       <!-- Avatar -->
       <div class="relative">
         <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 flex items-center justify-center bg-yellow-500 text-black text-3xl">
-          <img
-            *ngIf="profileData.avatar"
-            [src]="profileData.avatar"
-            [alt]="profileData.name"
-            class="w-full h-full object-cover"
-          />
-          <span *ngIf="!profileData.avatar">{{ avatarInitial }}</span>
-        </div>
+  <img
+    *ngIf="profileData.avatar"
+    [src]="profileData.avatar.startsWith('data:')
+            ? profileData.avatar
+            : 'http://127.0.0.1:5000/static/avatars/' + profileData.avatar"
+    [alt]="profileData.name"
+    class="w-full h-full object-cover"
+  />
+  <span *ngIf="!profileData.avatar">{{ avatarInitial }}</span>
+</div>
+
 
         <!-- Botón cambiar avatar -->
         <label
           *ngIf="isEditing"
           class="absolute bottom-0 right-0 bg-yellow-500 text-black p-2 rounded-full hover:bg-yellow-600 transition-colors cursor-pointer"
         >
-          <!-- Ícono de cámara simplificado -->
           <span class="text-xs font-bold">📷</span>
           <input type="file" accept="image/*" class="hidden" (change)="onAvatarChange($event)" />
         </label>
@@ -44,7 +54,7 @@
 
         <div class="flex gap-6 text-xs md:text-sm">
           <div>
-            <span class="text-yellow-400">{{ user.totalPurchases }}</span>
+            <span class="text-yellow-400">{{ user?.totalPurchases || 0 }}</span>
             <span class="text-gray-400 ml-1">Juegos</span>
           </div>
           <div>
@@ -52,7 +62,7 @@
             <span class="text-gray-400 ml-1">Nivel</span>
           </div>
           <div>
-            <span class="text-yellow-400">Miembro desde {{ user.memberSince }}</span>
+            <span class="text-yellow-400">Miembro desde {{ user?.memberSince || '-' }}</span>
           </div>
         </div>
       </div>
@@ -74,7 +84,8 @@
             class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2"
           >
             💾
-            <span>Guardar</span>
+            <span *ngIf="!cargando">Guardar</span>
+            <span *ngIf="cargando">Guardando...</span>
           </button>
           <button
             (click)="handleCancelEdit()"
@@ -161,8 +172,8 @@
             <input
               [(ngModel)]="profileData.email"
               name="email"
-              [disabled]="!isEditing"
-              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
+              [disabled]="true"
+              class="w-full bg-black/50 border border-yellow-500/20 text-white opacity-70 rounded px-3 py-2"
             />
           </div>
           <div>
@@ -170,16 +181,6 @@
             <input
               [(ngModel)]="profileData.phone"
               name="phone"
-              [disabled]="!isEditing"
-              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label class="text-gray-400 text-xs block mb-2">Fecha de nacimiento</label>
-            <input
-              type="date"
-              [(ngModel)]="profileData.birthdate"
-              name="birthdate"
               [disabled]="!isEditing"
               class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
             />
@@ -196,33 +197,6 @@
             <input
               [(ngModel)]="profileData.gamerTag"
               name="gamerTag"
-              [disabled]="!isEditing"
-              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label class="text-gray-400 text-xs block mb-2">País</label>
-            <input
-              [(ngModel)]="profileData.country"
-              name="country"
-              [disabled]="!isEditing"
-              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label class="text-gray-400 text-xs block mb-2">Ciudad</label>
-            <input
-              [(ngModel)]="profileData.city"
-              name="city"
-              [disabled]="!isEditing"
-              class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
-            />
-          </div>
-          <div>
-            <label class="text-gray-400 text-xs block mb-2">Género favorito</label>
-            <input
-              [(ngModel)]="profileData.favoriteGenre"
-              name="favoriteGenre"
               [disabled]="!isEditing"
               class="w-full bg-black/50 border border-yellow-500/20 text-white disabled:opacity-70 rounded px-3 py-2"
             />
@@ -319,7 +293,6 @@
             </div>
           </div>
           <button
-            (click)="removePaymentMethod(method.id)"
             class="border border-red-500/30 text-red-400 px-3 py-1 rounded text-xs"
           >
             Eliminar
@@ -359,7 +332,6 @@
               ✏
             </button>
             <button
-              (click)="removeAddress(address.id)"
               class="border border-red-500/30 text-red-400 px-2 py-1 rounded text-xs"
             >
               ✖
