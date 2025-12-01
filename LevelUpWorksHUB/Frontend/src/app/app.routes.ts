@@ -61,8 +61,8 @@ export const routes: Routes = [
 },
 
 {
-  path: 'gestioncompras',
-  loadChildren: () =>import('./gestion-compras/gestion-compras.routes').then(m => m.GESTIONCOMPRAS_ROUTES)
+  path: 'admincompras',
+  loadChildren: () =>import('./admin/admincompras/admincompras.routes').then(m => m.ADMINCOMPRAS_ROUTES)
 },
 
 {

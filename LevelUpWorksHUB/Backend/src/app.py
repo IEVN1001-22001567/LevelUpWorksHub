@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, send_file
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from config import config
@@ -7,6 +7,11 @@ from datetime import datetime
 import string
 import os
 from werkzeug.utils import secure_filename
+import traceback
+
+# Local storage service for external juegos folder
+from config_juegos import DevelopmentConfig
+from juegos_storage_service import JuegosStorageService
 
 # Generar una contraseña temporal aleatoria
 def generar_password_temporal(longitud=8):
@@ -32,6 +37,9 @@ os.makedirs(PORTADAS_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+# Inicializar el servicio de almacenamiento de juegos en carpeta externa
+storage_service = JuegosStorageService(DevelopmentConfig.JUEGOS_FOLDER)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -549,7 +557,6 @@ def upload_news():
     return jsonify({"status": "ok", "message": "Noticia guardada"})
 
 
-# ------------------------ GESTIÓN DE JUEGOS (ADMIN) --------------------------
 
 @app.route('/admin/juegos', methods=['POST'])
 def crear_juego():
@@ -570,14 +577,12 @@ def crear_juego():
 
         cursor = mysql.connection.cursor()
 
-        # ======= PORTADA (imagen) =======
+        # ======= PORTADA (imagen) - Siempre local =======
         portada_filename = None
         if 'image' in request.files:
             imagen_file = request.files['image']
             if imagen_file and imagen_file.filename != '':
-                import time, os
-                from werkzeug.utils import secure_filename
-
+                import time
                 filename_seguro = secure_filename(imagen_file.filename)
                 nombre_archivo_portada = f"{int(time.time())}_{filename_seguro}"
 
@@ -588,28 +593,49 @@ def crear_juego():
 
                 portada_filename = nombre_archivo_portada
 
-        # ======= ARCHIVO DEL JUEGO (installer) =======
+        # ======= ARCHIVO DEL JUEGO (ZIP/EXE) - Almacenamiento local (carpeta externa) =======
         archivo_instalador = None
         tamano_archivo = None
 
         if 'installer' in request.files:
             game_file = request.files['installer']
             if game_file and game_file.filename != '':
-                import time, os
-                from werkzeug.utils import secure_filename
-
+                import time
                 filename_seguro = secure_filename(game_file.filename)
                 nombre_archivo_juego = f"{int(time.time())}_{filename_seguro}"
 
-                ruta_carpeta_juegos = os.path.join(app.root_path, 'static', 'juegos')
-                os.makedirs(ruta_carpeta_juegos, exist_ok=True)
-                ruta_completa_juego = os.path.join(ruta_carpeta_juegos, nombre_archivo_juego)
+                # Guardar temporalmente para luego moverlo a la carpeta externa
+                ruta_temp = os.path.join(app.root_path, 'static', 'temp_juegos')
+                os.makedirs(ruta_temp, exist_ok=True)
+                ruta_completa_temp = os.path.join(ruta_temp, nombre_archivo_juego)
 
-                game_file.save(ruta_completa_juego)
+                game_file.save(ruta_completa_temp)
 
-                archivo_instalador = nombre_archivo_juego
-                tamano_archivo = os.path.getsize(ruta_completa_juego)
+                # Intentar guardar en la carpeta externa usando el servicio
+                try:
+                    resultado_guardado = storage_service.guardar_archivo(ruta_completa_temp, nombre_archivo_juego)
+                    if resultado_guardado.get('exito'):
+                        archivo_instalador = nombre_archivo_juego
+                        tamano_archivo = resultado_guardado.get('tamaño')
+                    else:
+                        # si falla, dejar el archivo en temp y registrar error
+                        print(f"No se pudo mover instalador a carpeta externa: {resultado_guardado.get('error')}")
+                        archivo_instalador = None
+                        tamano_archivo = os.path.getsize(ruta_completa_temp) if os.path.exists(ruta_completa_temp) else None
+                except Exception as e:
+                    print(f"Error guardando instalador en carpeta externa: {e}")
+                    archivo_instalador = None
+                    try:
+                        tamano_archivo = os.path.getsize(ruta_completa_temp) if os.path.exists(ruta_completa_temp) else None
+                    except:
+                        tamano_archivo = None
 
+                # eliminar temporal (si existe)
+                try:
+                    if os.path.exists(ruta_completa_temp):
+                        os.remove(ruta_completa_temp)
+                except Exception as e:
+                    print(f"Aviso: no se pudo eliminar temporal: {e}")
         # ======= INSERT EN BD =======
         sql = """
             INSERT INTO juegos
@@ -617,8 +643,7 @@ def crear_juego():
              precio, descripcion, archivo_instalador, tamano_archivo)
             VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s, %s)
         """
-        # por ahora usuarioid lo puedes poner fijo o null si tu BD lo permite
-        usuarioid = 1  # TODO: luego lo cambias al admin logueado
+        usuarioid = 1  # TODO: cambiar al admin logueado
 
         cursor.execute(sql, (
             usuarioid,
@@ -626,7 +651,7 @@ def crear_juego():
             genre,
             portada_filename,
             platform,
-            0,                  # horasjugadas inicial = 0
+            0,  # horasjugadas inicial
             price_val,
             description,
             archivo_instalador,
@@ -635,6 +660,7 @@ def crear_juego():
         mysql.connection.commit()
 
         nuevo_id = cursor.lastrowid
+        cursor.close()
 
         juego_resp = {
             'id': nuevo_id,
@@ -975,26 +1001,66 @@ def procesar_carrito():
                 'mensaje': 'Saldo insuficiente para realizar la compra'
             }), 400
 
+        # --- Prevención de compras duplicadas ---
+        # Si alguno de los items tiene `juegoID`, verificar si el usuario ya lo compró
+        try:
+            for item in items:
+                juego_id_check = item.get('juegoID')
+                if juego_id_check:
+                    cursor.execute("SELECT COUNT(1) FROM compras WHERE usuarioid=%s AND juegoID=%s AND estado='pagado'",
+                                   (usuarioid, juego_id_check))
+                    existe = cursor.fetchone()
+                    if existe and existe[0] > 0:
+                        cursor.close()
+                        msg = f'El usuario {usuarioid} ya compró el juego {juego_id_check} anteriormente.'
+                        print(f"[carrito/procesar] Compra duplicada detectada: {msg}")
+                        return jsonify({'exito': False, 'mensaje': msg}), 400
+        except Exception as e:
+            print(f"[carrito/procesar] Error comprobando duplicados: {e}")
+            # no abortamos aquí, seguimos; la inserción tendrá su propio manejo
+
         # 2) Descontar saldo
         nuevo_saldo = saldo_actual - float(total)
         sql_update_saldo = "UPDATE usuarios SET saldo = %s WHERE usuarioid = %s"
         cursor.execute(sql_update_saldo, (nuevo_saldo, usuarioid))
 
         # 3) Insertar en compras (uno por item)
-        sql_insert_compra = """
+        # Intentar insertar con juegoID, si falla (columna no existe), insertar sin juegoID
+        sql_insert_compra_con_juego = """
+            INSERT INTO compras (usuarioid, juegoID, nombreproducto, descripción, precio, divisa, fechacompra, estado)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s)
+        """
+
+        sql_insert_compra_sin_juego = """
             INSERT INTO compras (usuarioid, nombreproducto, descripción, precio, divisa, fechacompra, estado)
             VALUES (%s, %s, %s, %s, %s, NOW(), %s)
         """
 
         for item in items:
+            juego_id = item.get('juegoID')
             titulo = item.get('titulo', 'Juego sin nombre')
             descripcion = item.get('descripcion', '')
             precio = float(item.get('precio', 0))
 
-            cursor.execute(
-                sql_insert_compra,
-                (usuarioid, titulo, descripcion, precio, 'MXN', 'pagado')
-            )
+            # Si se proporcionó un juegoID válido, insertamos con juegoID
+            if juego_id:
+                try:
+                    cursor.execute(
+                        sql_insert_compra_con_juego,
+                        (usuarioid, juego_id, titulo, descripcion, precio, 'MXN', 'pagado')
+                    )
+                except Exception as e:
+                    # Si falla por cualquier motivo al insertar con juegoID, intentar sin él
+                    print(f"Warning: fallo insert con juegoID ({e}), intentando sin juegoID")
+                    cursor.execute(
+                        sql_insert_compra_sin_juego,
+                        (usuarioid, titulo, descripcion, precio, 'MXN', 'pagado')
+                    )
+            else:
+                cursor.execute(
+                    sql_insert_compra_sin_juego,
+                    (usuarioid, titulo, descripcion, precio, 'MXN', 'pagado')
+                )
 
         mysql.connection.commit()
         cursor.close()
@@ -1007,8 +1073,785 @@ def procesar_carrito():
 
     except Exception as ex:
         print("ERROR en /api/carrito/procesar:", ex)
+        traceback.print_exc()
+        mysql.connection.rollback()
+        cursor.close()
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {str(ex)}'}), 500
+
+
+# Endpoints para descargar/jugar (local storage only)
+
+@app.route('/api/juego/descargar/<int:juego_id>', methods=['GET'])
+def descargar_juego(juego_id):
+    """
+    Descarga un juego desde el almacenamiento local (carpeta externa gestionada por storage_service).
+    Acepta tanto `juegoID` como `comprasID` (resuelve compras->juego si es necesario).
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "SELECT archivo_instalador, titulo FROM juegos WHERE juegoID = %s",
+            (juego_id,)
+        )
+        resultado = cursor.fetchone()
+        cursor.close()
+
+        # Si no encontramos por juegoID, intentar resolver comprasID -> juegoID
+        if not resultado:
+            try:
+                cur2 = mysql.connection.cursor()
+                cur2.execute("SELECT juegoID FROM compras WHERE comprasID = %s", (juego_id,))
+                fila_compra = cur2.fetchone()
+                if fila_compra and fila_compra[0]:
+                    juego_real_id = fila_compra[0]
+                    cur2.execute("SELECT archivo_instalador, titulo FROM juegos WHERE juegoID = %s", (juego_real_id,))
+                    resultado = cur2.fetchone()
+                cur2.close()
+            except Exception as e:
+                print(f"Error buscando compra->juegoID: {e}")
+
+        if not resultado:
+            return jsonify({'exito': False, 'mensaje': 'Juego no encontrado'}), 404
+
+        archivo_local, titulo = resultado
+
+        if archivo_local:
+            ruta_archivo = storage_service.obtener_ruta_archivo(archivo_local)
+            if ruta_archivo and os.path.exists(ruta_archivo):
+                print(f"📥 Descarga desde local (externa): {titulo} -> {ruta_archivo}")
+                return send_file(ruta_archivo, as_attachment=True)
+
+        return jsonify({'exito': False, 'mensaje': 'No se encontró el archivo del juego'}), 404
+
+    except Exception as ex:
+        print(f"ERROR en /api/juego/descargar: {ex}")
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/juego/jugar/<int:juego_id>', methods=['GET'])
+def jugar_juego(juego_id):
+    """
+    Ejecuta un juego directamente (descomprimir si es ZIP y ejecutar EXE).
+    Para juegos Unity: si es ZIP lo descomprime en C:\JuegosLevelUp\extraidos\
+    y encuentra el .exe para ejecutarlo.
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute(
+            "SELECT archivo_instalador, titulo FROM juegos WHERE juegoID = %s",
+            (juego_id,)
+        )
+        resultado = cursor.fetchone()
+        cursor.close()
+
+        # Intentar resolver comprasID -> juegoID si hace falta
+        if not resultado:
+            try:
+                cur2 = mysql.connection.cursor()
+                cur2.execute("SELECT juegoID FROM compras WHERE comprasID = %s", (juego_id,))
+                fila_compra = cur2.fetchone()
+                if fila_compra and fila_compra[0]:
+                    juego_real_id = fila_compra[0]
+                    cur2.execute("SELECT archivo_instalador, titulo FROM juegos WHERE juegoID = %s", (juego_real_id,))
+                    resultado = cur2.fetchone()
+                cur2.close()
+            except Exception as e:
+                print(f"Error buscando compra->juegoID: {e}")
+
+        if not resultado:
+            return jsonify({'exito': False, 'mensaje': 'Juego no encontrado'}), 404
+
+        archivo_local, titulo = resultado
+
+        if not archivo_local:
+            return jsonify({'exito': False, 'mensaje': 'No se encontró el archivo del juego'}), 404
+
+        ruta_archivo = storage_service.obtener_ruta_archivo(archivo_local)
+        if not ruta_archivo or not os.path.exists(ruta_archivo):
+            return jsonify({'exito': False, 'mensaje': 'El archivo del juego no existe en el almacenamiento'}), 404
+
+        # ===== PROCESAR SEGÚN TIPO DE ARCHIVO =====
+        ext = os.path.splitext(archivo_local)[1].lower()
+
+        # Si es ZIP: descomprimir y buscar EXE
+        if ext == '.zip':
+            import zipfile
+            import subprocess
+            
+            # Carpeta para extraer
+            carpeta_extraidos = os.path.join(storage_service.carpeta_juegos, 'extraidos')
+            os.makedirs(carpeta_extraidos, exist_ok=True)
+            
+            nombre_sin_ext = os.path.splitext(archivo_local)[0]
+            carpeta_juego = os.path.join(carpeta_extraidos, nombre_sin_ext)
+            
+            # Si ya existe extraído, usarlo; sino extraer
+            if not os.path.exists(carpeta_juego):
+                print(f"📦 Descomprimiendo {archivo_local} a {carpeta_juego}...")
+                try:
+                    with zipfile.ZipFile(ruta_archivo, 'r') as zip_ref:
+                        zip_ref.extractall(carpeta_juego)
+                    print(f"✅ Descomprimido correctamente")
+                except Exception as e:
+                    print(f"❌ Error descomprimiendo: {e}")
+                    return jsonify({'exito': False, 'mensaje': f'Error descomprimiendo: {e}'}), 500
+            else:
+                print(f"✅ Carpeta ya existe: {carpeta_juego}")
+            
+            # Buscar el primer .exe en la carpeta extraída
+            exe_path = None
+            for root, dirs, files in os.walk(carpeta_juego):
+                for file in files:
+                    if file.lower().endswith('.exe'):
+                        exe_path = os.path.join(root, file)
+                        break
+                if exe_path:
+                    break
+            
+            if not exe_path:
+                return jsonify({
+                    'exito': False,
+                    'mensaje': 'No se encontró archivo .exe en el ZIP'
+                }), 400
+            
+            # Intentar ejecutar el EXE
+            try:
+                print(f"▶️ Ejecutando: {exe_path}")
+                subprocess.Popen([exe_path], cwd=os.path.dirname(exe_path))
+                return jsonify({
+                    'exito': True,
+                    'mensaje': f'Juego {titulo} iniciado correctamente',
+                    'tipo': 'zip',
+                    'exe_ejecutado': exe_path
+                }), 200
+            except Exception as e:
+                print(f"❌ Error ejecutando EXE: {e}")
+                return jsonify({
+                    'exito': False,
+                    'mensaje': f'Error ejecutando el juego: {e}'
+                }), 500
+
+        # Si es EXE: ejecutar directamente
+        elif ext == '.exe':
+            try:
+                import subprocess
+                print(f"▶️ Ejecutando EXE: {ruta_archivo}")
+                subprocess.Popen([ruta_archivo], cwd=os.path.dirname(ruta_archivo))
+                return jsonify({
+                    'exito': True,
+                    'mensaje': f'Juego {titulo} iniciado correctamente',
+                    'tipo': 'exe',
+                    'exe_ejecutado': ruta_archivo
+                }), 200
+            except Exception as e:
+                print(f"❌ Error ejecutando EXE: {e}")
+                return jsonify({
+                    'exito': False,
+                    'mensaje': f'Error ejecutando el juego: {e}'
+                }), 500
+
+        else:
+            return jsonify({
+                'exito': False,
+                'mensaje': f'Tipo de archivo no soportado: {ext}'
+            }), 400
+
+    except Exception as ex:
+        print(f"ERROR en /api/juego/jugar: {ex}")
+        traceback.print_exc()
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+# ===================== ENDPOINTS ADMIN - COMPRAS =====================
+
+@app.route('/admin/compras', methods=['GET'])
+def obtener_compras_admin():
+    """
+    Obtiene todas las compras del sistema (o de un usuario específico si se proporciona usuarioid)
+    """
+    try:
+        usuarioid = request.args.get('usuarioid', type=int)
+        
+        cursor = mysql.connection.cursor()
+        
+        if usuarioid:
+            # Compras de un usuario específico
+            sql = """
+                SELECT 
+                    c.comprasID,
+                    c.usuarioid,
+                    c.juegoID,
+                    c.nombreproducto,
+                    c.descripción,
+                    c.precio,
+                    c.divisa,
+                    c.fechacompra,
+                    c.estado,
+                    u.username,
+                    u.email
+                FROM compras c
+                LEFT JOIN usuarios u ON c.usuarioid = u.usuarioid
+                WHERE c.usuarioid = %s
+                ORDER BY c.fechacompra DESC
+            """
+            cursor.execute(sql, (usuarioid,))
+        else:
+            # Todas las compras
+            sql = """
+                SELECT 
+                    c.comprasID,
+                    c.usuarioid,
+                    c.juegoID,
+                    c.nombreproducto,
+                    c.descripción,
+                    c.precio,
+                    c.divisa,
+                    c.fechacompra,
+                    c.estado,
+                    u.username,
+                    u.email
+                FROM compras c
+                LEFT JOIN usuarios u ON c.usuarioid = u.usuarioid
+                ORDER BY c.fechacompra DESC
+            """
+            cursor.execute(sql)
+        
+        filas = cursor.fetchall()
+        cursor.close()
+        
+        compras = []
+        ingresos_totales = 0
+        
+        for fila in filas:
+            precio = float(fila[5]) if fila[5] is not None else 0
+            ingresos_totales += precio
+            
+            compras.append({
+                'comprasID': fila[0],
+                'usuarioid': fila[1],
+                'juegoID': fila[2],
+                'nombreproducto': fila[3],
+                'descripción': fila[4],
+                'precio': precio,
+                'divisa': fila[6],
+                'fechacompra': str(fila[7]) if fila[7] else None,
+                'estado': fila[8],
+                'username': fila[9],
+                'email': fila[10]
+            })
+        
+        # Calcular estadísticas
+        completadas = len([c for c in compras if c['estado'] == 'pagado'])
+        pendientes = len([c for c in compras if c['estado'] == 'pendiente'])
+        procesando = len([c for c in compras if c['estado'] == 'procesando'])
+        canceladas = len([c for c in compras if c['estado'] == 'cancelado'])
+        
+        return jsonify({
+            'exito': True,
+            'compras': compras,
+            'estadisticas': {
+                'total': len(compras),
+                'completadas': completadas,
+                'pendientes': pendientes,
+                'procesando': procesando,
+                'canceladas': canceladas,
+                'ingresos_totales': ingresos_totales
+            }
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /admin/compras:", ex)
         return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
 
+
+@app.route('/admin/compras/<int:compras_id>', methods=['PUT'])
+def actualizar_compra(compras_id):
+    """
+    Actualiza el estado de una compra
+    """
+    try:
+        data = request.get_json()
+        nuevo_estado = data.get('estado')
+        
+        if not nuevo_estado:
+            return jsonify({'exito': False, 'mensaje': 'Falta el estado'}), 400
+        
+        cursor = mysql.connection.cursor()
+        sql = "UPDATE compras SET estado = %s WHERE comprasID = %s"
+        cursor.execute(sql, (nuevo_estado, compras_id))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Compra actualizada correctamente'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en PUT /admin/compras/<id>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
+
+
+@app.route('/admin/compras/<int:compras_id>', methods=['DELETE'])
+def eliminar_compra(compras_id):
+    """
+    Elimina una compra
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        # Primero obtener la compra para devolver info
+        cursor.execute("SELECT usuarioid, precio FROM compras WHERE comprasID = %s", (compras_id,))
+        compra = cursor.fetchone()
+        
+        if not compra:
+            cursor.close()
+            return jsonify({'exito': False, 'mensaje': 'Compra no encontrada'}), 404
+        
+        usuarioid, precio = compra
+        
+        # Eliminar la compra
+        sql = "DELETE FROM compras WHERE comprasID = %s"
+        cursor.execute(sql, (compras_id,))
+        mysql.connection.commit()
+        
+        # Si quieres, también devuelve el saldo al usuario
+        # sql_reembolso = "UPDATE usuarios SET saldo = saldo + %s WHERE usuarioid = %s"
+        # cursor.execute(sql_reembolso, (precio, usuarioid))
+        # mysql.connection.commit()
+        
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Compra eliminada correctamente'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en DELETE /admin/compras/<id>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
+
+
+# ===================== ENDPOINTS SOCIAL - AMIGOS Y MENSAJES =====================
+
+@app.route('/api/social/amigos/<int:usuarioid>', methods=['GET'])
+def obtener_amigos(usuarioid):
+    """
+    Obtiene la lista de amigos de un usuario
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        # Obtener amigos aceptados (en ambas direcciones)
+        sql = """
+            SELECT 
+                CASE 
+                    WHEN usuario1_id = %s THEN usuario2_id
+                    ELSE usuario1_id
+                END as amigo_id,
+                u.username,
+                u.avatar,
+                u.nombre,
+                COALESCE(eu.estado, 'offline') as estado,
+                COALESCE(eu.juego_actual, '') as juego_actual
+            FROM amigos a
+            JOIN usuarios u ON (
+                (a.usuario1_id = u.usuarioid AND a.usuario2_id = %s) OR
+                (a.usuario2_id = u.usuarioid AND a.usuario1_id = %s)
+            )
+            LEFT JOIN estado_usuario eu ON u.usuarioid = eu.usuarioid
+            WHERE a.estado = 'aceptado'
+            ORDER BY eu.estado DESC, u.username ASC
+        """
+        cursor.execute(sql, (usuarioid, usuarioid, usuarioid))
+        filas = cursor.fetchall()
+        
+        amigos = []
+        for fila in filas:
+            avatar_url = f'http://127.0.0.1:5000/uploads/{fila[2]}' if fila[2] else None
+            amigos.append({
+                'id': fila[0],
+                'nombre': fila[3] or fila[1],
+                'username': fila[1],
+                'avatar': avatar_url,
+                'estado': fila[4],
+                'juego': fila[5] if fila[5] else 'Disponible'
+            })
+        
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'amigos': amigos
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/social/amigos/<usuarioid>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/solicitudes/<int:usuarioid>', methods=['GET'])
+def obtener_solicitudes_amistad(usuarioid):
+    """
+    Obtiene las solicitudes de amistad pendientes de un usuario
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            SELECT 
+                a.amistad_id,
+                u.usuarioid,
+                u.username,
+                u.nombre,
+                u.avatar,
+                a.fecha_solicitud
+            FROM amigos a
+            JOIN usuarios u ON a.usuario1_id = u.usuarioid
+            WHERE a.usuario2_id = %s AND a.estado = 'pendiente'
+            ORDER BY a.fecha_solicitud DESC
+        """
+        cursor.execute(sql, (usuarioid,))
+        filas = cursor.fetchall()
+        
+        solicitudes = []
+        for fila in filas:
+            avatar_url = f'http://127.0.0.1:5000/uploads/{fila[4]}' if fila[4] else None
+            solicitudes.append({
+                'amistad_id': fila[0],
+                'usuarioid': fila[1],
+                'username': fila[2],
+                'nombre': fila[3],
+                'avatar': avatar_url,
+                'fecha_solicitud': str(fila[5])
+            })
+        
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'solicitudes': solicitudes
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/social/solicitudes/<usuarioid>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/buscar', methods=['GET'])
+def buscar_usuarios():
+    """
+    Busca usuarios por nombre o username
+    """
+    try:
+        termino = request.args.get('q', '').lower().strip()
+        usuario_actual = request.args.get('usuarioid', type=int)
+        
+        if not termino or len(termino) < 2:
+            return jsonify({'exito': False, 'mensaje': 'Término de búsqueda muy corto'}), 400
+        
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            SELECT 
+                usuarioid,
+                username,
+                nombre,
+                avatar
+            FROM usuarios
+            WHERE (username LIKE %s OR nombre LIKE %s)
+            AND usuarioid != %s
+            LIMIT 10
+        """
+        termino_busqueda = f'%{termino}%'
+        cursor.execute(sql, (termino_busqueda, termino_busqueda, usuario_actual))
+        filas = cursor.fetchall()
+        
+        usuarios = []
+        for fila in filas:
+            avatar_url = f'http://127.0.0.1:5000/uploads/{fila[3]}' if fila[3] else None
+            usuarios.append({
+                'usuarioid': fila[0],
+                'username': fila[1],
+                'nombre': fila[2],
+                'avatar': avatar_url
+            })
+        
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'usuarios': usuarios
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/social/buscar:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/agregar-amigo', methods=['POST'])
+def agregar_amigo():
+    """
+    Envía solicitud de amistad
+    """
+    try:
+        data = request.get_json()
+        usuario_actual = data.get('usuario_actual')
+        usuario_destino = data.get('usuario_destino')
+        
+        if not usuario_actual or not usuario_destino:
+            return jsonify({'exito': False, 'mensaje': 'Datos incompletos'}), 400
+        
+        if usuario_actual == usuario_destino:
+            return jsonify({'exito': False, 'mensaje': 'No puedes agregarte a ti mismo'}), 400
+        
+        cursor = mysql.connection.cursor()
+        
+        # Verificar que no ya exista amistad
+        sql_check = """
+            SELECT amistad_id FROM amigos
+            WHERE (usuario1_id = %s AND usuario2_id = %s)
+            OR (usuario1_id = %s AND usuario2_id = %s)
+        """
+        cursor.execute(sql_check, (usuario_actual, usuario_destino, usuario_destino, usuario_actual))
+        existe = cursor.fetchone()
+        
+        if existe:
+            cursor.close()
+            return jsonify({'exito': False, 'mensaje': 'Ya existe solicitud o amistad con este usuario'}), 400
+        
+        # Crear nueva solicitud
+        sql_insert = """
+            INSERT INTO amigos (usuario1_id, usuario2_id, estado)
+            VALUES (%s, %s, 'pendiente')
+        """
+        cursor.execute(sql_insert, (usuario_actual, usuario_destino))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Solicitud de amistad enviada'
+        }), 201
+        
+    except Exception as ex:
+        print("ERROR en POST /api/social/agregar-amigo:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/aceptar-amistad/<int:amistad_id>', methods=['POST'])
+def aceptar_amistad(amistad_id):
+    """
+    Acepta una solicitud de amistad
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            UPDATE amigos
+            SET estado = 'aceptado', fecha_aceptacion = NOW()
+            WHERE amistad_id = %s
+        """
+        cursor.execute(sql, (amistad_id,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Amistad aceptada'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en POST /api/social/aceptar-amistad:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/rechazar-amistad/<int:amistad_id>', methods=['POST'])
+def rechazar_amistad(amistad_id):
+    """
+    Rechaza una solicitud de amistad
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = "DELETE FROM amigos WHERE amistad_id = %s"
+        cursor.execute(sql, (amistad_id,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Solicitud rechazada'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en POST /api/social/rechazar-amistad:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/eliminar-amigo/<int:amigo_id>', methods=['POST'])
+def eliminar_amigo(amigo_id):
+    """
+    Elimina a un amigo
+    """
+    try:
+        usuario_actual = request.get_json().get('usuario_actual')
+        
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            DELETE FROM amigos
+            WHERE (usuario1_id = %s AND usuario2_id = %s)
+            OR (usuario1_id = %s AND usuario2_id = %s)
+        """
+        cursor.execute(sql, (usuario_actual, amigo_id, amigo_id, usuario_actual))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Amigo eliminado'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en POST /api/social/eliminar-amigo:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/mensajes/<int:usuario1>/<int:usuario2>', methods=['GET'])
+def obtener_mensajes(usuario1, usuario2):
+    """
+    Obtiene los mensajes entre dos usuarios
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            SELECT 
+                mensaje_id,
+                remitente_id,
+                destinatario_id,
+                contenido,
+                fecha_envio,
+                leido
+            FROM mensajes
+            WHERE (remitente_id = %s AND destinatario_id = %s)
+            OR (remitente_id = %s AND destinatario_id = %s)
+            ORDER BY fecha_envio ASC
+            LIMIT 50
+        """
+        cursor.execute(sql, (usuario1, usuario2, usuario2, usuario1))
+        filas = cursor.fetchall()
+        
+        mensajes = []
+        for fila in filas:
+            mensajes.append({
+                'mensaje_id': fila[0],
+                'remitente_id': fila[1],
+                'destinatario_id': fila[2],
+                'contenido': fila[3],
+                'fecha_envio': str(fila[4]),
+                'leido': fila[5]
+            })
+        
+        # Marcar como leído
+        sql_update = """
+            UPDATE mensajes
+            SET leido = TRUE, fecha_lectura = NOW()
+            WHERE (remitente_id = %s AND destinatario_id = %s)
+            AND leido = FALSE
+        """
+        cursor.execute(sql_update, (usuario2, usuario1))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensajes': mensajes
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/social/mensajes:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/enviar-mensaje', methods=['POST'])
+def enviar_mensaje():
+    """
+    Envía un mensaje a otro usuario
+    """
+    try:
+        data = request.get_json()
+        remitente = data.get('remitente_id')
+        destinatario = data.get('destinatario_id')
+        contenido = data.get('contenido', '').strip()
+        
+        if not remitente or not destinatario or not contenido:
+            return jsonify({'exito': False, 'mensaje': 'Datos incompletos'}), 400
+        
+        if len(contenido) > 500:
+            return jsonify({'exito': False, 'mensaje': 'Mensaje demasiado largo'}), 400
+        
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            INSERT INTO mensajes (remitente_id, destinatario_id, contenido)
+            VALUES (%s, %s, %s)
+        """
+        cursor.execute(sql, (remitente, destinatario, contenido))
+        mysql.connection.commit()
+        
+        mensaje_id = cursor.lastrowid
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje_id': mensaje_id,
+            'mensaje': 'Mensaje enviado'
+        }), 201
+        
+    except Exception as ex:
+        print("ERROR en POST /api/social/enviar-mensaje:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/social/estado', methods=['POST'])
+def actualizar_estado_usuario():
+    """
+    Actualiza el estado online/offline del usuario
+    """
+    try:
+        data = request.get_json()
+        usuarioid = data.get('usuarioid')
+        estado = data.get('estado', 'offline')  # online, offline, jugando
+        juego_actual = data.get('juego_actual', None)
+        
+        if not usuarioid:
+            return jsonify({'exito': False, 'mensaje': 'Falta usuarioid'}), 400
+        
+        cursor = mysql.connection.cursor()
+        
+        # Insertar o actualizar estado
+        sql = """
+            INSERT INTO estado_usuario (usuarioid, estado, juego_actual)
+            VALUES (%s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+            estado = %s,
+            juego_actual = %s,
+            ultima_actividad = NOW()
+        """
+        cursor.execute(sql, (usuarioid, estado, juego_actual, estado, juego_actual))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Estado actualizado'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en POST /api/social/estado:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
 
 
 def pagina_no_encontrada(error):
