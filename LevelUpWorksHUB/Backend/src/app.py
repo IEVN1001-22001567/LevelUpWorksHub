@@ -3,6 +3,7 @@ from flask_mysqldb import MySQL
 from flask_cors import CORS
 from config import config
 import random
+from datetime import datetime
 import string
 import os
 from werkzeug.utils import secure_filename
@@ -24,6 +25,10 @@ mysql = MySQL(app)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # carpeta src
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'avatars')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Carpeta donde guardarás las portadas
+PORTADAS_FOLDER = os.path.join(app.root_path, 'static', 'portadas')
+os.makedirs(PORTADAS_FOLDER, exist_ok=True)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -51,8 +56,19 @@ def login():
             return jsonify({'mensaje': 'Faltan datos', 'exito': False}), 400
 
         cursor = mysql.connection.cursor()
+        # IMPORTANTE: incluimos saldo en el SELECT
         sql = """
-            SELECT usuarioid, username, email, `contraseña-hash`, rol, avatar, nombre, telefono, biografia
+            SELECT 
+                usuarioid,        -- 0
+                username,         -- 1
+                email,            -- 2
+                `contraseña-hash`,-- 3
+                rol,              -- 4
+                avatar,           -- 5
+                nombre,           -- 6
+                telefono,         -- 7
+                biografia,        -- 8
+                saldo             -- 9
             FROM usuarios
             WHERE email = %s
         """
@@ -63,35 +79,49 @@ def login():
         if datos is None:
             return jsonify({'mensaje': 'Usuario no encontrado', 'exito': False}), 401
 
-        usuarioid = datos[0]
-        username = datos[1]
-        email_bd = datos[2]
+        usuarioid   = datos[0]
+        username    = datos[1]
+        email_bd    = datos[2]
         password_bd = datos[3]
-        rol = datos[4]
-        avatar = datos[5]
-        nombre = datos[6]
-        telefono = datos[7]
-        biografia = datos[8]
+        rol         = datos[4]
+        avatar      = datos[5]
+        nombre      = datos[6]
+        telefono    = datos[7]
+        biografia   = datos[8]
+        saldo_bd    = datos[9]   # 👈 AQUÍ SE TOMA EL SALDO
 
+        # Validar contraseña
         if password != password_bd:
             return jsonify({'mensaje': 'Contraseña incorrecta', 'exito': False}), 401
 
+        print("Saldo BD:", saldo_bd)  # DEBUG
+
         usuario = {
             'usuarioid': usuarioid,
-            'username': username,
-            'email': email_bd,
-            'rol': rol,
-            'avatar': avatar,
-            'nombre': nombre,
-            'telefono': telefono,
+            'username':  username,
+            'email':     email_bd,
+            'rol':       rol,
+            'saldo':     float(saldo_bd) if saldo_bd is not None else 0.0,
+            'avatar':    avatar,
+            'nombre':    nombre,
+            'telefono':  telefono,
             'biografia': biografia
         }
 
-        return jsonify({'mensaje': 'Login exitoso', 'exito': True, 'usuario': usuario}), 200
+        print("Usuario a devolver en /login:", usuario)  # DEBUG
+
+        return jsonify({
+            'mensaje': 'Login exitoso',
+            'exito': True,
+            'usuario': usuario
+        }), 200
 
     except Exception as ex:
         print("ERROR en /login:", ex)
-        return jsonify({'mensaje': f'Error en el servidor: {ex}', 'exito': False}), 500
+        return jsonify({
+            'mensaje': f'Error en el servidor: {ex}',
+            'exito': False
+        }), 500
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -264,7 +294,7 @@ def obtener_usuarios():
     try:
         cursor = mysql.connection.cursor()
         sql = """
-            SELECT usuarioid, username, email, rol, avatar, nombre, telefono, biografia, registrofecha
+            SELECT usuarioid, username, email, rol, avatar, nombre, telefono, biografia, registrofecha, saldo
             FROM usuarios
         """
         cursor.execute(sql)
@@ -286,7 +316,9 @@ def obtener_usuarios():
                 'miembroDesde': '2024-01-01',
                 'comprasTotales': 0,
                 'gastoTotal': 0,
-                'ultimoAcceso': '2024-01-01'
+                'ultimoAcceso': '2024-01-01',
+                'saldo': float(fila[9])
+
             })
 
         return jsonify({'exito': True, 'usuarios': usuarios}), 200
@@ -532,6 +564,572 @@ def eliminar_articulo(id_articulo):
     except Exception as ex:
         print("ERROR:", ex)
         return jsonify({"exito": False, "mensaje": str(ex)}), 500
+
+
+
+""" ---------------------NOTICIAS------------------------------------------ """
+
+@app.route('/noticias', methods=['GET'])
+def obtener_noticias():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM noticias")
+    data = cursor.fetchall()
+
+    columnas = [col[0] for col in cursor.description]
+    resultado = [dict(zip(columnas, fila)) for fila in data]
+
+    cursor.close()
+    return jsonify(resultado)
+
+
+@app.route('/noticias', methods=['POST'])
+def crear_noticia():
+    datos = request.json
+    cursor = mysql.connection.cursor()
+
+    sql = """
+        INSERT INTO noticias (titulo, tipo, fecha, autor, descripcion, imagen)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+
+    valores = (
+        datos['titulo'],
+        datos['tipo'],
+        datos['fecha'],
+        datos['autor'],
+        datos['descripcion'],
+        datos['imagen']  
+    )
+
+    cursor.execute(sql, valores)
+    mysql.connection.commit()
+
+    cursor.close()
+    return jsonify({ "exito": True, "mensaje": "Noticia creada correctamente" })
+
+
+@app.route('/noticias/<int:noticiaid>', methods=['PUT'])
+def editar_noticia(noticiaid):
+    datos = request.json
+    cursor = mysql.connection.cursor()
+
+    sql = """
+        UPDATE noticias
+        SET titulo=%s, tipo=%s, fecha=%s, autor=%s,
+            descripcion=%s, imagen=%s
+        WHERE noticiaid=%s
+    """
+
+    valores = (
+        datos['titulo'],
+        datos['tipo'],
+        datos['fecha'],
+        datos['autor'],
+        datos['descripcion'],
+        datos['imagen'],
+        noticiaid
+    )
+
+    cursor.execute(sql, valores)
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({ "exito": True, "mensaje": "Noticia actualizada correctamente" })
+
+
+@app.route('/noticias/<int:noticiaid>', methods=['DELETE'])
+def eliminar_noticia(noticiaid):
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("DELETE FROM noticias WHERE noticiaid=%s", (noticiaid,))
+    mysql.connection.commit()
+
+    cursor.close()
+    return jsonify({ "exito": True, "mensaje": "Noticia eliminada" })
+
+@app.route('/api/upload_news', methods=['POST'])
+def upload_news():
+    title = request.form.get("title")
+    content = request.form.get("content")
+
+    image = request.files.get("image")  # <-- NO JSON
+
+    filename = None
+    if image:
+        filename = secure_filename(image.filename)
+        image.save(os.path.join("static/uploads", filename))
+
+    # aquí insertas a tu base de datos
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        INSERT INTO news (title, content, image)
+        VALUES (%s, %s, %s)
+    """, (title, content, filename))
+    mysql.connection.commit()
+
+    return jsonify({"status": "ok", "message": "Noticia guardada"})
+
+
+# ------------------------ GESTIÓN DE JUEGOS (ADMIN) --------------------------
+
+@app.route('/admin/juegos', methods=['POST'])
+def crear_juego():
+    try:
+        print("POST /admin/juegos (crear juego)")
+
+        # Como viene multipart/form-data
+        title = request.form.get('title')
+        genre = request.form.get('genre')
+        platform = request.form.get('platform')
+        description = request.form.get('description', '')
+        price = request.form.get('price', '0')
+
+        if not title or not genre or not platform:
+            return jsonify({'exito': False, 'mensaje': 'Título, género y plataforma son obligatorios'}), 400
+
+        price_val = float(price)
+
+        cursor = mysql.connection.cursor()
+
+        # ======= PORTADA (imagen) =======
+        portada_filename = None
+        if 'image' in request.files:
+            imagen_file = request.files['image']
+            if imagen_file and imagen_file.filename != '':
+                import time, os
+                from werkzeug.utils import secure_filename
+
+                filename_seguro = secure_filename(imagen_file.filename)
+                nombre_archivo_portada = f"{int(time.time())}_{filename_seguro}"
+
+                ruta_carpeta_portadas = os.path.join(app.root_path, 'static', 'portadas')
+                os.makedirs(ruta_carpeta_portadas, exist_ok=True)
+                ruta_completa_portada = os.path.join(ruta_carpeta_portadas, nombre_archivo_portada)
+                imagen_file.save(ruta_completa_portada)
+
+                portada_filename = nombre_archivo_portada
+
+        # ======= ARCHIVO DEL JUEGO (installer) =======
+        archivo_instalador = None
+        tamano_archivo = None
+
+        if 'installer' in request.files:
+            game_file = request.files['installer']
+            if game_file and game_file.filename != '':
+                import time, os
+                from werkzeug.utils import secure_filename
+
+                filename_seguro = secure_filename(game_file.filename)
+                nombre_archivo_juego = f"{int(time.time())}_{filename_seguro}"
+
+                ruta_carpeta_juegos = os.path.join(app.root_path, 'static', 'juegos')
+                os.makedirs(ruta_carpeta_juegos, exist_ok=True)
+                ruta_completa_juego = os.path.join(ruta_carpeta_juegos, nombre_archivo_juego)
+
+                game_file.save(ruta_completa_juego)
+
+                archivo_instalador = nombre_archivo_juego
+                tamano_archivo = os.path.getsize(ruta_completa_juego)
+
+        # ======= INSERT EN BD =======
+        sql = """
+            INSERT INTO juegos
+            (usuarioid, titulo, genero, portada, plataforma, horasjugadas, fechapublicacion,
+             precio, descripcion, archivo_instalador, tamano_archivo)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW(), %s, %s, %s, %s)
+        """
+        # por ahora usuarioid lo puedes poner fijo o null si tu BD lo permite
+        usuarioid = 1  # TODO: luego lo cambias al admin logueado
+
+        cursor.execute(sql, (
+            usuarioid,
+            title,
+            genre,
+            portada_filename,
+            platform,
+            0,                  # horasjugadas inicial = 0
+            price_val,
+            description,
+            archivo_instalador,
+            tamano_archivo
+        ))
+        mysql.connection.commit()
+
+        nuevo_id = cursor.lastrowid
+
+        juego_resp = {
+            'id': nuevo_id,
+            'title': title,
+            'genre': genre,
+            'platform': platform,
+            'description': description,
+            'price': price_val,
+            'image': portada_filename,
+            'archivo_instalador': archivo_instalador,
+            'tamano_archivo': tamano_archivo,
+            'publishDate': None,
+            'hoursPlayed': 0
+        }
+
+        return jsonify({'exito': True, 'mensaje': 'Juego creado correctamente', 'juego': juego_resp}), 201
+
+    except Exception as ex:
+        print("ERROR en POST /admin/juegos:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor al crear juego: {ex}'}), 500
+
+@app.route('/admin/juegos', methods=['GET'])
+def obtener_juegos():
+    try:
+        cursor = mysql.connection.cursor()
+        sql = """
+            SELECT 
+                juegoID,
+                titulo,
+                genero,
+                descripcion,
+                precio,
+                portada,
+                plataforma,
+                horasjugadas,
+                fechapublicacion
+            FROM juegos
+            ORDER BY fechapublicacion DESC
+        """
+        cursor.execute(sql)
+        filas = cursor.fetchall()
+
+        juegos = []
+        for fila in filas:
+            juegos.append({
+                'id': fila[0],
+                'title': fila[1],
+                'genre': fila[2],
+                'description': fila[3],                          # 👈 AQUÍ
+                'price': float(fila[4]) if fila[4] is not None else 0,  # 👈 Y AQUÍ
+                'image': fila[5],                                # nombre del archivo
+                'platform': fila[6],
+                'hoursPlayed': fila[7],
+                'publishDate': fila[8].strftime('%Y-%m-%d %H:%M:%S') if fila[8] else None
+            })
+
+        return jsonify({'exito': True, 'juegos': juegos}), 200
+
+    except Exception as ex:
+        print("ERROR en GET /admin/juegos:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor al cargar juegos: {ex}'}), 500
+
+@app.route('/admin/juegos/<int:juego_id>', methods=['PUT'])
+def actualizar_juego(juego_id):
+    try:
+        print("PUT /admin/juegos/", juego_id)
+
+        # Como viene multipart/form-data, usamos request.form y request.files
+        title = request.form.get('title')
+        genre = request.form.get('genre')
+        platform = request.form.get('platform')
+        description = request.form.get('description', '')
+        price = request.form.get('price', '0')
+
+        # Validar obligatorios
+        if not title or not genre or not platform:
+            return jsonify({'exito': False, 'mensaje': 'Título, género y plataforma son obligatorios'}), 400
+
+        price_val = float(price)
+
+        cursor = mysql.connection.cursor()
+
+        # Ver si viene nueva imagen
+        nueva_imagen = None
+        if 'image' in request.files:
+            imagen_file = request.files['image']
+            if imagen_file and imagen_file.filename != '':
+                # guardar portada igual que en el POST
+                import time, os
+                from werkzeug.utils import secure_filename
+
+                filename_seguro = secure_filename(imagen_file.filename)
+                nombre_archivo = f"{int(time.time())}_{filename_seguro}"
+                ruta_carpeta = os.path.join(app.root_path, 'static', 'portadas')
+                os.makedirs(ruta_carpeta, exist_ok=True)
+                ruta_completa = os.path.join(ruta_carpeta, nombre_archivo)
+                imagen_file.save(ruta_completa)
+
+                nueva_imagen = nombre_archivo
+
+        # Armamos el UPDATE dinámico
+        campos = [
+            "titulo = %s",
+            "genero = %s",
+            "plataforma = %s",
+            "descripcion = %s",
+            "precio = %s"
+        ]
+        valores = [title, genre, platform, description, price_val]
+
+        if nueva_imagen:
+            campos.append("portada = %s")
+            valores.append(nueva_imagen)
+
+        valores.append(juego_id)
+
+        sql = f"""
+            UPDATE juegos
+            SET {', '.join(campos)}
+            WHERE juegoID = %s
+        """
+
+        cursor.execute(sql, tuple(valores))
+        mysql.connection.commit()
+
+        # Puedes devolver info del juego actualizado
+        resp_juego = {
+            'id': juego_id,
+            'title': title,
+            'genre': genre,
+            'platform': platform,
+            'description': description,
+            'price': price_val,
+        }
+        if nueva_imagen:
+            resp_juego['image'] = nueva_imagen
+
+        return jsonify({'exito': True, 'mensaje': 'Juego actualizado correctamente', 'juego': resp_juego}), 200
+
+    except Exception as ex:
+        print("ERROR en PUT /admin/juegos/<id>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor al actualizar juego: {ex}'}), 500
+
+
+@app.route('/admin/juegos/<int:juego_id>', methods=['DELETE'])
+def eliminar_juego(juego_id):
+    try:
+        if request.method == 'OPTIONS':
+            # respuesta para el preflight
+            return '', 200
+
+        cursor = mysql.connection.cursor()
+
+        # si quieres, primero obtienes la portada para borrarla del disco
+        cursor.execute("SELECT portada FROM juegos WHERE juegoID = %s", (juego_id,))
+        fila = cursor.fetchone()
+
+        # borrar el registro
+        cursor.execute("DELETE FROM juegos WHERE juegoID = %s", (juego_id,))
+        mysql.connection.commit()
+
+        # opcional: borrar la imagen del sistema de archivos
+        if fila and fila[0]:
+            import os
+            ruta_portada = os.path.join(app.root_path, 'static', 'portadas', fila[0])
+            if os.path.exists(ruta_portada):
+                os.remove(ruta_portada)
+
+        return jsonify({'exito': True, 'mensaje': 'Juego eliminado correctamente'}), 200
+
+    except Exception as ex:
+        print("ERROR en DELETE /admin/juegos/<id>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
+
+
+
+@app.route('/api/biblioteca/<int:usuarioid>', methods=['GET'])
+def biblioteca_usuario(usuarioid):
+    try:
+        cursor = mysql.connection.cursor()
+        sql = """
+            SELECT comprasID, nombreproducto, descripción, precio, divisa, fechacompra, estado
+            FROM compras
+            WHERE usuarioid = %s
+            ORDER BY fechacompra DESC
+        """
+        cursor.execute(sql, (usuarioid,))
+        filas = cursor.fetchall()
+        cursor.close()
+
+        juegos = []
+        for fila in filas:
+            juegos.append({
+                'comprasID': fila[0],
+                'nombre': fila[1],
+                'descripcion': fila[2],
+                'precio': float(fila[3]),
+                'divisa': fila[4],
+                'fechacompra': fila[5].strftime('%Y-%m-%d %H:%M:%S'),
+                'estado': fila[6]
+            })
+
+        return jsonify({'exito': True, 'juegos': juegos}), 200
+
+    except Exception as ex:
+        print("ERROR en /api/biblioteca/<usuarioid>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
+
+
+# GET /admin/juegos  -> devuelve lista de juegos en formato consistente para el front
+@app.route('/tienda', methods=['GET'])
+def listar_juegos():
+    try:
+        cursor = mysql.connection.cursor()
+        # ajusta nombres de columnas si los tienes distintos; esta consulta usa la tabla 'juegos'
+        sql = """
+            SELECT juegoID, usuarioid, titulo, descripcion, genero, precio, portada, plataforma,
+                   horasjugadas, estado, fechapublicacion, archivo_instalador, tamano_archivo
+            FROM juegos
+            WHERE 1
+            ORDER BY fechapublicacion DESC
+        """
+        cursor.execute(sql)
+        filas = cursor.fetchall()
+
+        juegos = []
+        # filas puede devolverse como tu driver lo haga; flask_mysqldb devuelve tuplas.
+        for f in filas:
+            # si fetchall devuelve tuplas en orden de la consulta:
+            juego = {
+                "juegoID": f[0],
+                "usuarioid": f[1],
+                "titulo": f[2],
+                "descripcion": f[3],
+                "genero": f[4],
+                "precio": float(f[5]) if f[5] is not None else 0.0,
+                "portada": f[6],            # nombre de archivo (o NULL)
+                "plataforma": f[7],
+                "horasjugadas": f[8],
+                "estado": f[9],
+                "fechapublicacion": str(f[10]) if f[10] is not None else None,
+                "archivo_instalador": f[11],
+                "tamano_archivo": f[12]
+            }
+            juegos.append(juego)
+
+        return jsonify({"exito": True, "juegos": juegos}), 200
+
+    except Exception as ex:
+        print("ERROR en GET /admin/juegos:", ex)
+        return jsonify({"exito": False, "mensaje": f"Error en el servidor: {ex}"}), 500
+
+from flask import request, jsonify
+
+@app.route('/api/mis-juegos', methods=['GET'])
+def mis_juegos():
+    try:
+        usuarioid = request.args.get('usuarioid', type=int)
+        if not usuarioid:
+            return jsonify({'exito': False, 'mensaje': 'Falta usuarioid'}), 400
+
+        cursor = mysql.connection.cursor()
+        sql = """
+            SELECT 
+                j.juegoID,
+                j.titulo,
+                j.descripcion,
+                j.genero,
+                j.portada,
+                j.archivo_instalador,
+                j.tamano_archivo,
+                j.horasjugadas,
+                j.plataforma,
+                j.precio,
+                c.fechacompra
+            FROM compras c
+            JOIN juegos j ON c.juegoID = j.juegoID
+            WHERE c.usuarioid = %s
+            ORDER BY c.fechacompra DESC
+        """
+        cursor.execute(sql, (usuarioid,))
+        filas = cursor.fetchall()
+        cursor.close()
+
+        juegos = []
+        for fila in filas:
+            juegos.append({
+                'juegoID':            fila[0],
+                'titulo':             fila[1],
+                'descripcion':        fila[2],
+                'genero':             fila[3],
+                'portada':            fila[4],
+                'archivo_instalador': fila[5],
+                'tamano_archivo':     int(fila[6]) if fila[6] is not None else 0,
+                'horasjugadas':       fila[7] if fila[7] is not None else 0,
+                'plataforma':         fila[8],
+                'precio':             float(fila[9]),
+                'fecha_compra':       str(fila[10])
+            })
+
+        return jsonify({'exito': True, 'juegos': juegos}), 200
+
+    except Exception as ex:
+        print("ERROR en /api/mis-juegos:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
+
+
+@app.route('/api/carrito/procesar', methods=['POST'])
+def procesar_carrito():
+    try:
+        data = request.get_json()
+        print("Data recibida en /api/carrito/procesar:", data)
+
+        usuarioid = data.get('usuarioid')
+        total = data.get('total')
+        items = data.get('items', [])
+
+        if not usuarioid or not isinstance(items, list) or len(items) == 0:
+            return jsonify({'exito': False, 'mensaje': 'Datos inválidos en la petición'}), 400
+
+        cursor = mysql.connection.cursor()
+
+        # 1) Leer saldo
+        sql_saldo = "SELECT saldo FROM usuarios WHERE usuarioid = %s"
+        cursor.execute(sql_saldo, (usuarioid,))
+        row = cursor.fetchone()
+
+        if not row:
+            cursor.close()
+            return jsonify({'exito': False, 'mensaje': 'Usuario no encontrado'}), 404
+
+        saldo_actual = float(row[0])
+
+        if saldo_actual < float(total):
+            cursor.close()
+            return jsonify({
+                'exito': False,
+                'mensaje': 'Saldo insuficiente para realizar la compra'
+            }), 400
+
+        # 2) Descontar saldo
+        nuevo_saldo = saldo_actual - float(total)
+        sql_update_saldo = "UPDATE usuarios SET saldo = %s WHERE usuarioid = %s"
+        cursor.execute(sql_update_saldo, (nuevo_saldo, usuarioid))
+
+        # 3) Insertar en compras (uno por item)
+        sql_insert_compra = """
+            INSERT INTO compras (usuarioid, nombreproducto, descripción, precio, divisa, fechacompra, estado)
+            VALUES (%s, %s, %s, %s, %s, NOW(), %s)
+        """
+
+        for item in items:
+            titulo = item.get('titulo', 'Juego sin nombre')
+            descripcion = item.get('descripcion', '')
+            precio = float(item.get('precio', 0))
+
+            cursor.execute(
+                sql_insert_compra,
+                (usuarioid, titulo, descripcion, precio, 'MXN', 'pagado')
+            )
+
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Compra procesada correctamente',
+            'nuevo_saldo': nuevo_saldo
+        }), 200
+
+    except Exception as ex:
+        print("ERROR en /api/carrito/procesar:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
+
 
 
 def pagina_no_encontrada(error):

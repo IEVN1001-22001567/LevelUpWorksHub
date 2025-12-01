@@ -14,14 +14,12 @@
   <section class="bg-card border-b-2 border-border py-6">
     <div class="container mx-auto px-4">
       <div class="flex flex-wrap gap-3">
-
         @for (category of categorias; track category) {
           <button
             class="px-6 py-2 rounded-full border-2 border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200">
             {{ category }}
           </button>
         }
-
       </div>
     </div>
   </section>
@@ -36,7 +34,8 @@
           <div class="grid md:grid-cols-2 gap-0">
 
             <div class="relative h-80 md:h-auto">
-              <img [src]="articuloDestacado.image" [alt]="articuloDestacado.title" class="w-full h-full object-cover" />
+              <img [src]="articuloDestacado.imagen" [alt]="articuloDestacado.titulo"
+                class="w-full h-full object-cover" />
               <div class="absolute top-4 left-4">
                 <span class="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm">
                   ⭐ Destacado
@@ -49,18 +48,18 @@
               <div class="flex items-center gap-4 mb-4 text-muted-foreground text-sm">
                 <div class="flex items-center gap-2">
                   <span>📅</span>
-                  <span>{{ articuloDestacado.date }}</span>
+                  <span>{{ articuloDestacado.fecha }}</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <span>👤</span>
-                  <span>{{ articuloDestacado.author }}</span>
+                  <span>{{ articuloDestacado.autor }}</span>
                 </div>
               </div>
 
-              <h2 class="text-primary mb-4">{{ articuloDestacado.title }}</h2>
+              <h2 class="text-primary mb-4">{{ articuloDestacado.titulo }}</h2>
 
               <p class="text-card-foreground mb-6">
-                {{ articuloDestacado.excerpt }}
+                {{ articuloDestacado.descripcion }}
               </p>
 
               <button
@@ -89,11 +88,11 @@
             class="bg-background border-2 border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-xl group cursor-pointer">
 
             <div class="relative h-48 overflow-hidden">
-              <img [src]="article.image" [alt]="article.title"
+              <img [src]="article.imagen" [alt]="article.titulo"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               <div class="absolute top-3 right-3">
                 <span class="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs">
-                  {{ article.category }}
+                  {{ article.tipo }}
                 </span>
               </div>
             </div>
@@ -101,15 +100,15 @@
             <div class="p-5">
               <div class="flex items-center gap-3 mb-3 text-muted-foreground text-xs">
                 <span>📅</span>
-                <span>{{ article.date }}</span>
+                <span>{{ article.fecha }}</span>
               </div>
 
               <h3 class="text-card-foreground mb-3 group-hover:text-primary transition-colors">
-                {{ article.title }}
+                {{ article.titulo }}
               </h3>
 
               <p class="text-muted-foreground text-sm mb-4 line-clamp-2">
-                {{ article.excerpt }}
+                {{ article.descripcion }}
               </p>
 
               <button class="text-primary hover:text-accent inline-flex items-center gap-2 transition-colors duration-200">
@@ -126,7 +125,7 @@
     </div>
   </section>
 
-  <!-- Newsletter Section -->
+  <!-- Newsletter -->
   <section class="py-16 bg-primary">
     <div class="container mx-auto px-4 text-center">
 

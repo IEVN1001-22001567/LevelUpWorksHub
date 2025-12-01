@@ -11,129 +11,85 @@
     Gestiona tu colección de juegos
   </p>
 
-  <!-- BUSCADOR + FILTROS (CENTRADO) -->
+  <!-- BUSCADOR (SIN ngModel, SOLO (input)) -->
   <div class="flex items-center gap-3 mb-10 w-full max-w-3xl justify-center">
-
     <input
       type="text"
       class="w-full bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:border-yellow-400"
       placeholder="Buscar juegos..."
+      (input)="searchTerm = $any($event.target).value"
     >
-
-    <!-- ÍCONO DE FILTROS -->
     <div class="p-3 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:bg-[#222] cursor-pointer transition">
       <img src="assets/icons/filter.svg" class="w-6 h-6">
     </div>
   </div>
 
+  <!-- ESTADOS -->
+  <div *ngIf="cargando" class="text-gray-400 mb-4">
+    Cargando biblioteca...
+  </div>
 
-  <!-- GRID DE JUEGOS (2 COLUMNAS, TODAS IGUALES) -->
+  <div *ngIf="errorMsg" class="text-red-400 mb-4">
+    {{ errorMsg }}
+  </div>
+
+  <div *ngIf="usuario && !cargando && juegosFiltrados().length === 0" class="text-gray-400 mb-4">
+    No hay juegos en tu biblioteca.
+  </div>
+
+  <!-- GRID DE JUEGOS -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
 
+    <div
+      *ngFor="let juego of juegosFiltrados()"
+      class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition"
+    >
 
-    <!-- ░░ JUEGO 1 – WIBERNS QUEST ░░ -->
-    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
-
-      <!-- IMAGEN -->
-      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
-        <img src="assets/juegos/wiberns-quest.jpg" class="w-full h-full object-cover">
+      <!-- IMAGEN PLACEHOLDER (porque no tenemos portada en la BD) -->
+      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0 flex items-center justify-center">
+        <span class="text-3xl font-bold text-gray-300">
+          {{ juego.nombre[0] || '?' }}
+        </span>
       </div>
 
       <!-- INFO -->
       <div class="flex flex-col flex-grow">
-        <h3 class="text-xl font-bold">Wiberns Quest</h3>
+        <h3 class="text-xl font-bold">{{ juego.nombre }}</h3>
 
-        <div class="flex flex-wrap gap-2 mt-1">
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">RPG</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Aventura</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">2D</span>
-        </div>
+        <p class="text-xs text-gray-400 mt-1">
+          Comprado el: {{ juego.fechacompra }}
+        </p>
 
-        <div class="flex items-center justify-between mt-3">
-          <p class="text-xs text-gray-400">Tiempo jugado: 45 h</p>
-
-          <div class="flex text-yellow-400">
-            <span>★</span><span>★</span><span>★</span><span>★</span>
-            <span class="text-gray-600">★</span>
-          </div>
-        </div>
-
-        <div class="flex justify-end mt-3">
-          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
-            Jugar
-          </button>
-        </div>
-      </div>
-    </div>
-
-
-
-    <!-- ░░ JUEGO 2 – CHAINSAW OF THE DEAD ░░ -->
-    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
-
-      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
-        <img src="assets/juegos/chainsaw-dead.jpg" class="w-full h-full object-cover">
-      </div>
-
-      <div class="flex flex-col flex-grow">
-        <h3 class="text-xl font-bold">Chainsaw of the Dead</h3>
-
-        <div class="flex flex-wrap gap-2 mt-1">
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Shooter</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">2D</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Supervivencia</span>
-        </div>
+        <p class="text-sm text-gray-300 mt-2 line-clamp-2">
+          {{ juego.descripcion || 'Sin descripción' }}
+        </p>
 
         <div class="flex items-center justify-between mt-3">
-          <p class="text-xs text-gray-400">Tiempo jugado: 28 h</p>
+          <p class="text-sm text-yellow-400 font-semibold">
+            {{ juego.precio | number:'1.2-2' }} {{ juego.divisa }}
+          </p>
 
-          <div class="flex text-yellow-400">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-          </div>
+          <span class="text-xs px-2 py-1 rounded bg-green-700/40 border border-green-600" *ngIf="juego.estado === 'pagado'">
+            Pagado
+          </span>
         </div>
 
-        <div class="flex justify-end mt-3">
-          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
+        <div class="flex justify-end mt-3 gap-2">
+          <button
+            class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300"
+            (click)="descargar(juego)"
+          >
             Descargar
           </button>
-        </div>
-      </div>
-    </div>
 
-
-
-    <!-- ░░ JUEGO 3 – BURNOUT ░░ -->
-    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
-
-      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
-        <img src="assets/juegos/burnout.jpg" class="w-full h-full object-cover">
-      </div>
-
-      <div class="flex flex-col flex-grow">
-        <h3 class="text-xl font-bold">Burnout</h3>
-
-        <div class="flex flex-wrap gap-2 mt-1">
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Terror</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">VR</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Psicológico</span>
-        </div>
-
-        <div class="flex items-center justify-between mt-3">
-          <p class="text-xs text-gray-400">Tiempo jugado: 67 h</p>
-
-          <div class="flex text-yellow-400">
-            <span>★</span><span>★</span><span>★</span><span>★</span>
-            <span class="text-gray-600">★</span>
-          </div>
-        </div>
-
-        <div class="flex justify-end mt-3">
-          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
+          <button
+            class="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-400"
+            (click)="jugar(juego)"
+          >
             Jugar
           </button>
         </div>
       </div>
-
     </div>
 
   </div>
