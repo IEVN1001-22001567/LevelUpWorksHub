@@ -30,9 +30,7 @@ interface Usuario {
   templateUrl: './adminusuarios.component.html',
 })
 
-
 export class AdminUsuariosComponent implements OnInit {
-
 
   usuarios: Usuario[] = [];
 
