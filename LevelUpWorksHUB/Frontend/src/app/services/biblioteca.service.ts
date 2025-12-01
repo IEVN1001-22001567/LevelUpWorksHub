@@ -4,13 +4,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface JuegoBiblioteca {
-  comprasID: number;
-  nombre: string;
-  descripcion: string;
-  precio: number;
-  divisa: string;
-  fechacompra: string;
-  estado: string;
+  comprasID?: number;
+  juegoID?: number;
+  titulo?: string;
+  portada?: string;
+  descripcion?: string;
+  precio?: number;
+  divisa?: string;
+  // algunos endpoints usan 'fecha_compra' y otros 'fechacompra'
+  fecha_compra?: string;
+  fechacompra?: string;
 }
 
 @Injectable({
@@ -23,8 +26,9 @@ export class BibliotecaService {
 
   // 👈 ESTE ES EL ÚNICO MÉTODO QUE USAREMOS
   obtenerBiblioteca(usuarioid: number): Observable<{ exito: boolean; juegos: JuegoBiblioteca[] }> {
+    // Usar endpoint /api/mis-juegos para incluir portada y juegoID
     return this.http.get<{ exito: boolean; juegos: JuegoBiblioteca[] }>(
-      `${this.baseUrl}/api/biblioteca/${usuarioid}`
+      `${this.baseUrl}/api/mis-juegos?usuarioid=${usuarioid}`
     );
   }
 }

@@ -16,6 +16,7 @@ interface JuegoTienda {
   reviews: string;
   tags: string[];
   plataforma: string;
+  yaComprado?: boolean;
 }
 
 @Component({
@@ -35,6 +36,7 @@ export class TiendaComponent implements OnInit {
 
   isLoggedIn = false;
   usuarioActual: Usuario | null = null;
+  juegosComprados: number[] = [];  // IDs de juegos ya comprados
 
   faqs = [
     {
@@ -68,7 +70,40 @@ export class TiendaComponent implements OnInit {
     this.auth.user$.subscribe((user) => {
       this.usuarioActual = user;
       this.isLoggedIn = !!user;
+
+      // Cuando el usuario cambia, cargar sus juegos comprados
+      if (user && user.usuarioid) {
+        this.cargarJuegosComprados(user.usuarioid);
+      } else {
+        this.juegosComprados = [];
+      }
     });
+  }
+
+  // ===== CARGAR JUEGOS COMPRADOS DEL USUARIO =====
+  cargarJuegosComprados(usuarioid: number) {
+    this.http.get<any>(`${this.baseUrl}/api/mis-juegos?usuarioid=${usuarioid}`).subscribe({
+      next: (res: any) => {
+        if (res && res.exito && res.juegos) {
+          // Extraer los IDs de los juegos comprados
+          this.juegosComprados = res.juegos.map((j: any) => j.juegoID);
+          
+          // Actualizar el estado de yaComprado en los juegos ya cargados
+          this.actualizarEstadoJuegosComprados();
+        }
+      },
+      error: (err: any) => {
+        console.error('Error cargando juegos comprados:', err);
+      }
+    });
+  }
+
+  // ===== ACTUALIZAR ESTADO DE JUEGOS COMPRADOS =====
+  actualizarEstadoJuegosComprados() {
+    this.juegos = this.juegos.map((juego) => ({
+      ...juego,
+      yaComprado: this.juegosComprados.includes(juego.id)
+    }));
   }
 
   // ===== CARGAR JUEGOS DESDE /tienda =====
@@ -91,7 +126,7 @@ export class TiendaComponent implements OnInit {
             ? `${this.baseUrl}/static/portadas/${portadaNombre}`
             : 'assets/img/placeholder_game.jpg';
 
-          return {
+          const juego: JuegoTienda = {
             id: Number(j.juegoID ?? 0),
             titulo: j.titulo ?? 'Sin título',
             descripcion: j.descripcion ?? '',
@@ -105,9 +140,14 @@ export class TiendaComponent implements OnInit {
               j.plataforma ?? 'PC',
               j.genero ?? 'RPG',
               'Unity Engine'
-            ]
+            ],
+            yaComprado: this.juegosComprados.includes(Number(j.juegoID ?? 0))
           };
+          return juego;
         });
+
+        // Después de cargar los juegos, actualizar estado de comprados
+        this.actualizarEstadoJuegosComprados();
       },
       error: (err: any) => {
         console.error('Error cargando juegos tienda:', err);
@@ -124,7 +164,7 @@ export class TiendaComponent implements OnInit {
       return;
     }
 
-    this.carrito.agregarItem({
+    const agregado = this.carrito.agregarItem({
       id: juego.id,
       titulo: juego.titulo,
       precio: juego.precio,
@@ -132,8 +172,18 @@ export class TiendaComponent implements OnInit {
       cantidad: 1
     });
 
-    // después de agregar al carrito, lo mandamos al carrito
-    this.router.navigate(['/carrito']);
+    if (agregado) {
+      // después de agregar al carrito, lo mandamos al carrito
+      this.router.navigate(['/carrito']);
+    } else {
+      // Mostrar alerta si el juego ya está en el carrito
+      alert(`${juego.titulo} ya está en tu carrito. Solo puedes comprar una copia de cada juego.`);
+    }
+  }
+
+  // ===== VER EN BIBLIOTECA =====
+  irABiblioteca() {
+    this.router.navigate(['/biblioteca']);
   }
 
   // ===== IR A LOGIN CON ROUTER =====
