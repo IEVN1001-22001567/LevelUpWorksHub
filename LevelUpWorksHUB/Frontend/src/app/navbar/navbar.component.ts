@@ -1,29 +1,69 @@
-import { Component, OnInit } from '@angular/core';
+// src/app/navbar/navbar.component.ts
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AuthService, Usuario } from '../services/auth.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [
+    CommonModule,
+    RouterLink,
+    RouterLinkActive
+  ],
   templateUrl: './navbar.component.html'
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, OnDestroy {
 
-  user: any = null;
+  user: Usuario | null = null;
+  avatarInitial: string = '';
   menuAbierto = false;
 
-  constructor(private router: Router) {}
+  private sub!: Subscription;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-    const userJson = localStorage.getItem('user');
-    this.user = userJson ? JSON.parse(userJson) : null;
+    this.sub = this.authService.user$.subscribe(u => {
+      this.user = u;
+      this.calcularAvatarInitial();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.sub) this.sub.unsubscribe();
+  }
+
+  private calcularAvatarInitial() {
+    if (this.user?.username && this.user.username.length > 0) {
+      this.avatarInitial = this.user.username.charAt(0).toUpperCase();
+    } else if (this.user?.email && this.user.email.length > 0) {
+      this.avatarInitial = this.user.email.charAt(0).toUpperCase();
+    } else {
+      this.avatarInitial = '';
+    }
+  }
+
+  get esAdmin(): boolean {
+    return this.user?.rol === 'admin';
+  }
+
+  toggleMenuUsuario() {
+    this.menuAbierto = !this.menuAbierto;
+  }
+
+  irAPerfil() {
+    this.menuAbierto = false;
+    this.router.navigate(['/personalizarperfil']);
   }
 
   logout() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    this.user = null;
+    this.authService.limpiarUsuario();
     this.menuAbierto = false;
     this.router.navigate(['/inicio']);
   }
