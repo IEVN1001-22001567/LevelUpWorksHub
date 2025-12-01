@@ -12,23 +12,23 @@ export default class InicioComponent {
   equipo = [
     {
       nombre: 'Alex Eduardo García',
-      rol: 'Frontend Developer',
-      foto: 'assets/img/equipo/alex.png'
+      rol: 'Backend Developer',
+      foto: 'assets/img/alex.png'
     },
     {
       nombre: 'Christian Barrón',
-      rol: 'Backend Developer',
-      foto: 'assets/img/equipo/chris.png'
+      rol: 'Frontend Developer',
+      foto: 'assets/img/chris.jpg'
     },
     {
       nombre: 'Miguel Frausto',
       rol: 'UI/UX Designer',
-      foto: 'assets/img/equipo/miguel.png'
+      foto: 'assets/img/miguel.png'
     },
     {
-      nombre: 'Marin Kitagawa',
+      nombre: 'Yafte Ramirez',
       rol: 'Tester / QA',
-      foto: 'assets/img/equipo/marin.png'
+      foto: 'assets/img/yafte.png'
     }
   ];
 

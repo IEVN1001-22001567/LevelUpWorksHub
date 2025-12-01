@@ -37,6 +37,7 @@ export class AdminUsuariosComponent {
       comprasTotales: 0,
       gastoTotal: 0,
       ultimoAcceso: '2025-11-14'
+      //totalUsuarios: number = 150;
     },
     {
       id: '1',
