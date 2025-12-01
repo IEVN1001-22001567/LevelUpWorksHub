@@ -70,6 +70,12 @@ export const routes: Routes = [
   loadChildren: () =>import('./carrito/carrito.routes').then(m => m.CARRITO_ROUTES)
 },
 
+{
+
+    path: 'resenas',
+    loadChildren: () => import('./resenas/resenas.routes').then(m => m.RESENAS_ROUTES)
+},
+
 
 //RutasADmin
 {
@@ -95,6 +101,12 @@ export const routes: Routes = [
     path: 'adminlicencias',
     loadChildren: () => import('./admin/adminlicencias/adminlicencias.routes').then(m => m.ADMIN_LICENCIAS_ROUTES)
   },
+
+  {
+    path: 'adminresenas',
+    loadChildren: () => import('./admin/adminresenas/adminresenas.routes').then(m => m.ADMIN_RESENAS_ROUTES)
+  },
+
 
   {
     path: 'utl',

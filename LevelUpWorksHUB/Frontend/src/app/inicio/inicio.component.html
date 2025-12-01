@@ -5,12 +5,7 @@
     <div class="absolute inset-0 bg-gradient-to-b from-primary/10 to-background z-0"></div>
 
     <div class="container mx-auto px-4 text-center relative z-10">
-      <div class="inline-flex items-center gap-3 mb-6 bg-primary/20 px-6 py-2 rounded-full border-2 border-primary">
-        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-width="2" d="M12 3v3m0 12v3m9-9h-3M6 12H3m15.364-6.364l-2.121 2.121M8.757 15.243 6.636 17.364m10.728 0-2.121-2.121M8.757 8.757 6.636 6.636"/>
-        </svg>
-        <span class="text-primary">Level Up Hub</span>
-      </div>
+
 
       <h1 class="text-primary mb-6 max-w-4xl mx-auto">
         Tu Plataforma Gaming Definitiva
@@ -21,14 +16,15 @@
         hasta terror inmersivo en VR. Únete a nuestra revolución del entretenimiento digital.
       </p>
 
-      <div class="flex gap-4 justify-center flex-wrap">
+      <div routerLink="/tienda" class="flex gap-4 justify-center flex-wrap">
         <button class="bg-primary hover:bg-accent text-primary-foreground px-8 py-3 rounded-lg transition-colors duration-200">
           Explorar Tienda
         </button>
 
-        <button class="bg-card hover:bg-secondary text-card-foreground border-2 border-border px-8 py-3 rounded-lg transition-colors duration-200">
+        <button routerLink="/biblioteca" class="bg-card hover:bg-secondary text-card-foreground border-2 border-border px-8 py-3 rounded-lg transition-colors duration-200">
           Ver Juegos
         </button>
+
       </div>
     </div>
   </section>
