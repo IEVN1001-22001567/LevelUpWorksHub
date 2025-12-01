@@ -76,33 +76,49 @@
   <div class="text-sm text-gray-500 mb-1">Precio</div>
   <div class="text-3xl font-bold text-[#ffc107] mb-5">${{ juego.precio }}</div>
 
-  <!-- BOTÓN PRINCIPAL -->
-  <button
-    class="w-full bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors mb-4"
-    (click)="onComprar(juego)"
-  >
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0
-               0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
+  <!-- SI YA COMPRÓ: BOTÓN "VER EN BIBLIOTECA" -->
+  <ng-container *ngIf="juego.yaComprado && isLoggedIn">
+    <button
+      class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+      (click)="irABiblioteca()"
+      title="Ya tienes este juego en tu biblioteca"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <span>Ver en biblioteca</span>
+    </button>
+  </ng-container>
 
-    <span *ngIf="isLoggedIn">Comprar ahora</span>
-    <span *ngIf="!isLoggedIn">Inicia sesión para comprar</span>
-  </button>
+  <!-- SI NO COMPRÓ: BOTÓN "COMPRAR" -->
+  <ng-container *ngIf="!juego.yaComprado">
+    <button
+      class="w-full bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors mb-4"
+      (click)="onComprar(juego)"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0
+                 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
 
-  <!-- SEGUNDO BOTÓN SOLO SI NO ESTÁ LOGUEADO -->
-  <button
-    class="w-full text-center text-gray-500 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors"
-    *ngIf="!isLoggedIn"
-    (click)="irALogin()"
-  >
-     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-     </svg>
-     Inicia Sesión para Descargar
-  </button>
+      <span *ngIf="isLoggedIn">Comprar ahora</span>
+      <span *ngIf="!isLoggedIn">Inicia sesión para comprar</span>
+    </button>
+
+    <!-- SEGUNDO BOTÓN SOLO SI NO ESTÁ LOGUEADO -->
+    <button
+      class="w-full text-center text-gray-500 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors"
+      *ngIf="!isLoggedIn"
+      (click)="irALogin()"
+    >
+       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+               d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+       </svg>
+       Inicia Sesión para Descargar
+    </button>
+  </ng-container>
 </div>
 
         </div>

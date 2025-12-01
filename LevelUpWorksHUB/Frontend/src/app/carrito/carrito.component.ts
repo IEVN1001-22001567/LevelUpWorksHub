@@ -59,16 +59,6 @@ export class CarritoComponent implements OnInit, OnDestroy {
     this.carritoSvc.vaciarCarrito();
   }
 
-  decrementar(item: ItemCarrito) {
-    if (item.cantidad > 1) {
-      this.carritoSvc.actualizarCantidad(item.id, item.cantidad - 1);
-    }
-  }
-
-  incrementar(item: ItemCarrito) {
-    this.carritoSvc.actualizarCantidad(item.id, item.cantidad + 1);
-  }
-
   eliminar(item: ItemCarrito) {
     this.carritoSvc.eliminarItem(item.id);
   }
