@@ -38,55 +38,60 @@
   </div>
 
   <!-- GRID DE JUEGOS -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
 
     <div
       *ngFor="let juego of juegosFiltrados()"
-      class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition"
+      class="bg-[#1a1a1a] border border-gray-700 rounded-xl overflow-hidden hover:border-yellow-400 transition transform hover:scale-105"
     >
 
-      <!-- IMAGEN PLACEHOLDER (porque no tenemos portada en la BD) -->
-      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0 flex items-center justify-center">
-        <span class="text-3xl font-bold text-gray-300">
-          {{ juego.nombre[0] || '?' }}
-        </span>
+      <!-- IMAGEN/PORTADA -->
+      <div class="w-full h-40 overflow-hidden bg-gradient-to-br from-yellow-600/20 to-blue-600/20 flex items-center justify-center relative">
+        <ng-container *ngIf="juego.portada; else letra">
+          <img [src]="'http://127.0.0.1:5000/static/portadas/' + juego.portada" alt="Portada" class="w-full h-full object-cover">
+        </ng-container>
+        <ng-template #letra>
+          <span class="text-5xl font-bold text-gray-500">
+            {{ (juego.titulo || '?')[0] }}
+          </span>
+        </ng-template>
+
+        <div class="absolute top-2 right-2 bg-green-600/80 px-3 py-1 rounded-full text-xs font-bold">
+          Pagado ✓
+        </div>
       </div>
 
-      <!-- INFO -->
-      <div class="flex flex-col flex-grow">
-        <h3 class="text-xl font-bold">{{ juego.nombre }}</h3>
-
-        <p class="text-xs text-gray-400 mt-1">
-          Comprado el: {{ juego.fechacompra }}
+      <!-- INFO PRINCIPAL -->
+      <div class="p-4">
+        <h3 class="text-xl font-bold text-yellow-400 mb-1">{{ juego.titulo }}</h3>
+        
+        <p class="text-xs text-gray-500 mb-3">
+          📅 Comprado: {{ juego.fecha_compra | date:'dd/MM/yyyy HH:mm' }}
         </p>
 
-        <p class="text-sm text-gray-300 mt-2 line-clamp-2">
-          {{ juego.descripcion || 'Sin descripción' }}
+        <!-- DESCRIPCIÓN -->
+        <p class="text-sm text-gray-300 mb-3 line-clamp-2 min-h-10">
+          {{ juego.descripcion || 'Sin descripción disponible' }}
         </p>
 
-        <div class="flex items-center justify-between mt-3">
-          <p class="text-sm text-yellow-400 font-semibold">
-            {{ juego.precio | number:'1.2-2' }} {{ juego.divisa }}
-          </p>
+        <!-- (Precio removido en la biblioteca) -->
 
-          <span class="text-xs px-2 py-1 rounded bg-green-700/40 border border-green-600" *ngIf="juego.estado === 'pagado'">
-            Pagado
-          </span>
-        </div>
-
-        <div class="flex justify-end mt-3 gap-2">
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="flex gap-2">
           <button
-            class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300"
+            class="flex-1 bg-yellow-500 text-black font-bold px-3 py-2 rounded-lg hover:bg-yellow-400 transition text-sm"
             (click)="descargar(juego)"
+            title="Descargar el juego"
           >
-            Descargar
+            ⬇️ Descargar
           </button>
 
           <button
-            class="bg-blue-500 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-400"
+            class="flex-1 bg-blue-600 text-white font-bold px-3 py-2 rounded-lg hover:bg-blue-500 transition text-sm"
             (click)="jugar(juego)"
+            title="Ejecutar el juego"
           >
-            Jugar
+            ▶️ Jugar
           </button>
         </div>
       </div>

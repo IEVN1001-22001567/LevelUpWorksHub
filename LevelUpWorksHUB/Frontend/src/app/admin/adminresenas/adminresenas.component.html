@@ -1,0 +1,344 @@
+<div class="min-h-screen bg-[#121212] font-sans pb-20">
+
+  <!-- HEADER / DASHBOARD -->
+  <div class="container mx-auto px-6 pt-10">
+
+    <!-- Título Sección -->
+    <div class="flex items-center gap-3 mb-2 text-[#ffc107]">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      </svg>
+      <h1 class="text-xl font-bold">Panel de Administración - Reseñas</h1>
+    </div>
+    <p class="text-gray-400 mb-8">Gestiona todas las reseñas de la plataforma</p>
+
+    <!-- TARJETAS DE ESTADÍSTICAS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <!-- Total -->
+      <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-5">
+        <p class="text-gray-500 text-sm mb-1">Total Reseñas</p>
+        <p class="text-3xl font-bold text-[#ffc107]">{{ stats.total }}</p>
+      </div>
+      <!-- Publicadas -->
+      <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-5">
+        <p class="text-gray-500 text-sm mb-1">Publicadas</p>
+        <div class="flex items-center gap-2 text-green-500">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span class="text-2xl font-bold">{{ stats.publicadas }}</span>
+        </div>
+      </div>
+      <!-- Pendientes -->
+      <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-5">
+        <p class="text-gray-500 text-sm mb-1">Pendientes</p>
+        <div class="flex items-center gap-2 text-[#ffc107]">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span class="text-2xl font-bold">{{ stats.pendientes }}</span>
+        </div>
+      </div>
+      <!-- Rating Promedio -->
+      <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-5">
+        <p class="text-gray-500 text-sm mb-1">Rating Promedio</p>
+        <div class="flex items-center gap-2 text-blue-400">
+          <span class="text-2xl">★</span>
+          <span class="text-2xl font-bold">{{ stats.ratingPromedio }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ESTADÍSTICAS POR JUEGO -->
+    <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-6 mb-10">
+      <div class="flex items-center gap-2 text-[#ffc107] mb-4">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+        <h2 class="font-medium">Estadísticas por Juego</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div *ngFor="let game of gameStats">
+          <h3 class="text-white font-medium text-sm">{{ game.name }}</h3>
+          <div class="flex items-center gap-2 mt-1">
+            <div class="flex text-[#ffc107] text-xs">
+              <span *ngFor="let s of [1,2,3,4,5]">★</span>
+            </div>
+            <span class="text-[#ffc107] font-bold text-sm">{{ game.rating }}</span>
+          </div>
+          <p class="text-gray-500 text-xs mt-1">{{ game.count }} reseñas</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BARRA DE ACCIÓN Y FILTROS -->
+    <div class="flex justify-between items-center gap-4 mb-6">
+      <!-- Buscador -->
+      <div class="relative flex-grow max-w-2xl">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 absolute left-3 top-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar reseñas..."
+          class="w-full bg-[#1a1a1a] border border-gray-800 rounded-lg py-3 pl-10 pr-4 text-gray-200 outline-none focus:border-[#ffc107] transition-colors">
+      </div>
+      <!-- Botón Nueva -->
+      <button class="bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 px-6 rounded-lg flex items-center gap-2">
+        <span>+</span> Nueva Reseña
+      </button>
+    </div>
+
+    <!-- TABS DE FILTRO -->
+    <div class="flex gap-4 mb-4">
+      <button (click)="setFilter('todas')"
+        class="px-4 py-1 rounded-full text-sm font-medium transition-colors"
+        [ngClass]="activeFilter === 'todas' ? 'bg-[#ffc107] text-black' : 'text-[#ffc107] hover:bg-[#ffc107]/10'">
+        Todas ({{stats.total}})
+      </button>
+      <button (click)="setFilter('publicadas')"
+        class="px-4 py-1 rounded-full text-sm font-medium transition-colors"
+        [ngClass]="activeFilter === 'publicadas' ? 'bg-[#ffc107] text-black' : 'text-[#ffc107] hover:bg-[#ffc107]/10'">
+        Publicadas ({{stats.publicadas}})
+      </button>
+      <button (click)="setFilter('pendientes')"
+        class="px-4 py-1 rounded-full text-sm font-medium transition-colors"
+        [ngClass]="activeFilter === 'pendientes' ? 'bg-[#ffc107] text-black' : 'text-[#ffc107] hover:bg-[#ffc107]/10'">
+        Pendientes ({{stats.pendientes}})
+      </button>
+      <button (click)="setFilter('rechazadas')"
+        class="text-gray-500 hover:text-gray-300 px-4 py-1 text-sm font-medium">
+        Rechazadas (0)
+      </button>
+    </div>
+
+    <!-- TABLA DE RESEÑAS -->
+    <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl overflow-hidden shadow-lg mb-20">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-gray-800 text-[#ffc107] text-xs uppercase tracking-wider">
+              <th class="py-4 px-4 font-semibold">ID</th>
+              <th class="py-4 px-4 font-semibold">Juego</th>
+              <th class="py-4 px-4 font-semibold">Usuario</th>
+              <th class="py-4 px-4 font-semibold">Rating</th>
+              <th class="py-4 px-4 font-semibold">Título</th>
+              <th class="py-4 px-4 font-semibold">Estado</th>
+              <th class="py-4 px-4 font-semibold">Útil</th>
+              <th class="py-4 px-4 font-semibold">Reportes</th>
+              <th class="py-4 px-4 font-semibold">Fecha</th>
+              <th class="py-4 px-4 font-semibold text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody class="text-sm text-gray-300">
+            <tr *ngFor="let r of filteredReviews" class="border-b border-gray-800 hover:bg-white/5 transition-colors group">
+
+              <!-- ID -->
+              <td class="py-3 px-4 font-mono text-gray-500 text-xs">{{ r.id }}</td>
+
+              <!-- Juego -->
+              <td class="py-3 px-4 text-white font-medium">{{ r.juego }}</td>
+
+              <!-- Usuario -->
+              <td class="py-3 px-4 flex items-center gap-1 text-blue-300">
+                {{ r.usuario }}
+                <svg *ngIf="r.usuarioVerificado" class="h-4 w-4 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </td>
+
+              <!-- Rating -->
+              <td class="py-3 px-4 text-[#ffc107]">
+                <div class="flex">
+                  <span *ngFor="let s of [1,2,3,4,5]" [class.text-gray-700]="s > r.rating">★</span>
+                </div>
+              </td>
+
+              <!-- Título -->
+              <td class="py-3 px-4 truncate max-w-[200px]" title="{{r.titulo}}">{{ r.titulo }}</td>
+
+              <!-- Estado Badge -->
+              <td class="py-3 px-4">
+                <span class="px-2 py-1 rounded text-xs font-bold"
+                  [ngClass]="r.estado === 'Publicada' ? 'bg-green-900/30 text-green-500 border border-green-900' :
+                             (r.estado === 'Pendiente' ? 'bg-yellow-900/30 text-yellow-500 border border-yellow-900' : 'bg-red-900/30 text-red-500')">
+                  {{ r.estado }}
+                </span>
+              </td>
+
+              <!-- Útil -->
+              <td class="py-3 px-4 text-green-400 flex items-center gap-1">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" /></svg>
+                {{ r.util }}
+              </td>
+
+              <!-- Reportes -->
+              <td class="py-3 px-4 text-gray-500 flex items-center gap-1">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-8a2 2 0 012-2h14a2 2 0 012 2v8M12 5a2 2 0 100 4 2 2 0 000-4zm-2 4a2 2 0 114 0 2 2 0 01-4 0z" /></svg>
+                {{ r.reportes }}
+              </td>
+
+              <!-- Fecha -->
+              <td class="py-3 px-4 text-gray-500 text-xs whitespace-nowrap">{{ r.fecha }}</td>
+
+              <!-- Acciones -->
+              <td class="py-3 px-4 text-right">
+                <div class="flex justify-end gap-2">
+
+                  <!-- BOTÓN VER (OJITO) -->
+                  <button (click)="verResena(r)" class="text-blue-400 hover:text-blue-300" title="Ver Detalle">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  </button>
+
+                  <!-- Acciones Extra si es Pendiente -->
+                  <ng-container *ngIf="r.estado === 'Pendiente'">
+                    <button (click)="aprobar(r.id)" class="text-green-500 hover:text-green-400" title="Aprobar"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg></button>
+                    <button (click)="rechazar(r.id)" class="text-red-500 hover:text-red-400" title="Rechazar"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                  </ng-container>
+
+                  <!-- BOTÓN EDITAR (LÁPIZ) -->
+                  <button (click)="editarResena(r)" class="text-[#ffc107] hover:text-yellow-200" title="Editar">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  </button>
+
+                  <button (click)="eliminar(r.id)" class="text-red-500 hover:text-red-400" title="Eliminar"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MODAL (Fondo Oscuro) -->
+  <div *ngIf="selectedReview" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+
+    <!-- CONTENIDO DEL MODAL -->
+    <div class="bg-[#1a1a1a] border border-[#ffc107] rounded-xl w-full max-w-lg shadow-2xl overflow-hidden relative animation-fade-in transform transition-all scale-100">
+
+      <!-- Cabecera Modal -->
+      <div class="bg-[#ffc107] p-4 flex justify-between items-center text-black">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <svg *ngIf="isEditing" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+          <svg *ngIf="!isEditing" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+          {{ isEditing ? 'Editar Reseña' : 'Detalle de Reseña' }}
+        </h3>
+        <button (click)="cerrarModal()" class="hover:bg-black/10 rounded-full p-1 transition-colors">
+          ✕
+        </button>
+      </div>
+
+      <!-- Cuerpo Modal -->
+      <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+
+        <!-- MODO LECTURA (Ver) -->
+        <div *ngIf="!isEditing" class="text-gray-300 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-[#ffc107] uppercase font-bold mb-1 block">Juego</label>
+              <p class="text-white font-medium bg-black/30 p-2 rounded border border-gray-700">{{ selectedReview.juego }}</p>
+            </div>
+            <div>
+              <label class="text-xs text-[#ffc107] uppercase font-bold mb-1 block">Estado</label>
+              <span class="inline-block px-2 py-1 rounded text-xs font-bold border"
+                [ngClass]="selectedReview.estado === 'Publicada' ? 'bg-green-900/30 text-green-500 border-green-900' :
+                           (selectedReview.estado === 'Pendiente' ? 'bg-yellow-900/30 text-yellow-500 border-yellow-900' : 'bg-red-900/30 text-red-500')">
+                {{ selectedReview.estado }}
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-[#ffc107] uppercase font-bold mb-1 block">Usuario</label>
+            <div class="flex items-center gap-2 bg-black/30 p-2 rounded border border-gray-700">
+              <p class="text-white">{{ selectedReview.usuario }}</p>
+              <span *ngIf="selectedReview.usuarioVerificado" class="bg-green-500/20 text-green-500 text-xs px-2 py-0.5 rounded border border-green-500/30 flex items-center gap-1">
+                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Verificado
+              </span>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-[#ffc107] uppercase font-bold mb-1 block">Calificación</label>
+            <div class="flex text-[#ffc107] text-xl bg-black/30 p-2 rounded border border-gray-700 w-fit">
+              <span *ngFor="let s of [1,2,3,4,5]" [class.text-gray-700]="s > selectedReview.rating">★</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-[#ffc107] uppercase font-bold mb-1 block">Reseña</label>
+            <div class="bg-black/30 p-4 rounded border border-gray-700">
+              <h4 class="font-bold text-white mb-2 text-lg">{{ selectedReview.titulo }}</h4>
+              <p class="text-sm text-gray-400 italic leading-relaxed">"El contenido completo de la reseña iría aquí. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</p>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-xs text-gray-500 pt-2 border-t border-gray-800">
+            <span>📅 {{ selectedReview.fecha }}</span>
+            <div class="flex gap-4">
+              <span class="flex items-center gap-1 text-green-500"><svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" /></svg> {{ selectedReview.util }} Útil</span>
+              <span class="flex items-center gap-1 text-red-500"><svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-8a2 2 0 012-2h14a2 2 0 012 2v8M12 5a2 2 0 100 4 2 2 0 000-4zm-2 4a2 2 0 114 0 2 2 0 01-4 0z" /></svg> {{ selectedReview.reportes }} Reportes</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODO EDICIÓN (Editar) -->
+        <div *ngIf="isEditing" class="space-y-4">
+          <div>
+            <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Juego *</label>
+            <select [(ngModel)]="selectedReview.juego" class="w-full bg-black/50 border border-gray-700 rounded p-2 text-white outline-none focus:border-[#ffc107]">
+              <option>Chainsaw of the Dead</option>
+              <option>Wyvern Quest</option>
+              <option>Burnout VR</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Usuario *</label>
+            <input type="text" [(ngModel)]="selectedReview.usuario" class="w-full bg-black/50 border border-gray-700 rounded p-2 text-white outline-none focus:border-[#ffc107]">
+          </div>
+
+          <div>
+            <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Rating *</label>
+            <div class="flex gap-1">
+              <button *ngFor="let s of [1,2,3,4,5]" (click)="selectedReview.rating = s" class="text-2xl hover:scale-110 transition-transform focus:outline-none" [class.text-[#ffc107]]="s <= selectedReview.rating" [class.text-gray-700]="s > selectedReview.rating">★</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Título *</label>
+            <input type="text" [(ngModel)]="selectedReview.titulo" class="w-full bg-black/50 border border-gray-700 rounded p-2 text-white outline-none focus:border-[#ffc107]">
+          </div>
+
+          <div>
+            <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Comentario *</label>
+            <textarea class="w-full bg-black/50 border border-gray-700 rounded p-2 text-white outline-none focus:border-[#ffc107] h-24 resize-none" placeholder="Escribe el comentario aquí..."></textarea>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4 pt-2 border-t border-gray-800">
+            <div>
+              <label class="block text-gray-400 text-xs uppercase font-bold mb-1">Estado</label>
+              <select [(ngModel)]="selectedReview.estado" class="w-full bg-black/50 border border-gray-700 rounded p-2 text-white outline-none focus:border-[#ffc107]">
+                <option>Publicada</option>
+                <option>Pendiente</option>
+                <option>Rechazada</option>
+              </select>
+            </div>
+            <div class="flex items-end pb-2">
+              <div class="flex items-center gap-2 cursor-pointer" (click)="selectedReview.usuarioVerificado = !selectedReview.usuarioVerificado">
+                <div class="w-5 h-5 border border-gray-500 rounded flex items-center justify-center transition-colors" [ngClass]="{'bg-[#ffc107] border-[#ffc107]': selectedReview.usuarioVerificado}">
+                  <svg *ngIf="selectedReview.usuarioVerificado" class="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <label class="text-sm text-gray-400 cursor-pointer select-none">Usuario verificado</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer Modal -->
+      <div class="p-4 border-t border-gray-800 flex justify-end gap-3 bg-[#1a1a1a]">
+        <button (click)="cerrarModal()" class="px-4 py-2 rounded text-gray-400 hover:text-white hover:bg-gray-800 transition-colors font-medium border border-gray-700">
+          {{ isEditing ? 'Cancelar' : 'Cerrar' }}
+        </button>
+        <button *ngIf="isEditing" (click)="guardarCambios()" class="bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold px-6 py-2 rounded transition-colors shadow-lg shadow-yellow-900/20">
+          Guardar Cambios
+        </button>
+      </div>
+
+    </div>
+  </div>

@@ -61,13 +61,19 @@ export const routes: Routes = [
 },
 
 {
-  path: 'gestioncompras',
-  loadChildren: () =>import('./gestion-compras/gestion-compras.routes').then(m => m.GESTIONCOMPRAS_ROUTES)
+  path: 'admincompras',
+  loadChildren: () =>import('./admin/admincompras/admincompras.routes').then(m => m.ADMINCOMPRAS_ROUTES)
 },
 
 {
   path: 'carrito',
   loadChildren: () =>import('./carrito/carrito.routes').then(m => m.CARRITO_ROUTES)
+},
+
+{
+
+    path: 'resenas',
+    loadChildren: () => import('./resenas/resenas.routes').then(m => m.RESENAS_ROUTES)
 },
 
 
@@ -99,6 +105,12 @@ export const routes: Routes = [
     loadChildren: () =>import('./admin/adminsoporte/adminsoporte.routes').then(m => m.ADMIN_SOPORTE_ROUTES)
   }
 ,
+  {
+    path: 'adminresenas',
+    loadChildren: () => import('./admin/adminresenas/adminresenas.routes').then(m => m.ADMIN_RESENAS_ROUTES)
+  },
+
+
   {
     path: 'utl',
     loadChildren: () => import('./utl/utlroutes').then((m) => m.default),
