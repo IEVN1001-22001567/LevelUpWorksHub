@@ -574,6 +574,94 @@ def eliminar_articulo(id_articulo):
         return jsonify({"exito": False, "mensaje": str(ex)}), 500
 
 
+""" ---------------------SOPORTE TECNICO------------------------------------------ """
+@app.route('/soporte/tickets', methods=['POST'])
+def crear_ticket():
+    data = request.json
+
+    asunto = data.get("asunto")
+    descripcion = data.get("descripcion")
+    correo = data.get("correo")
+
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        INSERT INTO tickets_soporte (asunto, descripcion, correo)
+        VALUES (%s, %s, %s)
+    """, (asunto, descripcion, correo))
+
+    mysql.connection.commit()
+    return jsonify({"status": "ok", "message": "Ticket creado correctamente"})
+
+@app.route('/soporte/tickets', methods=['GET'])
+def obtener_tickets():
+    correo = request.args.get("correo")
+    
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT id_ticket, asunto, descripcion, correo, fecha_creacion, estado
+        FROM tickets_soporte
+        WHERE correo = %s
+        ORDER BY fecha_creacion DESC
+    """, (correo,))
+    
+    data = cur.fetchall()
+    
+    tickets = []
+    for t in data:
+        tickets.append({
+            "id_ticket": t[0],
+            "asunto": t[1],
+            "descripcion": t[2],
+            "correo": t[3],
+            "fecha_creacion": str(t[4]),
+            "estado": t[5]
+        })
+    
+    return jsonify(tickets)
+
+@app.route('/admin/tickets', methods=['GET'])
+def admin_obtener_tickets():
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT id_ticket, asunto, descripcion, correo, fecha_creacion, estado 
+        FROM tickets_soporte
+        ORDER BY fecha_creacion DESC
+    """)
+    data = cur.fetchall()
+
+    tickets = []
+    for t in data:
+        tickets.append({
+            "id_ticket": t[0],
+            "asunto": t[1],
+            "descripcion": t[2],
+            "correo": t[3],
+            "fecha_creacion": str(t[4]),
+            "estado": t[5]
+        })
+    
+    return jsonify(tickets)
+
+@app.route('/admin/tickets/<int:id_ticket>', methods=['PUT'])
+def admin_actualizar_ticket(id_ticket):
+    data = request.json
+    nuevo_estado = data.get("estado")
+
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        UPDATE tickets_soporte SET estado = %s WHERE id_ticket = %s
+    """, (nuevo_estado, id_ticket))
+
+    mysql.connection.commit()
+    return jsonify({"message": "Estado actualizado"})
+
+@app.route('/admin/tickets/<int:id_ticket>', methods=['DELETE'])
+def admin_eliminar_ticket(id_ticket):
+    cur = mysql.connection.cursor()
+    cur.execute("DELETE FROM tickets_soporte WHERE id_ticket = %s", (id_ticket,))
+    mysql.connection.commit()
+    return jsonify({"message": "Ticket eliminado"})
+
 
 """ ---------------------NOTICIAS------------------------------------------ """
 

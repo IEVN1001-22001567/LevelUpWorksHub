@@ -100,12 +100,11 @@ export const routes: Routes = [
     path: 'adminmensajeria',
     loadChildren: () => import('./admin/adminmensajeria/adminmensajeria.routes').then(m => m.ADMIN_MENSAJERIA_ROUTES)
   },
-
   {
-    path: 'adminlicencias',
-    loadChildren: () => import('./admin/adminlicencias/adminlicencias.routes').then(m => m.ADMIN_LICENCIAS_ROUTES)
-  },
-
+    path: 'adminsoporte',
+    loadChildren: () =>import('./admin/adminsoporte/adminsoporte.routes').then(m => m.ADMIN_SOPORTE_ROUTES)
+  }
+,
   {
     path: 'adminresenas',
     loadChildren: () => import('./admin/adminresenas/adminresenas.routes').then(m => m.ADMIN_RESENAS_ROUTES)
