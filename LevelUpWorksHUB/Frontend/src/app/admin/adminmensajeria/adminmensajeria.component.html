@@ -19,7 +19,7 @@
       <div class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-5 flex justify-between items-start">
         <div>
           <p class="text-gray-500 text-sm mb-1">Usuarios Activos</p>
-          <p class="text-3xl font-bold text-white">3</p>
+          <p class="text-3xl font-bold text-white">{{ statsUsuarios }}</p>
         </div>
         <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
       </div>
@@ -27,7 +27,7 @@
       <div class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-5 flex justify-between items-start">
         <div>
           <p class="text-gray-500 text-sm mb-1">Total Mensajes</p>
-          <p class="text-3xl font-bold text-white">3</p>
+          <p class="text-3xl font-bold text-white">{{ statsMensajes }}</p>
         </div>
         <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
       </div>
@@ -35,7 +35,7 @@
       <div class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-5 flex justify-between items-start">
         <div>
           <p class="text-gray-500 text-sm mb-1">Reportes Pendientes</p>
-          <p class="text-3xl font-bold text-white">1</p>
+          <p class="text-3xl font-bold text-white">{{ statsReportes }}</p>
         </div>
         <svg class="h-6 w-6 text-[#ffc107]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
       </div>
@@ -43,7 +43,7 @@
       <div class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-5 flex justify-between items-start">
         <div>
           <p class="text-gray-500 text-sm mb-1">Usuarios Baneados</p>
-          <p class="text-3xl font-bold text-white">1</p>
+          <p class="text-3xl font-bold text-white">{{ statsBaneados }}</p>
         </div>
         <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
       </div>
@@ -78,33 +78,32 @@
 
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-white text-lg font-medium">Usuarios en Mensajería ({{usuarios.length}})</h2>
-        <input type="text" placeholder="Buscar usuario..." class="bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 text-sm text-white focus:border-[#ffc107] outline-none w-64">
+        <input [(ngModel)]="searchTerm" type="text" placeholder="Buscar usuario..." class="bg-[#1a1a1a] border border-gray-700 rounded-lg px-4 py-2 text-sm text-white focus:border-[#ffc107] outline-none w-64">
       </div>
 
-      <div *ngFor="let u of usuarios" class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-4 flex items-center justify-between hover:border-gray-600 transition-colors"
+      <div *ngFor="let u of usuariosFiltrados" class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-4 flex items-center justify-between hover:border-gray-600 transition-colors"
            [ngClass]="{'border-red-900/30 bg-red-900/10': u.baneado}">
 
         <div class="flex items-center gap-4">
           <div class="h-10 w-10 rounded-full flex items-center justify-center font-bold text-black"
-               [ngClass]="u.baneado ? 'bg-red-500' : 'bg-green-500'">
+               [ngClass]="u.baneado ? 'bg-red-500' : (u.estado === 'online' ? 'bg-green-500' : 'bg-gray-500')">
              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="font-bold text-white">{{ u.nombre }}</span>
+              <span class="font-bold text-white">{{ u.nombre || u.username }}</span>
               <span *ngIf="u.baneado" class="bg-red-500/20 text-red-500 text-xs px-2 py-0.5 rounded">BANEADO</span>
-              <span *ngIf="u.reportes > 0" class="bg-[#ffc107]/20 text-[#ffc107] text-xs px-2 py-0.5 rounded">{{ u.reportes }} reportes</span>
             </div>
-            <p class="text-gray-500 text-sm">Estado: <span [ngClass]="u.estado === 'En línea' ? 'text-green-500' : (u.baneado ? 'text-red-500' : 'text-gray-500')">{{ u.estado }}</span> • {{ u.mensajes }} mensajes enviados</p>
+            <p class="text-gray-500 text-sm">Estado: <span [ngClass]="u.estado === 'online' ? 'text-green-500' : (u.baneado ? 'text-red-500' : 'text-gray-500')">{{ u.estado }}</span></p>
           </div>
         </div>
 
         <div class="flex gap-2">
-          <button (click)="banearUsuario(u.id)" class="p-2 rounded border border-gray-700 hover:bg-gray-800 text-gray-400" title="Banear/Desbanear">
+          <button *ngIf="!u.baneado" (click)="banearUsuario(u.id)" class="p-2 rounded border border-gray-700 hover:bg-red-900/30 hover:border-red-500 text-gray-400 hover:text-red-500" title="Banear">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
           </button>
-          <button (click)="eliminar(u.id, 'usuario')" class="p-2 rounded border border-gray-700 hover:border-red-500 hover:text-red-500 text-gray-400">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          <button *ngIf="u.baneado" (click)="desbanearUsuario(u.id)" class="p-2 rounded border border-gray-700 hover:bg-green-900/30 hover:border-green-500 text-gray-400 hover:text-green-500" title="Desbanear">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </button>
         </div>
       </div>
@@ -118,18 +117,21 @@
 
         <div class="flex justify-between items-start mb-2">
           <div>
-            <span class="text-[#ffc107] font-bold">{{ m.de }}</span>
+            <span class="text-[#ffc107] font-bold">{{ m.remitente_username || 'Usuario' }}</span>
             <span class="text-gray-500 mx-2">→</span>
-            <span class="text-blue-400">{{ m.para }}</span>
+            <span class="text-blue-400">{{ m.destinatario_username || 'Usuario' }}</span>
             <span *ngIf="m.reportado" class="ml-3 bg-red-500/20 text-red-500 text-xs px-2 py-0.5 rounded font-bold uppercase">⚠ Reportado</span>
-            <p class="text-gray-600 text-xs mt-1">{{ m.fecha }}</p>
+            <p class="text-gray-600 text-xs mt-1">{{ m.fecha_envio }}</p>
           </div>
 
           <div class="flex gap-2">
-            <button *ngIf="!m.reportado" class="p-2 rounded border border-gray-700 hover:text-yellow-500 text-gray-400">
+            <button (click)="verMensaje(m)" class="p-2 rounded border border-gray-700 hover:text-blue-500 text-gray-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+            </button>
+            <button *ngIf="!m.reportado" (click)="reportarMensaje(m.mensaje_id)" class="p-2 rounded border border-gray-700 hover:text-yellow-500 text-gray-400">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
             </button>
-            <button class="p-2 rounded border border-gray-700 hover:text-red-500 text-gray-400">
+            <button (click)="eliminarMensaje(m.mensaje_id)" class="p-2 rounded border border-gray-700 hover:text-red-500 text-gray-400">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </button>
           </div>
@@ -142,30 +144,34 @@
     </div>
 
     <div *ngIf="activeTab === 'reportes'" class="space-y-4">
-      <h2 class="text-white text-lg font-medium mb-4">Reportes de Usuarios ({{reportes.length}})</h2>
+      <h2 class="text-white text-lg font-medium mb-4">Reportes de Mensajería ({{reportes.length}})</h2>
 
       <div *ngFor="let r of reportes" class="bg-[#1a1a1a] border border-gray-800 rounded-lg p-6">
         <div class="flex justify-between items-start">
           <div>
             <div class="flex items-center gap-3 mb-2">
-              <span class="text-red-400 font-bold">Usuario: {{ r.usuario }}</span>
+              <span class="text-red-400 font-bold">Reporte #{{ r.reporte_id }}</span>
               <span class="text-xs px-2 py-0.5 rounded font-bold uppercase"
-                    [ngClass]="r.estado === 'PENDIENTE' ? 'bg-[#ffc107] text-black' : 'bg-gray-700 text-gray-400'">
+                    [ngClass]="r.estado === 'pendiente' ? 'bg-[#ffc107] text-black' : (r.estado === 'resuelto' ? 'bg-green-700 text-white' : 'bg-gray-700 text-gray-400')">
                 {{ r.estado }}
               </span>
             </div>
-            <p class="text-gray-400 text-sm mb-1">Reportado por: {{ r.reportadoPor }}</p>
+            <p class="text-gray-400 text-sm mb-1">Mensaje ID: {{ r.mensaje_id }}</p>
             <p class="text-gray-200 font-medium">{{ r.motivo }}</p>
           </div>
 
-          <div class="flex gap-3" *ngIf="r.estado === 'PENDIENTE'">
-            <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2">
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-              Resolver
+          <div class="flex gap-3" *ngIf="r.estado === 'pendiente'">
+            <button (click)="resolverReporte(r.reporte_id, 'eliminar')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm flex items-center gap-2">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7" /></svg>
+              Eliminar
             </button>
-            <button class="border border-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded text-sm flex items-center gap-2">
+            <button (click)="resolverReporte(r.reporte_id, 'advertencia')" class="bg-[#ffc107] hover:bg-yellow-500 text-black px-4 py-2 rounded text-sm flex items-center gap-2">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+              Advertencia
+            </button>
+            <button (click)="resolverReporte(r.reporte_id, 'ignorar')" class="border border-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded text-sm flex items-center gap-2">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-              Desestimar
+              Ignorar
             </button>
           </div>
         </div>
@@ -187,11 +193,6 @@
             <input type="number" [(ngModel)]="config.longitudMaxima" class="w-full bg-black/50 border border-gray-700 rounded p-3 text-white outline-none focus:border-[#ffc107]">
           </div>
 
-          <div>
-            <label class="block text-gray-400 text-sm mb-2">Filtro de palabras prohibidas</label>
-            <textarea [(ngModel)]="config.palabrasProhibidas" class="w-full bg-black/50 border border-gray-700 rounded p-3 text-white outline-none focus:border-[#ffc107] h-24" placeholder="Ingresa palabras separadas por comas..."></textarea>
-          </div>
-
           <div class="flex items-center gap-3">
             <input type="checkbox" [(ngModel)]="config.moderacionAutomatica" class="h-5 w-5 accent-[#ffc107]">
             <label class="text-gray-300">Activar moderación automática</label>
@@ -202,7 +203,7 @@
             <label class="text-gray-300">Notificar reportes al equipo</label>
           </div>
 
-          <button class="bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold px-6 py-3 rounded mt-4">
+          <button (click)="guardarConfiguracion()" class="bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold px-6 py-3 rounded mt-4">
             Guardar Configuración
           </button>
         </div>
