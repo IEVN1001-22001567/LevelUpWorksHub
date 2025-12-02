@@ -13,6 +13,7 @@ export interface Usuario {
   nombre?: string;
   telefono?: string;
   biografia?: string;
+  registrofecha?: string;
 }
 
 @Injectable({
