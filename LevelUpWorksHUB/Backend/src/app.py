@@ -2024,6 +2024,7 @@ def obtener_resenas_juego(juegoID):
     try:
         cursor = mysql.connection.cursor()
         
+        
         sql = """
             SELECT 
                 r.resenaID,

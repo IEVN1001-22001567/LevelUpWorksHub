@@ -1,17 +1,13 @@
-<!-- CONTENEDOR PRINCIPAL -->
 <div class="min-h-screen bg-[#0f0f0f] text-white px-6 py-10 flex flex-col items-center">
 
-  <!-- TÍTULO -->
   <h1 class="text-4xl font-bold text-yellow-400 mb-2 text-center">
     Mi biblioteca de juegos
   </h1>
 
-  <!-- SUBTÍTULO -->
   <p class="text-gray-400 text-lg mb-6 text-center">
     Gestiona tu colección de juegos
   </p>
 
-  <!-- BUSCADOR (SIN ngModel, SOLO (input)) -->
   <div class="flex items-center gap-3 mb-10 w-full max-w-3xl justify-center">
     <input
       type="text"
@@ -20,11 +16,10 @@
       (input)="searchTerm = $any($event.target).value"
     >
     <div class="p-3 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:bg-[#222] cursor-pointer transition">
-      <img src="assets/icons/filter.svg" class="w-6 h-6">
+      <img src="https://cdn.pixabay.com/photo/2015/12/14/20/35/magnifier-1093183_1280.png" class="w-6 h-6">
     </div>
   </div>
 
-  <!-- ESTADOS -->
   <div *ngIf="cargando" class="text-gray-400 mb-4">
     Cargando biblioteca...
   </div>
@@ -37,7 +32,6 @@
     No hay juegos en tu biblioteca.
   </div>
 
-  <!-- GRID DE JUEGOS -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
 
     <div
@@ -45,7 +39,6 @@
       class="bg-[#1a1a1a] border border-gray-700 rounded-xl overflow-hidden hover:border-yellow-400 transition transform hover:scale-105"
     >
 
-      <!-- IMAGEN/PORTADA -->
       <div class="w-full h-40 overflow-hidden bg-gradient-to-br from-yellow-600/20 to-blue-600/20 flex items-center justify-center relative">
         <ng-container *ngIf="juego.portada; else letra">
           <img [src]="'http://127.0.0.1:5000/static/portadas/' + juego.portada" alt="Portada" class="w-full h-full object-cover">
@@ -61,7 +54,6 @@
         </div>
       </div>
 
-      <!-- INFO PRINCIPAL -->
       <div class="p-4">
         <h3 class="text-xl font-bold text-yellow-400 mb-1">{{ juego.titulo }}</h3>
         
@@ -69,22 +61,18 @@
           📅 Comprado: {{ juego.fecha_compra | date:'dd/MM/yyyy HH:mm' }}
         </p>
 
-        <!-- DESCRIPCIÓN -->
         <p class="text-sm text-gray-300 mb-3 line-clamp-2 min-h-10">
           {{ juego.descripcion || 'Sin descripción disponible' }}
         </p>
 
-        <!-- (Precio removido en la biblioteca) -->
-
-        <!-- BOTONES DE ACCIÓN -->
         <div class="flex gap-2">
-          <button
+<!--           <button
             class="flex-1 bg-yellow-500 text-black font-bold px-3 py-2 rounded-lg hover:bg-yellow-400 transition text-sm"
             (click)="descargar(juego)"
             title="Descargar el juego"
           >
             ⬇️ Descargar
-          </button>
+          </button> -->
 
           <button
             class="flex-1 bg-blue-600 text-white font-bold px-3 py-2 rounded-lg hover:bg-blue-500 transition text-sm"

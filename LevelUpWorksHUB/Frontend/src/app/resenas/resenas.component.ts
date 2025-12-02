@@ -30,6 +30,7 @@ export class ResenasComponent implements OnInit {
   juegos: any[] = [];
   gameStats: any[] = [];
 
+
   mostrarModalResena = false;
   nuevaResena = {
     titulo: '',
@@ -48,6 +49,7 @@ export class ResenasComponent implements OnInit {
   ngOnInit() {
     this.cargarUsuario();
     this.cargarJuegos();
+
   }
 
   cargarUsuario() {
@@ -90,20 +92,28 @@ export class ResenasComponent implements OnInit {
     });
   }
 
-  cargarResenasGenerales() {
-    // Cargar reseñas de todos los juegos
-    this.reviews = [];
-    this.juegos.forEach((juego: any) => {
-      this.resenasService.obtenerResenasJuego(juego.id).subscribe(
-        (data: any) => {
-          if (data.exito && data.resenas) {
-            this.reviews = [...this.reviews, ...data.resenas];
-          }
-        },
-        error => console.error(`Error cargando reseñas del juego ${juego.id}:`, error)
-      );
-    });
-  }
+cargarResenasGenerales() {
+  this.reviews = [];
+
+  this.juegos.forEach((juego: any) => {
+    this.resenasService.obtenerResenasJuego(juego.id).subscribe(
+      (data: any) => {
+        if (data.exito && data.resenas) {
+
+          // 🔥 Aquí asignamos nombre_juego para que tu filtro funcione
+          const resenasConNombre = data.resenas.map((r: any) => ({
+            ...r,
+            nombre_juego: juego.name
+          }));
+
+          this.reviews = [...this.reviews, ...resenasConNombre];
+        }
+      },
+      error => console.error(`Error cargando reseñas del juego ${juego.id}:`, error)
+    );
+  });
+}
+
 
   cargarResenas() {
     if (!this.juegoID) return;
@@ -214,6 +224,38 @@ export class ResenasComponent implements OnInit {
     );
   }
 
+  filtrarPorJuego(juegoID: number) {
+  this.resenasService.obtenerResenasPorJuego(juegoID).subscribe((res: any) => {
+    if (res.exito) {
+      this.reviews = res.resenas;
+    }
+  });
+}
+
+aplicarFiltros() {
+
+  let lista = [...this.reviews];
+
+  if (this.filters.game !== 'Todos los juegos') {
+    lista = lista.filter(r => r.nombre_juego === this.filters.game);
+  }
+
+  if (this.filters.rating !== 'Todos los ratings') {
+    const estrellas = parseInt(this.filters.rating.charAt(0));
+    lista = lista.filter(r => r.rating === estrellas);
+  }
+
+  if (this.filters.sort === 'Más recientes') {
+    lista = lista.sort((a, b) => new Date(b.fecha_publicacion).getTime() - new Date(a.fecha_publicacion).getTime());
+  } else {
+    lista = lista.sort((a, b) => (b.util || 0) - (a.util || 0));
+  }
+
+  this.reviews = lista;
+}
+
+
+
   get reviewsFiltradas() {
     let filtradas = [...this.reviews];
 
@@ -222,13 +264,11 @@ export class ResenasComponent implements OnInit {
       filtradas = filtradas.filter(r => r.nombre_juego === this.filters.game);
     }
 
-    // Filtrar por rating
     if (this.filters.rating !== 'Todos los ratings') {
       const ratingNum = parseInt(this.filters.rating.split(' ')[0]);
       filtradas = filtradas.filter(r => r.rating === ratingNum);
     }
 
-    // Ordenar
     if (this.filters.sort === 'Más recientes') {
       filtradas.sort((a, b) => new Date(b.fecha_publicacion).getTime() - new Date(a.fecha_publicacion).getTime());
     } else if (this.filters.sort === 'Más útiles') {
