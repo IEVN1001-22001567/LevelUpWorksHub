@@ -29,6 +29,7 @@ interface Usuario {
   imports: [CommonModule, FormsModule],
   templateUrl: './adminusuarios.component.html',
 })
+
 export class AdminUsuariosComponent implements OnInit {
 
   usuarios: Usuario[] = [];

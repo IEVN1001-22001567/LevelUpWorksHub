@@ -2,8 +2,7 @@
 
   <!-- HERO -->
   <section class="bg-primary text-primary-foreground py-16 text-center">
-    <img src="assets/iconos/headphones.svg" class="w-12 h-12 mx-auto mb-4" />
-
+    <div class="text-5xl mb-4">🎧</div>
     <h1 class="text-4xl font-bold mb-4">Soporte Técnico</h1>
     <p class="text-lg max-w-2xl mx-auto opacity-90">
       Estamos aquí para ayudarte 24/7. Tu satisfacción es nuestra prioridad
@@ -15,19 +14,20 @@
     <h2 class="text-primary text-center mb-8 text-3xl font-semibold">Contáctanos</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
-      <div
-        *ngFor="let m of metodosContacto"
-        class="bg-card border-2 border-border rounded-lg p-6 text-center hover:border-primary transition-all duration-300 hover:shadow-xl"
-      >
-        <div class="w-16 h-16 bg-primary/10 rounded-full mx-auto flex items-center justify-center mb-4">
-          <img [src]="m.icono" class="w-8 h-8" />
+
+      <div *ngFor="let m of metodosContacto" 
+           class="bg-card border-2 border-border rounded-lg p-6 text-center hover:border-primary transition-all duration-300 hover:shadow-xl">
+
+        <div class="text-5xl mb-4">
+          {{ m.emoji }}
         </div>
 
         <h3 class="text-xl text-card-foreground mb-2">{{ m.titulo }}</h3>
         <p class="text-muted-foreground text-sm">{{ m.descripcion }}</p>
         <p class="text-primary text-sm mb-4">{{ m.disponibilidad }}</p>
 
-        <button class="bg-primary text-primary-foreground hover:bg-accent px-6 py-2 rounded-lg w-full">
+        <button class="bg-primary text-primary-foreground hover:bg-accent px-6 py-2 rounded-lg w-full"
+                (click)="abrirModal(m.titulo)">
           {{ m.accion }}
         </button>
       </div>
@@ -37,13 +37,14 @@
   <!-- ENLACES RÁPIDOS -->
   <section class="py-12">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
-      <div
-        *ngFor="let e of enlacesRapidos"
-        class="bg-card border-2 border-border rounded-lg p-6 hover:border-primary transition-all group cursor-pointer"
-      >
+
+      <div *ngFor="let e of enlacesRapidos" 
+           class="bg-card border-2 border-border rounded-lg p-6 hover:border-primary transition-all group cursor-pointer">
+
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-primary/10 group-hover:bg-primary rounded-lg flex items-center justify-center">
-            <img [src]="e.icono" class="w-6 h-6 group-hover:invert group-hover:brightness-200 transition" />
+
+          <div class="text-4xl w-12 h-12 flex items-center justify-center">
+            {{ e.emoji }}
           </div>
 
           <div>
@@ -51,6 +52,20 @@
             <p class="text-muted-foreground text-sm">{{ e.descripcion }}</p>
           </div>
         </div>
+
+        <!-- Botones solo para Reportar Error -->
+        <ng-container *ngIf="e.titulo === 'Reportar un Error'">
+          <button class="bg-red-600 text-white px-3 py-1 rounded shadow mt-3 w-full hover:bg-red-700"
+                  (click)="abrirModal('Crear Ticket')">
+            🛠️ Crear Ticket
+          </button>
+
+          <button class="bg-green-600 text-white px-3 py-1 rounded shadow mt-2 w-full hover:bg-green-700"
+                  (click)="abrirModal('Consultar Tickets')">
+            📄 Consultar Tickets
+          </button>
+        </ng-container>
+
       </div>
     </div>
   </section>
@@ -60,92 +75,155 @@
     <h2 class="text-primary text-center mb-8 text-3xl font-semibold">Preguntas Frecuentes</h2>
 
     <div class="max-w-4xl mx-auto px-4">
+
       <div *ngFor="let f of faq" class="mb-10">
+
         <h3 class="text-primary text-2xl mb-4 flex items-center gap-2">
-          <img src="assets/iconos/ayuda.svg" class="w-6 h-6" />
-          {{ f.categoria }}
+          ❓ {{ f.categoria }}
         </h3>
 
         <div class="space-y-4">
-          <div
-            *ngFor="let p of f.preguntas"
-            class="bg-background border-2 border-border rounded-lg p-6 hover:border-primary transition"
-          >
+
+          <div *ngFor="let p of f.preguntas" 
+               class="bg-background border-2 border-border rounded-lg p-6 hover:border-primary transition">
+
             <h4 class="text-lg text-card-foreground mb-3">{{ p.pregunta }}</h4>
             <p class="text-muted-foreground">{{ p.respuesta }}</p>
+
           </div>
+
         </div>
+
       </div>
+    </div>
+
+  </section>
+
+  <!-- CREAR TICKET -->
+  <section class="py-16 bg-primary">
+    <div class="container mx-auto px-4 text-center">
+      <h2 class="text-primary-foreground mb-4 text-3xl font-bold">¿No encontraste lo que buscabas?</h2>
+      <p class="text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
+        Crea un ticket de soporte y nuestro equipo especializado te contactará en menos de 24 horas.
+      </p>
+
+      <button class="bg-background hover:bg-card text-foreground px-8 py-4 rounded-lg transition-colors duration-200 text-lg font-semibold"
+              (click)="abrirModal('Crear Ticket')">
+        🛠️ Crear Ticket de Soporte
+      </button>
     </div>
   </section>
-</div>
 
-<!-- Crear Ticket -->
-<section class="py-16 bg-primary">
-  <div class="container mx-auto px-4 text-center">
-    <h2 class="text-primary-foreground mb-4 text-3xl font-bold">
-      ¿No encontraste lo que buscabas?
-    </h2>
+  <!-- MODALES -->
+  <div *ngIf="modalAbierto" 
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 
-    <p class="text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
-      Crea un ticket de soporte y nuestro equipo especializado te contactará en menos de 24 horas.
-    </p>
+    <div class="bg-card rounded-xl shadow-2xl w-full max-w-lg p-6 relative">
 
-    <button
-      class="bg-background hover:bg-card text-foreground px-8 py-4 rounded-lg transition-colors duration-200 text-lg font-semibold"
-    >
-      Crear Ticket de Soporte
-    </button>
-  </div>
-</section>
+      <!-- Cerrar -->
+      <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl"
+              (click)="cerrarModal()">✖</button>
 
-<!-- Requisitos del Sistema -->
-<section class="py-16 bg-background">
-  <div class="container mx-auto px-4">
-
-    <h2 class="text-primary mb-8 text-center text-3xl font-bold">
-      Requisitos del Sistema
-    </h2>
-
-    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-      
-      <!-- Juego 1 -->
-      <div class="bg-card border border-border rounded-lg p-6">
-        <h3 class="text-primary mb-4 text-xl font-bold">Chainsaw of the Dead</h3>
-        <div class="space-y-2 text-sm text-muted-foreground">
-          <p><span class="text-card-foreground font-semibold">SO:</span> Windows 10 64-bit</p>
-          <p><span class="text-card-foreground font-semibold">CPU:</span> Intel i5-8400 / AMD Ryzen 5 2600</p>
-          <p><span class="text-card-foreground font-semibold">RAM:</span> 8 GB</p>
-          <p><span class="text-card-foreground font-semibold">GPU:</span> GTX 1060 / RX 580</p>
-          <p><span class="text-card-foreground font-semibold">Almacenamiento:</span> 25 GB</p>
-        </div>
+      <!-- CHAT -->
+      <div *ngIf="modalContenido === 'Chat en Vivo'">
+        <h2 class="text-2xl font-bold text-card-foreground mb-4">💬 Chat en Vivo</h2>
+        <p class="text-muted-foreground">Próximamente podrás hablar con un agente en tiempo real.</p>
       </div>
 
-      <!-- Juego 2 -->
-      <div class="bg-card border border-border rounded-lg p-6">
-        <h3 class="text-primary mb-4 text-xl font-bold">Wyvern Quest</h3>
-        <div class="space-y-2 text-sm text-muted-foreground">
-          <p><span class="text-card-foreground font-semibold">SO:</span> Windows 10 64-bit</p>
-          <p><span class="text-card-foreground font-semibold">CPU:</span> Intel i7-9700K / AMD Ryzen 7 3700X</p>
-          <p><span class="text-card-foreground font-semibold">RAM:</span> 16 GB</p>
-          <p><span class="text-card-foreground font-semibold">GPU:</span> RTX 2070 / RX 5700 XT</p>
-          <p><span class="text-card-foreground font-semibold">Almacenamiento:</span> 50 GB SSD</p>
-        </div>
+      <!-- CORREO -->
+      <div *ngIf="modalContenido === 'Correo Electrónico'">
+        <h2 class="text-2xl font-bold text-card-foreground mb-4">📧 Enviar Correo</h2>
+        <p class="text-muted-foreground">Envíanos un mensaje a:</p>
+        <p class="font-bold text-primary mt-2 text-lg">soporte&#64;leveluphub.com</p>
       </div>
 
-      <!-- Juego 3 VR -->
-      <div class="bg-card border border-border rounded-lg p-6">
-        <h3 class="text-primary mb-4 text-xl font-bold">Burnout (VR)</h3>
-        <div class="space-y-2 text-sm text-muted-foreground">
-          <p><span class="text-card-foreground font-semibold">SO:</span> Windows 10 64-bit</p>
-          <p><span class="text-card-foreground font-semibold">CPU:</span> Intel i7-10700K / AMD Ryzen 7 5800X</p>
-          <p><span class="text-card-foreground font-semibold">RAM:</span> 16 GB</p>
-          <p><span class="text-card-foreground font-semibold">GPU:</span> RTX 3070 / RX 6800</p>
-          <p><span class="text-card-foreground font-semibold">VR:</span> Oculus, HTC Vive o Valve Index</p>
-          <p><span class="text-card-foreground font-semibold">Almacenamiento:</span> 30 GB SSD</p>
+      <!-- TELÉFONO -->
+      <div *ngIf="modalContenido === 'Llamada Telefónica'">
+        <h2 class="text-2xl font-bold text-card-foreground mb-4">📞 Llamar al Soporte</h2>
+        <p class="font-bold text-card-foreground text-xl">+52 55 1234 5678</p>
+        <p class="text-sm text-muted-foreground mt-2">Horario: L-V 9AM–6PM</p>
+      </div>
+
+      <!-- CREAR TICKET -->
+      <div *ngIf="modalContenido === 'Crear Ticket'">
+        <h2 class="text-2xl font-bold text-card-foreground mb-4">🛠️ Crear Ticket</h2>
+
+        <p class="text-muted-foreground mb-4">Enviado desde: <strong>{{ correoUsuario }}</strong></p>
+
+        <label class="font-medium text-card-foreground">Asunto</label>
+        <input class="border border-border rounded-lg p-2 w-full mb-4 bg-background"
+               [(ngModel)]="formTicket.asunto" />
+
+        <label class="font-medium text-card-foreground">Descripción</label>
+        <textarea class="border border-border rounded-lg p-2 w-full mb-4 bg-background"
+                  rows="4"
+                  [(ngModel)]="formTicket.descripcion"></textarea>
+
+        <button class="bg-primary hover:bg-accent text-primary-foreground px-4 py-2 rounded font-semibold shadow w-full mt-2"
+                (click)="enviarTicket()">
+          🚀 Enviar Ticket
+        </button>
+      </div>
+
+      <!-- CONSULTAR TICKETS -->
+      <div *ngIf="modalContenido === 'Consultar Tickets'"
+           class="fixed inset-0 flex items-center justify-center p-4 z-50">
+
+        <div class="w-full max-w-6xl max-h-[85vh] bg-neutral-900 border-2 border-yellow-500 rounded-2xl shadow-2xl p-6 overflow-y-auto relative">
+
+          <button (click)="cerrarModal()"
+                  class="absolute top-4 right-4 text-yellow-400 hover:text-yellow-300 text-2xl font-bold">✕</button>
+
+          <h2 class="text-3xl font-bold text-yellow-400 text-center mb-6">📋 Tickets</h2>
+
+          <div class="w-full overflow-x-auto">
+
+            <table class="w-full table-auto border border-yellow-600 rounded-lg bg-neutral-800 text-gray-200 shadow-lg">
+              <thead class="bg-yellow-500 text-black font-bold">
+                <tr>
+                  <th class="px-4 py-3 border-b border-yellow-600 text-left">ID</th>
+                  <th class="px-4 py-3 border-b border-yellow-600 text-left">Correo</th>
+                  <th class="px-4 py-3 border-b border-yellow-600 text-left">Asunto</th>
+                  <th class="px-4 py-3 border-b border-yellow-600 text-left">Descripción</th>
+                  <th class="px-4 py-3 border-b border-yellow-600 text-left">Fecha</th>
+                  <th class="px-4 py-3 border-b border-yellow-600 text-left">Estado</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr *ngFor="let t of tickets"
+                    class="hover:bg-yellow-500/20 transition even:bg-neutral-700">
+
+                  <td class="px-4 py-3 border-b border-yellow-600">{{ t.id_ticket }}</td>
+                  <td class="px-4 py-3 border-b border-yellow-600 break-words">{{ t.correo }}</td>
+                  <td class="px-4 py-3 border-b border-yellow-600">{{ t.asunto }}</td>
+                  <td class="px-4 py-3 border-b border-yellow-600 break-words">{{ t.descripcion }}</td>
+                  <td class="px-4 py-3 border-b border-yellow-600">{{ t.fecha_creacion | date:'short' }}</td>
+
+                  <td class="px-4 py-3 border-b border-yellow-600">
+                    <span 
+                      [ngClass]="{
+                        'text-green-400 font-semibold': t.estado === 'Resuelto',
+                        'text-red-400 font-semibold': t.estado === 'Abierto',
+                        'text-yellow-300 font-semibold': t.estado === 'En Proceso'
+                      }">
+                      {{ t.estado }}
+                    </span>
+                  </td>
+
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p *ngIf="tickets.length === 0" class="text-center text-gray-400 mt-4">
+            No hay tickets registrados.
+          </p>
+
         </div>
       </div>
 
     </div>
   </div>
-</section>
+
+</div>

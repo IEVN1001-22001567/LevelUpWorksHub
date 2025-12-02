@@ -18,8 +18,8 @@ export const routes: Routes = [
   loadChildren: () => import('./noticias/noticias.routes').then(m => m.NOTICIAS_ROUTES)
 },
 {
-  path: 'psicowellness',
-  loadChildren: () =>import('./psycho-wellness/psycho-wellnes.routes').then(m => m.PSICOWELLNESS_ROUTES)
+  path: 'psychowellness',
+  loadChildren: () =>import('./psychowellness/psychowellness.routes').then(m => m.PSYCHOWELLNESS_ROUTES)
 },
 {
   path: 'eventos',
@@ -61,13 +61,19 @@ export const routes: Routes = [
 },
 
 {
-  path: 'gestioncompras',
-  loadChildren: () =>import('./gestion-compras/gestion-compras.routes').then(m => m.GESTIONCOMPRAS_ROUTES)
+  path: 'admincompras',
+  loadChildren: () =>import('./admin/admincompras/admincompras.routes').then(m => m.ADMINCOMPRAS_ROUTES)
 },
 
 {
   path: 'carrito',
   loadChildren: () =>import('./carrito/carrito.routes').then(m => m.CARRITO_ROUTES)
+},
+
+{
+
+    path: 'resenas',
+    loadChildren: () => import('./resenas/resenas.routes').then(m => m.RESENAS_ROUTES)
 },
 
 
@@ -85,20 +91,29 @@ export const routes: Routes = [
     path: 'adminnoticias',
     loadChildren: () => import('./admin/adminnoticias/adminnoticias.routes').then(m => m.ADMIN_NOTICIAS_ROUTES)
   },
+  {
+    path:'adminpsycho',
+    loadChildren: () => import('./admin/adminpsycho/adminpsycho.routes').then(m => m.ADMIN_PSYCHO_ROUTES)
+  },
 
 {
     path: 'adminmensajeria',
     loadChildren: () => import('./admin/adminmensajeria/adminmensajeria.routes').then(m => m.ADMIN_MENSAJERIA_ROUTES)
   },
-
   {
-    path: 'adminlicencias',
-    loadChildren: () => import('./admin/adminlicencias/adminlicencias.routes').then(m => m.ADMIN_LICENCIAS_ROUTES)
+    path: 'adminsoporte',
+    loadChildren: () =>import('./admin/adminsoporte/adminsoporte.routes').then(m => m.ADMIN_SOPORTE_ROUTES)
+  }
+,
+  {
+    path: 'adminresenas',
+    loadChildren: () => import('./admin/adminresenas/adminresenas.routes').then(m => m.ADMIN_RESENAS_ROUTES)
   },
   {
     path: 'admineventos',
     loadChildren: () => import('./admin/admineventos/admineventos.routes').then(m => m.ADMIN_EVENTOS_ROUTES)
   },
+
 
   {
     path: 'utl',

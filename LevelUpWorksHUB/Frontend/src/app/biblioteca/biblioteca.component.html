@@ -11,129 +11,90 @@
     Gestiona tu colección de juegos
   </p>
 
-  <!-- BUSCADOR + FILTROS (CENTRADO) -->
+  <!-- BUSCADOR (SIN ngModel, SOLO (input)) -->
   <div class="flex items-center gap-3 mb-10 w-full max-w-3xl justify-center">
-
     <input
       type="text"
       class="w-full bg-[#1a1a1a] border border-gray-800 rounded-xl px-4 py-3 text-gray-200 focus:outline-none focus:border-yellow-400"
       placeholder="Buscar juegos..."
+      (input)="searchTerm = $any($event.target).value"
     >
-
-    <!-- ÍCONO DE FILTROS -->
     <div class="p-3 bg-[#1a1a1a] border border-gray-800 rounded-xl hover:bg-[#222] cursor-pointer transition">
       <img src="assets/icons/filter.svg" class="w-6 h-6">
     </div>
   </div>
 
+  <!-- ESTADOS -->
+  <div *ngIf="cargando" class="text-gray-400 mb-4">
+    Cargando biblioteca...
+  </div>
 
-  <!-- GRID DE JUEGOS (2 COLUMNAS, TODAS IGUALES) -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-5xl">
+  <div *ngIf="errorMsg" class="text-red-400 mb-4">
+    {{ errorMsg }}
+  </div>
 
+  <div *ngIf="usuario && !cargando && juegosFiltrados().length === 0" class="text-gray-400 mb-4">
+    No hay juegos en tu biblioteca.
+  </div>
 
-    <!-- ░░ JUEGO 1 – WIBERNS QUEST ░░ -->
-    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
+  <!-- GRID DE JUEGOS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
 
-      <!-- IMAGEN -->
-      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
-        <img src="assets/juegos/wiberns-quest.jpg" class="w-full h-full object-cover">
+    <div
+      *ngFor="let juego of juegosFiltrados()"
+      class="bg-[#1a1a1a] border border-gray-700 rounded-xl overflow-hidden hover:border-yellow-400 transition transform hover:scale-105"
+    >
+
+      <!-- IMAGEN/PORTADA -->
+      <div class="w-full h-40 overflow-hidden bg-gradient-to-br from-yellow-600/20 to-blue-600/20 flex items-center justify-center relative">
+        <ng-container *ngIf="juego.portada; else letra">
+          <img [src]="'http://127.0.0.1:5000/static/portadas/' + juego.portada" alt="Portada" class="w-full h-full object-cover">
+        </ng-container>
+        <ng-template #letra>
+          <span class="text-5xl font-bold text-gray-500">
+            {{ (juego.titulo || '?')[0] }}
+          </span>
+        </ng-template>
+
+        <div class="absolute top-2 right-2 bg-green-600/80 px-3 py-1 rounded-full text-xs font-bold">
+          Pagado ✓
+        </div>
       </div>
 
-      <!-- INFO -->
-      <div class="flex flex-col flex-grow">
-        <h3 class="text-xl font-bold">Wiberns Quest</h3>
+      <!-- INFO PRINCIPAL -->
+      <div class="p-4">
+        <h3 class="text-xl font-bold text-yellow-400 mb-1">{{ juego.titulo }}</h3>
+        
+        <p class="text-xs text-gray-500 mb-3">
+          📅 Comprado: {{ juego.fecha_compra | date:'dd/MM/yyyy HH:mm' }}
+        </p>
 
-        <div class="flex flex-wrap gap-2 mt-1">
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">RPG</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Aventura</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">2D</span>
-        </div>
+        <!-- DESCRIPCIÓN -->
+        <p class="text-sm text-gray-300 mb-3 line-clamp-2 min-h-10">
+          {{ juego.descripcion || 'Sin descripción disponible' }}
+        </p>
 
-        <div class="flex items-center justify-between mt-3">
-          <p class="text-xs text-gray-400">Tiempo jugado: 45 h</p>
+        <!-- (Precio removido en la biblioteca) -->
 
-          <div class="flex text-yellow-400">
-            <span>★</span><span>★</span><span>★</span><span>★</span>
-            <span class="text-gray-600">★</span>
-          </div>
-        </div>
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="flex gap-2">
+          <button
+            class="flex-1 bg-yellow-500 text-black font-bold px-3 py-2 rounded-lg hover:bg-yellow-400 transition text-sm"
+            (click)="descargar(juego)"
+            title="Descargar el juego"
+          >
+            ⬇️ Descargar
+          </button>
 
-        <div class="flex justify-end mt-3">
-          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
-            Jugar
+          <button
+            class="flex-1 bg-blue-600 text-white font-bold px-3 py-2 rounded-lg hover:bg-blue-500 transition text-sm"
+            (click)="jugar(juego)"
+            title="Ejecutar el juego"
+          >
+            ▶️ Jugar
           </button>
         </div>
       </div>
-    </div>
-
-
-
-    <!-- ░░ JUEGO 2 – CHAINSAW OF THE DEAD ░░ -->
-    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
-
-      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
-        <img src="assets/juegos/chainsaw-dead.jpg" class="w-full h-full object-cover">
-      </div>
-
-      <div class="flex flex-col flex-grow">
-        <h3 class="text-xl font-bold">Chainsaw of the Dead</h3>
-
-        <div class="flex flex-wrap gap-2 mt-1">
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Shooter</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">2D</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Supervivencia</span>
-        </div>
-
-        <div class="flex items-center justify-between mt-3">
-          <p class="text-xs text-gray-400">Tiempo jugado: 28 h</p>
-
-          <div class="flex text-yellow-400">
-            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-          </div>
-        </div>
-
-        <div class="flex justify-end mt-3">
-          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
-            Descargar
-          </button>
-        </div>
-      </div>
-    </div>
-
-
-
-    <!-- ░░ JUEGO 3 – BURNOUT ░░ -->
-    <div class="flex bg-[#1a1a1a] border border-gray-800 rounded-xl p-4 gap-4 hover:bg-[#222] transition">
-
-      <div class="w-28 h-28 overflow-hidden rounded-lg bg-gray-700 shrink-0">
-        <img src="assets/juegos/burnout.jpg" class="w-full h-full object-cover">
-      </div>
-
-      <div class="flex flex-col flex-grow">
-        <h3 class="text-xl font-bold">Burnout</h3>
-
-        <div class="flex flex-wrap gap-2 mt-1">
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Terror</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">VR</span>
-          <span class="text-xs bg-[#333] px-2 py-1 rounded-md">Psicológico</span>
-        </div>
-
-        <div class="flex items-center justify-between mt-3">
-          <p class="text-xs text-gray-400">Tiempo jugado: 67 h</p>
-
-          <div class="flex text-yellow-400">
-            <span>★</span><span>★</span><span>★</span><span>★</span>
-            <span class="text-gray-600">★</span>
-          </div>
-        </div>
-
-        <div class="flex justify-end mt-3">
-          <button class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-lg hover:bg-yellow-300">
-            Jugar
-          </button>
-        </div>
-      </div>
-
     </div>
 
   </div>

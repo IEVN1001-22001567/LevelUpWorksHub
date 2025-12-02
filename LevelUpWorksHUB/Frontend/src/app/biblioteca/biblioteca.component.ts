@@ -1,50 +1,151 @@
-import { Component } from '@angular/core';
+// src/app/biblioteca/biblioteca.component.ts
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { BibliotecaService, JuegoBiblioteca } from '../services/biblioteca.service';
+import { AuthService, Usuario } from '../services/auth.service';
 
 @Component({
   selector: 'app-biblioteca',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './biblioteca.component.html',
   styleUrls: ['./biblioteca.component.css']
 })
-export class BibliotecaComponent {
+export class BibliotecaComponent implements OnInit {
+
+  usuario: Usuario | null = null;
 
   searchTerm: string = '';
+  juegos: JuegoBiblioteca[] = [];
 
-  juegos = [
-    {
-      nombre: 'Cyber Strike',
-      categoria: 'Acción',
-      portada: 'assets/img/juegos/cyberstrike_portada.jpg',
-      banner: 'assets/img/juegos/cyberstrike_banner.jpg',
-      descripcion: 'Shooter futurista con combate intenso y ambientación cyberpunk.'
-    },
-    {
-      nombre: 'Forest Legends',
-      categoria: 'Aventura',
-      portada: 'assets/img/juegos/forest_portada.jpg',
-      banner: 'assets/img/juegos/forest_banner.jpg',
-      descripcion: 'Exploración en un bosque mágico lleno de secretos y criaturas místicas.'
-    },
-    {
-      nombre: 'Racing X',
-      categoria: 'Carreras',
-      portada: 'assets/img/juegos/racing_portada.jpg',
-      banner: 'assets/img/juegos/racing_banner.jpg',
-      descripcion: 'Carreras a toda velocidad en circuitos futuristas llenos de obstáculos.'
+  cargando = false;
+  errorMsg = '';
+
+  constructor(
+    private bibliotecaSvc: BibliotecaService,
+    private authSvc: AuthService,
+    private http: HttpClient
+  ) {}
+
+  ngOnInit(): void {
+    this.usuario = this.authSvc.obtenerUsuario();
+
+    if (!this.usuario) {
+      console.warn('No hay usuario logueado, no se puede cargar biblioteca');
+      this.errorMsg = 'Debes iniciar sesión para ver tu biblioteca.';
+      return;
     }
-  ];
 
-  juegoSeleccionado = this.juegos[0];
+    const usuarioid = this.usuario.usuarioid;
+    this.cargarBiblioteca(usuarioid);
+  }
 
-  // Filtro de búsqueda
-  juegosFiltrados() {
+  private cargarBiblioteca(usuarioid: number): void {
+    this.cargando = true;
+    this.errorMsg = '';
+
+    this.bibliotecaSvc.obtenerBiblioteca(usuarioid).subscribe({
+      next: (res) => {
+        if (res.exito) {
+          this.juegos = res.juegos;
+          console.log('Juegos en biblioteca:', this.juegos);
+        } else {
+          this.errorMsg = 'No se pudo cargar la biblioteca.';
+        }
+        this.cargando = false;
+      },
+      error: (err) => {
+        console.error('Error HTTP al cargar biblioteca:', err);
+        this.errorMsg = 'Error en el servidor al cargar la biblioteca.';
+        this.cargando = false;
+      }
+    });
+  }
+
+  // Filtro simple por nombre
+  juegosFiltrados(): JuegoBiblioteca[] {
+    const term = this.searchTerm.toLowerCase().trim();
+    if (!term) return this.juegos;
     return this.juegos.filter(j =>
-      j.nombre.toLowerCase().includes(this.searchTerm.toLowerCase())
+      (j.titulo || j.comprasID?.toString() || '').toString().toLowerCase().includes(term)
     );
   }
 
-  // Selección
-  seleccionarJuego(juego: any) {
-    this.juegoSeleccionado = juego;
+  // Solo para que no truene el HTML si tienes botones "Descargar/Jugar"
+  descargar(juego: JuegoBiblioteca) {
+    console.log('Descargando juego (blob):', juego);
+    const baseUrl = 'http://127.0.0.1:5000';
+    const url = `${baseUrl}/api/juego/descargar/${juego.juegoID}`;
+
+    // Pedimos la respuesta como blob y observamos la respuesta completa para leer headers
+    this.http.get(url, { responseType: 'blob', observe: 'response' }).subscribe({
+      next: (response) => {
+        const blob = response.body as Blob;
+
+        // Si el backend devolvió JSON con error, el tipo será application/json
+        const contentType = blob.type || '';
+        if (contentType.includes('application/json')) {
+          // Leer texto y parsear JSON para mostrar mensaje
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const txt = reader.result as string;
+              const json = JSON.parse(txt);
+              alert(json.mensaje || 'Error al obtener el archivo');
+            } catch (e) {
+              alert('Error desconocido al obtener archivo');
+            }
+          };
+          reader.readAsText(blob);
+          return;
+        }
+
+        // Determinar nombre de archivo desde header Content-Disposition o fallback
+        let filename = juego.titulo || 'juego';
+        const cd = response.headers.get('content-disposition');
+        if (cd) {
+          const match = /filename\*=UTF-8''(.+)$/.exec(cd) || /filename="?([^";]+)"?/.exec(cd);
+          if (match && match[1]) filename = decodeURIComponent(match[1]);
+        }
+
+        // Crear URL y forzar descarga
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+        alert('Descarga iniciada.');
+      },
+      error: (err) => {
+        console.error('Error descargando blob:', err);
+        alert('Error al descargar el juego');
+      }
+    });
+  }
+
+  jugar(juego: JuegoBiblioteca) {
+    console.log('Reproduciendo juego:', juego);
+    
+    // Llamar al endpoint para ejecutar el juego
+    const baseUrl = 'http://127.0.0.1:5000';
+    const url = `${baseUrl}/api/juego/jugar/${juego.juegoID}`;
+    
+    this.http.get<any>(url).subscribe({
+      next: (res) => {
+        if (res.exito) {
+          alert(`✅ ${res.mensaje}\n\nTipo: ${res.tipo}\n\nEl juego debería estar ejecutándose...`);
+        } else {
+          alert(`❌ Error: ${res.mensaje}`);
+        }
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        alert('❌ Error al ejecutar el juego. Verifica la consola.');
+      }
+    });
   }
 }

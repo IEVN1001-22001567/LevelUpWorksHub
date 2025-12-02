@@ -1,5 +1,6 @@
 <div class="min-h-screen bg-[#121212] pb-20 font-sans">
 
+  <!-- HERO -->
   <section class="bg-[#ffc107] py-16 text-center relative mb-12">
     <div class="container mx-auto px-4">
       <h1 class="text-4xl md:text-5xl font-bold text-black mb-4">
@@ -13,27 +14,43 @@
 
   <div class="container mx-auto px-4 max-w-7xl">
 
+    <!-- Mensajes -->
+    <div *ngIf="cargando" class="text-center text-gray-400 mb-6">
+      Cargando juegos...
+    </div>
+
+    <div *ngIf="errorMsg" class="text-center text-red-400 mb-6">
+      {{ errorMsg }}
+    </div>
+
+    <!-- GRID JUEGOS -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
       <div *ngFor="let juego of juegos"
            class="bg-[#1a1a1a] rounded-lg overflow-hidden border border-gray-700 hover:border-[#ffc107] transition-all duration-300 flex flex-col group relative">
 
+        <!-- IMAGEN -->
         <div class="relative h-64 overflow-hidden">
-          <img [src]="juego.imagen" [alt]="juego.titulo" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <img
+            [src]="juego.imagen"
+            [alt]="juego.titulo"
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
 
           <div class="absolute top-4 right-0 bg-[#ffc107] text-black px-4 py-1 rounded-l-full text-sm font-bold shadow-md">
             {{ juego.categoria }}
           </div>
 
           <div class="absolute bottom-4 left-4 bg-black/90 text-white px-3 py-1 rounded text-xs border border-gray-600">
-            Unity Engine
+            {{ juego.plataforma || 'Unity Engine' }}
           </div>
         </div>
 
+        <!-- CONTENIDO -->
         <div class="p-6 flex flex-col flex-grow">
 
           <h3 class="text-2xl font-bold text-white mb-2">{{ juego.titulo }}</h3>
 
+          <!-- RATING (dummy de momento) -->
           <div class="flex items-center gap-1 mb-4 text-sm">
             <div class="flex text-[#ffc107]">
               <span *ngFor="let star of [1,2,3,4,5]">★</span>
@@ -45,39 +62,76 @@
             {{ juego.descripcion }}
           </p>
 
+          <!-- TAGS -->
           <div class="flex flex-wrap gap-2 mb-8">
-            <span *ngFor="let tag of juego.tags" class="text-xs border border-gray-600 text-gray-300 px-3 py-1 rounded hover:border-[#ffc107] transition-colors cursor-default">
+            <span
+              *ngFor="let tag of juego.tags"
+              class="text-xs border border-gray-600 text-gray-300 px-3 py-1 rounded hover:border-[#ffc107] transition-colors cursor-default">
               {{ tag }}
             </span>
           </div>
 
-          <div class="mt-auto">
-            <div class="text-sm text-gray-500 mb-1">Precio</div>
-            <div class="text-3xl font-bold text-[#ffc107] mb-5">${{ juego.precio }}</div>
+<!-- PRECIO + BOTONES -->
+<div class="mt-auto">
+  <div class="text-sm text-gray-500 mb-1">Precio</div>
+  <div class="text-3xl font-bold text-[#ffc107] mb-5">${{ juego.precio }}</div>
 
-            <button class="w-full bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              Añadir al Carrito
-            </button>
+  <!-- SI YA COMPRÓ: BOTÓN "VER EN BIBLIOTECA" -->
+  <ng-container *ngIf="juego.yaComprado && isLoggedIn">
+    <button
+      class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
+      (click)="irABiblioteca()"
+      title="Ya tienes este juego en tu biblioteca"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <span>Ver en biblioteca</span>
+    </button>
+  </ng-container>
 
-            <button class="w-full text-center text-gray-500 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors">
-               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-               </svg>
-               Inicia Sesión para Descargar
-            </button>
-          </div>
+  <!-- SI NO COMPRÓ: BOTÓN "COMPRAR" -->
+  <ng-container *ngIf="!juego.yaComprado">
+    <button
+      class="w-full bg-[#ffc107] hover:bg-[#ffd54f] text-black font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-colors mb-4"
+      (click)="onComprar(juego)"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0
+                 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+      </svg>
+
+      <span *ngIf="isLoggedIn">Comprar ahora</span>
+      <span *ngIf="!isLoggedIn">Inicia sesión para comprar</span>
+    </button>
+
+    <!-- SEGUNDO BOTÓN SOLO SI NO ESTÁ LOGUEADO -->
+    <button
+      class="w-full text-center text-gray-500 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors"
+      *ngIf="!isLoggedIn"
+      (click)="irALogin()"
+    >
+       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+               d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+       </svg>
+       Inicia Sesión para Descargar
+    </button>
+  </ng-container>
+</div>
+
         </div>
       </div>
-
 
     </div>
   </div>
 
+  <!-- FAQS -->
   <div class="container mx-auto px-4 max-w-4xl mt-24">
-    <h2 class="text-xl text-[#ffc107] text-center mb-8 uppercase tracking-widest font-semibold">Preguntas Frecuentes</h2>
+    <h2 class="text-xl text-[#ffc107] text-center mb-8 uppercase tracking-widest font-semibold">
+      Preguntas Frecuentes
+    </h2>
 
     <div class="space-y-4">
       <div *ngFor="let faq of faqs" class="bg-[#1a1a1a] border border-gray-700 rounded p-6">
