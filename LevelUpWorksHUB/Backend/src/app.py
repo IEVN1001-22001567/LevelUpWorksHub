@@ -96,7 +96,7 @@ def login():
         nombre      = datos[6]
         telefono    = datos[7]
         biografia   = datos[8]
-        saldo_bd    = datos[9]   # 👈 AQUÍ SE TOMA EL SALDO
+        saldo_bd    = datos[9]  
 
         # Validar contraseña
         if password != password_bd:
@@ -298,6 +298,7 @@ def actualizar_perfil():
 
 # Obtener todos los usuarios 
 @app.route('/admin/usuarios', methods=['GET'])
+@app.route('/api/admin/usuarios', methods=['GET'])
 def obtener_usuarios():
     try:
         cursor = mysql.connection.cursor()
@@ -958,9 +959,7 @@ def actualizar_juego(juego_id):
             imagen_file = request.files['image']
             if imagen_file and imagen_file.filename != '':
                 # guardar portada igual que en el POST
-                import time, os
-                from werkzeug.utils import secure_filename
-
+                import time
                 filename_seguro = secure_filename(imagen_file.filename)
                 nombre_archivo = f"{int(time.time())}_{filename_seguro}"
                 ruta_carpeta = os.path.join(app.root_path, 'static', 'portadas')
@@ -1122,7 +1121,6 @@ def listar_juegos():
         print("ERROR en GET /admin/juegos:", ex)
         return jsonify({"exito": False, "mensaje": f"Error en el servidor: {ex}"}), 500
 
-from flask import request, jsonify
 
 @app.route('/api/mis-juegos', methods=['GET'])
 def mis_juegos():
@@ -1984,6 +1982,60 @@ def obtener_mensajes(usuario1, usuario2):
         return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
 
 
+@app.route('/api/social/historial-completo', methods=['GET'])
+def obtener_historial_completo():
+    """
+    Obtiene todos los mensajes del sistema (para admin)
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            SELECT 
+                m.mensaje_id,
+                m.remitente_id,
+                u1.username as remitente_username,
+                m.destinatario_id,
+                u2.username as destinatario_username,
+                m.contenido,
+                m.fecha_envio,
+                m.leido,
+                COALESCE(m.reportado, 0) as reportado
+            FROM mensajes m
+            JOIN usuarios u1 ON m.remitente_id = u1.usuarioid
+            JOIN usuarios u2 ON m.destinatario_id = u2.usuarioid
+            ORDER BY m.fecha_envio DESC
+            LIMIT 500
+        """
+        cursor.execute(sql)
+        filas = cursor.fetchall()
+        
+        mensajes = []
+        for fila in filas:
+            mensajes.append({
+                'mensaje_id': fila[0],
+                'remitente_id': fila[1],
+                'remitente_username': fila[2],
+                'destinatario_id': fila[3],
+                'destinatario_username': fila[4],
+                'contenido': fila[5],
+                'fecha_envio': str(fila[6]),
+                'leido': fila[7],
+                'reportado': fila[8]
+            })
+        
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensajes': mensajes
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/social/historial-completo:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
 @app.route('/api/social/enviar-mensaje', methods=['POST'])
 def enviar_mensaje():
     """
@@ -2062,6 +2114,600 @@ def actualizar_estado_usuario():
         print("ERROR en POST /api/social/estado:", ex)
         return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
 
+
+# ===================== ENDPOINTS RESEÑAS =====================
+
+@app.route('/api/resenas/<int:juegoID>', methods=['GET'])
+def obtener_resenas_juego(juegoID):
+    """
+    Obtiene todas las reseñas publicadas de un juego
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            SELECT 
+                r.resenaID,
+                r.usuarioid,
+                u.username,
+                u.avatar,
+                r.titulo,
+                r.contenido,
+                r.rating,
+                r.fecha_publicacion,
+                r.util,
+                r.reportes
+            FROM resenas r
+            JOIN usuarios u ON r.usuarioid = u.usuarioid
+            WHERE r.juegoID = %s AND r.estado = 'publicada'
+            ORDER BY r.util DESC, r.fecha_publicacion DESC
+        """
+        cursor.execute(sql, (juegoID,))
+        filas = cursor.fetchall()
+        
+        resenas = []
+        for fila in filas:
+            avatar_url = f'http://127.0.0.1:5000/uploads/{fila[3]}' if fila[3] else None
+            resenas.append({
+                'resenaID': fila[0],
+                'usuarioid': fila[1],
+                'username': fila[2],
+                'avatar': avatar_url,
+                'titulo': fila[4],
+                'contenido': fila[5],
+                'rating': fila[6],
+                'fecha_publicacion': str(fila[7]),
+                'util': fila[8],
+                'reportes': fila[9]
+            })
+        
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'resenas': resenas
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/resenas/<juegoID>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/resenas/rating/<int:juegoID>', methods=['GET'])
+def obtener_rating_juego(juegoID):
+    """
+    Obtiene el rating promedio y cantidad de reseñas de un juego
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            SELECT 
+                COUNT(*) as total_resenas,
+                AVG(rating) as rating_promedio
+            FROM resenas
+            WHERE juegoID = %s AND estado = 'publicada'
+        """
+        cursor.execute(sql, (juegoID,))
+        resultado = cursor.fetchone()
+        cursor.close()
+        
+        total = resultado[0] if resultado[0] else 0
+        promedio = round(resultado[1], 1) if resultado[1] else 0
+        
+        return jsonify({
+            'exito': True,
+            'total_resenas': total,
+            'rating_promedio': promedio
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/resenas/rating/<juegoID>:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/resenas/crear', methods=['POST'])
+def crear_resena():
+    """
+    Crea una nueva reseña
+    """
+    try:
+        data = request.get_json()
+        juegoID = data.get('juegoID')
+        usuarioid = data.get('usuarioid')
+        titulo = data.get('titulo', '').strip()
+        contenido = data.get('contenido', '').strip()
+        rating = data.get('rating')
+        
+        if not all([juegoID, usuarioid, titulo, contenido, rating]):
+            return jsonify({'exito': False, 'mensaje': 'Datos incompletos'}), 400
+        
+        if not (1 <= rating <= 5):
+            return jsonify({'exito': False, 'mensaje': 'Rating debe estar entre 1 y 5'}), 400
+        
+        if len(titulo) > 255 or len(contenido) > 5000:
+            return jsonify({'exito': False, 'mensaje': 'Texto demasiado largo'}), 400
+        
+        cursor = mysql.connection.cursor()
+        
+        # Verificar que el usuario tenga el juego comprado
+        sql_check = "SELECT comprasID FROM compras WHERE usuarioid = %s AND juegoID = %s"
+        cursor.execute(sql_check, (usuarioid, juegoID))
+        compra = cursor.fetchone()
+        
+        if not compra:
+            cursor.close()
+            return jsonify({'exito': False, 'mensaje': 'No has comprado este juego'}), 403
+        
+        # Verificar que no haya ya una reseña del usuario para este juego
+        sql_check2 = "SELECT resenaID FROM resenas WHERE juegoID = %s AND usuarioid = %s"
+        cursor.execute(sql_check2, (juegoID, usuarioid))
+        resena_existente = cursor.fetchone()
+        
+        if resena_existente:
+            cursor.close()
+            return jsonify({'exito': False, 'mensaje': 'Ya has escrito una reseña para este juego'}), 409
+        
+        # Crear reseña
+        sql = """
+            INSERT INTO resenas (juegoID, usuarioid, titulo, contenido, rating, estado)
+            VALUES (%s, %s, %s, %s, %s, 'pendiente')
+        """
+        cursor.execute(sql, (juegoID, usuarioid, titulo, contenido, rating))
+        mysql.connection.commit()
+        
+        resena_id = cursor.lastrowid
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'resenaID': resena_id,
+            'mensaje': 'Reseña creada y pendiente de aprobación'
+        }), 201
+        
+    except Exception as ex:
+        print("ERROR en POST /api/resenas/crear:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/resenas/<int:resenaID>/votar-util', methods=['POST'])
+def votar_util_resena(resenaID):
+    """
+    Incrementa el contador de útil en una reseña
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = "UPDATE resenas SET util = util + 1 WHERE resenaID = %s"
+        cursor.execute(sql, (resenaID,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Voto registrado'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en POST /api/resenas/<resenaID>/votar-util:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/admin/resenas', methods=['GET'])
+def obtener_resenas_admin():
+    """
+    Obtiene todas las reseñas (para administrador)
+    """
+    try:
+        estado = request.args.get('estado', 'todas')
+        
+        cursor = mysql.connection.cursor()
+        
+        if estado == 'todas':
+            sql = """
+                SELECT 
+                    r.resenaID,
+                    r.juegoID,
+                    j.titulo as nombre_juego,
+                    r.usuarioid,
+                    u.username,
+                    r.titulo,
+                    r.contenido,
+                    r.rating,
+                    r.estado,
+                    r.fecha_creacion,
+                    r.fecha_publicacion,
+                    r.util,
+                    r.reportes
+                FROM resenas r
+                JOIN juegos j ON r.juegoID = j.juegoID
+                JOIN usuarios u ON r.usuarioid = u.usuarioid
+                ORDER BY r.fecha_creacion DESC
+            """
+            cursor.execute(sql)
+        else:
+            sql = """
+                SELECT 
+                    r.resenaID,
+                    r.juegoID,
+                    j.titulo as nombre_juego,
+                    r.usuarioid,
+                    u.username,
+                    r.titulo,
+                    r.contenido,
+                    r.rating,
+                    r.estado,
+                    r.fecha_creacion,
+                    r.fecha_publicacion,
+                    r.util,
+                    r.reportes
+                FROM resenas r
+                JOIN juegos j ON r.juegoID = j.juegoID
+                JOIN usuarios u ON r.usuarioid = u.usuarioid
+                WHERE r.estado = %s
+                ORDER BY r.fecha_creacion DESC
+            """
+            cursor.execute(sql, (estado,))
+        
+        filas = cursor.fetchall()
+        
+        resenas = []
+        for fila in filas:
+            resenas.append({
+                'resenaID': fila[0],
+                'juegoID': fila[1],
+                'nombre_juego': fila[2],
+                'usuarioid': fila[3],
+                'username': fila[4],
+                'titulo': fila[5],
+                'contenido': fila[6],
+                'rating': fila[7],
+                'estado': fila[8],
+                'fecha_creacion': str(fila[9]),
+                'fecha_publicacion': str(fila[10]) if fila[10] else None,
+                'util': fila[11],
+                'reportes': fila[12]
+            })
+        
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'resenas': resenas
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en GET /api/admin/resenas:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/admin/resenas/<int:resenaID>/aprobar', methods=['POST'])
+def aprobar_resena(resenaID):
+    """
+    Aprueba una reseña para publicarla
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = """
+            UPDATE resenas
+            SET estado = 'publicada', fecha_publicacion = NOW()
+            WHERE resenaID = %s
+        """
+        cursor.execute(sql, (resenaID,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Reseña aprobada'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en POST /api/admin/resenas/<resenaID>/aprobar:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/admin/resenas/<int:resenaID>/rechazar', methods=['POST'])
+def rechazar_resena(resenaID):
+    """
+    Rechaza una reseña
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = "UPDATE resenas SET estado = 'rechazada' WHERE resenaID = %s"
+        cursor.execute(sql, (resenaID,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Reseña rechazada'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en POST /api/admin/resenas/<resenaID>/rechazar:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+
+@app.route('/api/admin/resenas/<int:resenaID>/eliminar', methods=['DELETE'])
+def eliminar_resena(resenaID):
+    """
+    Elimina una reseña
+    """
+    try:
+        cursor = mysql.connection.cursor()
+        
+        sql = "DELETE FROM resenas WHERE resenaID = %s"
+        cursor.execute(sql, (resenaID,))
+        mysql.connection.commit()
+        cursor.close()
+        
+        return jsonify({
+            'exito': True,
+            'mensaje': 'Reseña eliminada'
+        }), 200
+        
+    except Exception as ex:
+        print("ERROR en DELETE /api/admin/resenas/<resenaID>/eliminar:", ex)
+        return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
+
+@app.route('/noticias', methods=['GET'])
+def obtener_noticias():
+    cursor = mysql.connection.cursor()
+    cursor.execute("SELECT * FROM noticias")
+    data = cursor.fetchall()
+
+    columnas = [col[0] for col in cursor.description]
+    resultado = [dict(zip(columnas, fila)) for fila in data]
+
+    cursor.close()
+    return jsonify(resultado)
+
+
+@app.route('/noticias', methods=['POST'])
+def crear_noticia():
+    datos = request.json
+    cursor = mysql.connection.cursor()
+
+    sql = """
+        INSERT INTO noticias (titulo, tipo, fecha, autor, descripcion, imagen)
+        VALUES (%s, %s, %s, %s, %s, %s)
+    """
+
+    valores = (
+        datos['titulo'],
+        datos['tipo'],
+        datos['fecha'],
+        datos['autor'],
+        datos['descripcion'],
+        datos['imagen']  
+    )
+
+    cursor.execute(sql, valores)
+    mysql.connection.commit()
+
+    cursor.close()
+    return jsonify({ "exito": True, "mensaje": "Noticia creada correctamente" })
+
+
+@app.route('/noticias/<int:noticiaid>', methods=['PUT'])
+def editar_noticia(noticiaid):
+    datos = request.json
+    cursor = mysql.connection.cursor()
+
+    sql = """
+        UPDATE noticias
+        SET titulo=%s, tipo=%s, fecha=%s, autor=%s,
+            descripcion=%s, imagen=%s
+        WHERE noticiaid=%s
+    """
+
+    valores = (
+        datos['titulo'],
+        datos['tipo'],
+        datos['fecha'],
+        datos['autor'],
+        datos['descripcion'],
+        datos['imagen'],
+        noticiaid
+    )
+
+    cursor.execute(sql, valores)
+    mysql.connection.commit()
+    cursor.close()
+
+    return jsonify({ "exito": True, "mensaje": "Noticia actualizada correctamente" })
+
+
+@app.route('/noticias/<int:noticiaid>', methods=['DELETE'])
+def eliminar_noticia(noticiaid):
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("DELETE FROM noticias WHERE noticiaid=%s", (noticiaid,))
+    mysql.connection.commit()
+
+    cursor.close()
+    return jsonify({ "exito": True, "mensaje": "Noticia eliminada" })
+
+@app.route('/api/upload_news', methods=['POST'])
+def upload_news():
+    title = request.form.get("title")
+    content = request.form.get("content")
+
+    image = request.files.get("image")  # <-- NO JSON
+
+    filename = None
+    if image:
+        filename = secure_filename(image.filename)
+        image.save(os.path.join("static/uploads", filename))
+
+    # aquí insertas a tu base de datos
+    cursor = mysql.connection.cursor()
+    cursor.execute("""
+        INSERT INTO news (title, content, image)
+        VALUES (%s, %s, %s)
+    """, (title, content, filename))
+    mysql.connection.commit()
+
+    return jsonify({"status": "ok", "message": "Noticia guardada"})
+
+
+
+@app.route('/even_actu', methods=['GET'])
+def obtener_eventos():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM even_actu ORDER BY fecha ASC")
+        data = cursor.fetchall()
+
+        columnas = [col[0] for col in cursor.description]
+        resultado = [dict(zip(columnas, fila)) for fila in data]
+
+        cursor.close()
+        return jsonify(resultado)
+
+    except Exception as ex:
+        print("ERROR en GET /eventos:", ex)
+        return jsonify({'error': str(ex)}), 500
+
+
+# ------------------------------------------
+#  POST - Crear Evento (RECIBE FORM-DATA)
+# ------------------------------------------
+@app.route('/even_actu', methods=['POST'])
+def crear_evento():
+    try:
+        titulo = request.form.get("titulo")
+        tipo = request.form.get("tipo")
+        fecha = request.form.get("fecha")
+        autor = request.form.get("autor")
+        descripcion = request.form.get("descripcion")
+        destacado = request.form.get("destacado")
+        estado = request.form.get("estado")
+
+        imagen_file = request.files.get("imagen")
+        imagen_base64 = None
+
+        if imagen_file:
+            import base64
+            imagen_base64 = base64.b64encode(imagen_file.read()).decode('utf-8')
+
+        cursor = mysql.connection.cursor()
+
+        sql = """
+            INSERT INTO even_actu 
+            (titulo, tipo, fecha, autor, descripcion, destacado, estado, imagen)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(sql, (
+            titulo, tipo, fecha, autor,
+            descripcion, destacado, estado, imagen_base64
+        ))
+
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"exito": True})
+
+    except Exception as ex:
+        print("ERROR en POST /eventos:", ex)
+        return jsonify({'error': str(ex)})  
+
+
+
+# ------------------------------------------
+#  PUT - Editar Evento (RECIBE FORM-DATA)
+# ------------------------------------------
+@app.route('/even_actu/<int:even_actu_id>', methods=['PUT'])
+def editar_evento(even_actu_id):
+    try:
+        titulo = request.form.get("titulo")
+        tipo = request.form.get("tipo")
+        fecha = request.form.get("fecha")
+        autor = request.form.get("autor")
+        descripcion = request.form.get("descripcion")
+        destacado = request.form.get("destacado")
+        estado = request.form.get("estado")
+
+        imagen_file = request.files.get("imagen")
+        imagen_base64 = None
+
+        cursor = mysql.connection.cursor()
+
+        if imagen_file:
+            imagen_base64 = base64.b64encode(imagen_file.read()).decode('utf-8')
+
+            sql = """
+                UPDATE even_actu
+                SET titulo=%s, tipo=%s, fecha=%s, autor=%s,
+                    descripcion=%s, destacado=%s, estado=%s, imagen=%s
+                WHERE even_actu_id=%s
+            """
+            valores = (titulo, tipo, fecha, autor, descripcion, destacado, estado,
+                    imagen_base64, even_actu_id)
+        else:
+            sql = """
+                UPDATE even_actu
+                SET titulo=%s, tipo=%s, fecha=%s, autor=%s,
+                    descripcion=%s, destacado=%s, estado=%s
+                WHERE even_actu_id=%s
+            """
+            valores = (titulo, tipo, fecha, autor, descripcion, destacado, estado,
+                       even_actu_id)
+
+        cursor.execute(sql, valores)
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"exito": True})
+
+    except Exception as ex:
+        print("ERROR en PUT /eventos:", ex)
+        return jsonify({'error': str(ex)}), 500
+
+
+
+# ------------------------------------------
+#  DELETE
+# ------------------------------------------
+@app.route('/even_actu/<int:even_actu_id>', methods=['DELETE'])
+def eliminar_evento(even_actu_id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM even_actu WHERE even_actu_id=%s", (even_actu_id,))
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"exito": True, "mensaje": "Evento eliminado"})
+
+    except Exception as ex:
+        print("ERROR en DELETE /eventos:", ex)
+        return jsonify({'error': str(ex)}), 500
+
+
+@app.route('/newsletter', methods=['POST'])
+def suscribirse_newsletter():
+    try:
+        correo = request.json.get('correo')
+        if not correo:
+            return jsonify({'error': 'Correo es requerido'}), 400
+
+        cursor = mysql.connection.cursor()
+
+        # Insertar correo, ignorando duplicados
+        sql = "INSERT IGNORE INTO newsletter (correo) VALUES (%s)"
+        cursor.execute(sql, (correo,))
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({'exito': True, 'mensaje': 'Correo registrado correctamente'})
+
+    except Exception as ex:
+        print("ERROR en POST /newsletter:", ex)
+        return jsonify({'error': str(ex)}), 500
 
 def pagina_no_encontrada(error):
     return "<h1>Pagina no encontrada</h1>", 404

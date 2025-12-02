@@ -109,6 +109,10 @@ export const routes: Routes = [
     path: 'adminresenas',
     loadChildren: () => import('./admin/adminresenas/adminresenas.routes').then(m => m.ADMIN_RESENAS_ROUTES)
   },
+  {
+    path: 'admineventos',
+    loadChildren: () => import('./admin/admineventos/admineventos.routes').then(m => m.ADMIN_EVENTOS_ROUTES)
+  },
 
 
   {
