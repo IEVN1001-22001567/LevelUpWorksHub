@@ -9,9 +9,10 @@
   </section>
 
   <!-- DESTACADO -->
-  <section *ngFor="let e of eventosDestacados" class="py-12">
+  <section *ngFor="let e of eventosDestacados; trackBy: trackById" class="py-12">
     <div class="container mx-auto px-4">
-      <div class="bg-card border-4 border-primary rounded-lg overflow-hidden">
+      <div class="bg-card border-4 border-primary rounded-lg overflow-hidden cursor-pointer"
+           (click)="abrirModal(e)">
 
         <div class="grid md:grid-cols-2">
           <div class="relative h-96 overflow-hidden">
@@ -24,14 +25,9 @@
           <div class="p-8 bg-primary text-primary-foreground">
             <h2 class="text-primary-foreground mb-4">{{ e.titulo }}</h2>
             <p class="text-lg mb-6 text-primary-foreground/90">{{ e.descripcion }}</p>
-
             <div class="flex gap-2 mb-6">
               <span>{{ e.fechaInicio }} - {{ e.fechaFin }}</span>
             </div>
-
-            <button class="bg-background hover:bg-card text-foreground px-8 py-4 rounded-lg">
-              Ver
-            </button>
           </div>
         </div>
 
@@ -45,7 +41,9 @@
       <h2 class="text-primary mb-8">Eventos Activos</h2>
 
       <div class="grid md:grid-cols-2 gap-6">
-        <div *ngFor="let e of eventosActivos" class="bg-background border-2 border-border rounded-lg overflow-hidden">
+        <div *ngFor="let e of eventosActivos; trackBy: trackById" 
+             class="bg-background border-2 border-border rounded-lg overflow-hidden cursor-pointer"
+             (click)="abrirModal(e)">
 
           <div class="relative h-56">
             <img [src]="imagenBase64(e.imagen)" class="w-full h-full object-cover">
@@ -60,14 +58,9 @@
               <span>{{ e.participantes }}</span>
             </div>
 
-            <button class="bg-primary text-primary-foreground px-6 py-3 rounded-lg w-full">
-              Participar Ahora
-            </button>
           </div>
-
         </div>
       </div>
-
     </div>
   </section>
 
@@ -77,7 +70,9 @@
       <h2 class="text-primary mb-8">Próximos Eventos</h2>
 
       <div class="grid md:grid-cols-3 gap-6">
-        <div *ngFor="let e of eventosProximos" class="bg-card border-2 border-border p-6 rounded-lg">
+        <div *ngFor="let e of eventosProximos; trackBy: trackById" 
+             class="bg-card border-2 border-border p-6 rounded-lg cursor-pointer"
+             (click)="abrirModal(e)">
 
           <h3 class="text-card-foreground mb-3">{{ e.titulo }}</h3>
           <p class="text-muted-foreground text-sm mb-4">{{ e.descripcion }}</p>
@@ -89,7 +84,6 @@
 
         </div>
       </div>
-
     </div>
   </section>
 
@@ -99,7 +93,9 @@
       <h2 class="text-primary mb-8">Eventos Pasados</h2>
 
       <div class="space-y-4">
-        <div *ngFor="let p of eventosPasados" class="bg-background border-l-4 border-primary p-6 rounded-lg">
+        <div *ngFor="let p of eventosPasados; trackBy: trackById" 
+             class="bg-background border-l-4 border-primary p-6 rounded-lg cursor-pointer"
+             (click)="abrirModal(p)">
           <h3 class="text-card-foreground mb-2">{{ p.titulo }}</h3>
           <p class="text-muted-foreground">{{ p.descripcion }}</p>
           <div class="text-primary text-sm">{{ p.fecha }}</div>
@@ -108,5 +104,28 @@
 
     </div>
   </section>
+
+  <!-- Modal -->
+  <div *ngIf="modalVisible"
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+       (click)="cerrarModal()">
+
+    <div class="bg-card rounded-lg overflow-hidden w-11/12 md:w-1/2 relative"
+         (click)="$event.stopPropagation()">
+      <button (click)="cerrarModal()"
+              class="absolute top-3 right-3 text-xl font-bold text-primary-foreground hover:text-accent">✖</button>
+
+      <img [src]="imagenBase64(eventoSeleccionado?.imagen)" [alt]="eventoSeleccionado?.titulo" class="w-full h-64 object-cover" />
+
+      <div class="p-6">
+        <h2 class="text-primary mb-2">{{ eventoSeleccionado?.titulo }}</h2>
+        <p class="text-muted-foreground mb-2">{{ eventoSeleccionado?.descripcion }}</p>
+        <div class="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+          <span>📅 {{ eventoSeleccionado?.fechaInicio }} - {{ eventoSeleccionado?.fechaFin || eventoSeleccionado?.fecha }}</span>
+          <span *ngIf="eventoSeleccionado?.participantes">👥 {{ eventoSeleccionado?.participantes }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
