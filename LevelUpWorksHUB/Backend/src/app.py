@@ -9,11 +9,11 @@ import os
 from werkzeug.utils import secure_filename
 import traceback
 
-# Local storage service for external juegos folder
+
 from config_juegos import DevelopmentConfig
 from juegos_storage_service import JuegosStorageService
 
-# Generar una contraseña temporal aleatoria
+
 def generar_password_temporal(longitud=8):
     caracteres = string.ascii_letters + string.digits
     return ''.join(random.choice(caracteres) for _ in range(longitud))
@@ -26,12 +26,12 @@ CORS(app, resources={r"/*": {"origins": "http://localhost:4200"}})
 mysql = MySQL(app)
 
 
-# Ruta absoluta a la carpeta de avatares (ajustado a tu estructura: src/static/avatars)
+# Ruta absoluta a la carpeta de avatares (src/static/avatars)
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))  # carpeta src
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'avatars')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Carpeta donde guardarás las portadas
+# Carpeta donde guardaremos portadas
 PORTADAS_FOLDER = os.path.join(app.root_path, 'static', 'portadas')
 os.makedirs(PORTADAS_FOLDER, exist_ok=True)
 
@@ -64,7 +64,6 @@ def login():
             return jsonify({'mensaje': 'Faltan datos', 'exito': False}), 400
 
         cursor = mysql.connection.cursor()
-        # IMPORTANTE: incluimos saldo en el SELECT
         sql = """
             SELECT 
                 usuarioid,        -- 0
@@ -96,9 +95,9 @@ def login():
         nombre      = datos[6]
         telefono    = datos[7]
         biografia   = datos[8]
-        saldo_bd    = datos[9]   # 👈 AQUÍ SE TOMA EL SALDO
+        saldo_bd    = datos[9]  
 
-        # Validar contraseña
+        #validación de contraseña
         if password != password_bd:
             return jsonify({'mensaje': 'Contraseña incorrecta', 'exito': False}), 401
 
@@ -296,7 +295,7 @@ def actualizar_perfil():
         print("Error en /api/actualizar_perfil:", e)
         return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {e}'}), 500
 
-# Obtener todos los usuarios 
+# Obtener usuarios 
 @app.route('/admin/usuarios', methods=['GET'])
 def obtener_usuarios():
     try:
@@ -319,8 +318,7 @@ def obtener_usuarios():
                 'nombre': fila[5],
                 'telefono': fila[6],
                 'biografia': fila[7],
-                # Campos fake para que tu UI no truene:
-                'estado': 'active',          # si no tienes columna, lo dejamos fijo
+                'estado': 'active',          
                 'miembroDesde': '2024-01-01',
                 'comprasTotales': 0,
                 'gastoTotal': 0,
@@ -335,7 +333,7 @@ def obtener_usuarios():
         return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
 
 
-# Actualizar datos básicos (rol, estado, nombre, email)
+
 @app.route('/admin/usuarios/<int:usuarioid>', methods=['PUT'])
 def actualizar_usuario_admin(usuarioid):
     try:
@@ -343,7 +341,7 @@ def actualizar_usuario_admin(usuarioid):
         rol = data.get('rol')
         nombre = data.get('nombre')
         email = data.get('email')
-        # si más adelante agregas columna 'estado' la manejas aquí
+        
 
         cursor = mysql.connection.cursor()
         sql = """
@@ -362,7 +360,6 @@ def actualizar_usuario_admin(usuarioid):
         return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
 
 
-# Eliminar usuario
 @app.route('/admin/usuarios/<int:usuarioid>', methods=['DELETE'])
 def eliminar_usuario_admin(usuarioid):
     try:
@@ -375,6 +372,8 @@ def eliminar_usuario_admin(usuarioid):
     except Exception as ex:
         print("ERROR en DELETE /admin/usuarios/<id>:", ex)
         return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
+    
+
 # Crear nuevo usuario (ADMIN)
 @app.route('/admin/usuarios', methods=['POST'])
 def crear_usuario_admin():
@@ -409,7 +408,7 @@ def crear_usuario_admin():
                 'mensaje': 'Ya existe un usuario con ese email'
             }), 400
 
-        # Aquí podrías hashear la contraseña si quisieras
+        
         password_hash = password  # OJO: en producción usa hash (bcrypt, etc.)
 
         sql = """
@@ -452,9 +451,7 @@ def crear_usuario_admin():
             'exito': False,
             'mensaje': f'Error en el servidor: {ex}'
         }), 500
-###############################################
-#                 ADMIN PSYCHO               
-###############################################
+
 
 # ---- OBTENER TODOS LOS ARTÍCULOS ----
 @app.route('/psycho/articulos', methods=['GET'])
@@ -488,7 +485,7 @@ def obtener_articulos():
         return jsonify({"exito": False, "mensaje": str(ex)}), 500
 
 
-# ---- CREAR ARTÍCULO ----
+# CREAR ARTÍCULO
 @app.route('/psycho/articulos', methods=['POST'])
 def crear_articulo():
     try:
@@ -522,7 +519,7 @@ def crear_articulo():
         return jsonify({"exito": False, "mensaje": str(ex)}), 500
 
 
-# ---- EDITAR ARTÍCULO ----
+#EDITAR ARTÍCULO
 @app.route('/psycho/articulos/<int:id_articulo>', methods=['PUT'])
 def editar_articulo(id_articulo):
     try:
@@ -558,7 +555,7 @@ def editar_articulo(id_articulo):
         return jsonify({"exito": False, "mensaje": str(ex)}), 500
 
 
-# ---- ELIMINAR ARTÍCULO ----
+# ELIMINAR ARTÍCULO
 @app.route('/psycho/articulos/<int:id_articulo>', methods=['DELETE'])
 def eliminar_articulo(id_articulo):
     try:
@@ -667,7 +664,7 @@ def upload_news():
         filename = secure_filename(image.filename)
         image.save(os.path.join("static/uploads", filename))
 
-    # aquí insertas a tu base de datos
+   
     cursor = mysql.connection.cursor()
     cursor.execute("""
         INSERT INTO news (title, content, image)
@@ -684,7 +681,6 @@ def crear_juego():
     try:
         print("POST /admin/juegos (crear juego)")
 
-        # Como viene multipart/form-data
         title = request.form.get('title')
         genre = request.form.get('genre')
         platform = request.form.get('platform')
@@ -698,7 +694,7 @@ def crear_juego():
 
         cursor = mysql.connection.cursor()
 
-        # ======= PORTADA (imagen) - Siempre local =======
+        # ======= PORTADA Siempre local =======
         portada_filename = None
         if 'image' in request.files:
             imagen_file = request.files['image']
@@ -714,7 +710,7 @@ def crear_juego():
 
                 portada_filename = nombre_archivo_portada
 
-        # ======= ARCHIVO DEL JUEGO (ZIP/EXE) - Almacenamiento local (carpeta externa) =======
+        #-ARCHIVO DEL JUEGO (ZIP/EXE) - Almacenamiento local (carpeta externa)
         archivo_instalador = None
         tamano_archivo = None
 
@@ -751,13 +747,13 @@ def crear_juego():
                     except:
                         tamano_archivo = None
 
-                # eliminar temporal (si existe)
+                
                 try:
                     if os.path.exists(ruta_completa_temp):
                         os.remove(ruta_completa_temp)
                 except Exception as e:
                     print(f"Aviso: no se pudo eliminar temporal: {e}")
-        # ======= INSERT EN BD =======
+        # INSERT EN BD 
         sql = """
             INSERT INTO juegos
             (usuarioid, titulo, genero, portada, plataforma, horasjugadas, fechapublicacion,
@@ -849,7 +845,6 @@ def actualizar_juego(juego_id):
     try:
         print("PUT /admin/juegos/", juego_id)
 
-        # Como viene multipart/form-data, usamos request.form y request.files
         title = request.form.get('title')
         genre = request.form.get('genre')
         platform = request.form.get('platform')
@@ -864,7 +859,6 @@ def actualizar_juego(juego_id):
 
         cursor = mysql.connection.cursor()
 
-        # Ver si viene nueva imagen
         nueva_imagen = None
         if 'image' in request.files:
             imagen_file = request.files['image']
@@ -882,7 +876,6 @@ def actualizar_juego(juego_id):
 
                 nueva_imagen = nombre_archivo
 
-        # Armamos el UPDATE dinámico
         campos = [
             "titulo = %s",
             "genero = %s",
@@ -907,7 +900,6 @@ def actualizar_juego(juego_id):
         cursor.execute(sql, tuple(valores))
         mysql.connection.commit()
 
-        # Puedes devolver info del juego actualizado
         resp_juego = {
             'id': juego_id,
             'title': title,
@@ -930,20 +922,17 @@ def actualizar_juego(juego_id):
 def eliminar_juego(juego_id):
     try:
         if request.method == 'OPTIONS':
-            # respuesta para el preflight
+            
             return '', 200
 
         cursor = mysql.connection.cursor()
 
-        # si quieres, primero obtienes la portada para borrarla del disco
         cursor.execute("SELECT portada FROM juegos WHERE juegoID = %s", (juego_id,))
         fila = cursor.fetchone()
 
-        # borrar el registro
         cursor.execute("DELETE FROM juegos WHERE juegoID = %s", (juego_id,))
         mysql.connection.commit()
 
-        # opcional: borrar la imagen del sistema de archivos
         if fila and fila[0]:
             import os
             ruta_portada = os.path.join(app.root_path, 'static', 'portadas', fila[0])
@@ -991,12 +980,11 @@ def biblioteca_usuario(usuarioid):
         return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {ex}'}), 500
 
 
-# GET /admin/juegos  -> devuelve lista de juegos en formato consistente para el front
 @app.route('/tienda', methods=['GET'])
 def listar_juegos():
     try:
         cursor = mysql.connection.cursor()
-        # ajusta nombres de columnas si los tienes distintos; esta consulta usa la tabla 'juegos'
+        
         sql = """
             SELECT juegoID, usuarioid, titulo, descripcion, genero, precio, portada, plataforma,
                    horasjugadas, estado, fechapublicacion, archivo_instalador, tamano_archivo
@@ -1008,9 +996,9 @@ def listar_juegos():
         filas = cursor.fetchall()
 
         juegos = []
-        # filas puede devolverse como tu driver lo haga; flask_mysqldb devuelve tuplas.
+        
         for f in filas:
-            # si fetchall devuelve tuplas en orden de la consulta:
+            
             juego = {
                 "juegoID": f[0],
                 "usuarioid": f[1],
@@ -1104,7 +1092,7 @@ def procesar_carrito():
 
         cursor = mysql.connection.cursor()
 
-        # 1) Leer saldo
+        # Leer saldo
         sql_saldo = "SELECT saldo FROM usuarios WHERE usuarioid = %s"
         cursor.execute(sql_saldo, (usuarioid,))
         row = cursor.fetchone()
@@ -1138,7 +1126,7 @@ def procesar_carrito():
                         return jsonify({'exito': False, 'mensaje': msg}), 400
         except Exception as e:
             print(f"[carrito/procesar] Error comprobando duplicados: {e}")
-            # no abortamos aquí, seguimos; la inserción tendrá su propio manejo
+            
 
         # 2) Descontar saldo
         nuevo_saldo = saldo_actual - float(total)
@@ -1200,7 +1188,7 @@ def procesar_carrito():
         return jsonify({'exito': False, 'mensaje': f'Error en el servidor: {str(ex)}'}), 500
 
 
-# Endpoints para descargar/jugar (local storage only)
+# Endpoints para descargar/jugar (local storage)
 
 @app.route('/api/juego/descargar/<int:juego_id>', methods=['GET'])
 def descargar_juego(juego_id):
@@ -1217,7 +1205,6 @@ def descargar_juego(juego_id):
         resultado = cursor.fetchone()
         cursor.close()
 
-        # Si no encontramos por juegoID, intentar resolver comprasID -> juegoID
         if not resultado:
             try:
                 cur2 = mysql.connection.cursor()
@@ -1265,7 +1252,6 @@ def jugar_juego(juego_id):
         resultado = cursor.fetchone()
         cursor.close()
 
-        # Intentar resolver comprasID -> juegoID si hace falta
         if not resultado:
             try:
                 cur2 = mysql.connection.cursor()
@@ -1291,22 +1277,22 @@ def jugar_juego(juego_id):
         if not ruta_archivo or not os.path.exists(ruta_archivo):
             return jsonify({'exito': False, 'mensaje': 'El archivo del juego no existe en el almacenamiento'}), 404
 
-        # ===== PROCESAR SEGÚN TIPO DE ARCHIVO =====
+    
         ext = os.path.splitext(archivo_local)[1].lower()
 
-        # Si es ZIP: descomprimir y buscar EXE
+        
         if ext == '.zip':
             import zipfile
             import subprocess
             
-            # Carpeta para extraer
+            
             carpeta_extraidos = os.path.join(storage_service.carpeta_juegos, 'extraidos')
             os.makedirs(carpeta_extraidos, exist_ok=True)
             
             nombre_sin_ext = os.path.splitext(archivo_local)[0]
             carpeta_juego = os.path.join(carpeta_extraidos, nombre_sin_ext)
             
-            # Si ya existe extraído, usarlo; sino extraer
+            
             if not os.path.exists(carpeta_juego):
                 print(f"📦 Descomprimiendo {archivo_local} a {carpeta_juego}...")
                 try:
@@ -1319,7 +1305,6 @@ def jugar_juego(juego_id):
             else:
                 print(f"✅ Carpeta ya existe: {carpeta_juego}")
             
-            # Buscar el primer .exe en la carpeta extraída
             exe_path = None
             for root, dirs, files in os.walk(carpeta_juego):
                 for file in files:
@@ -1335,7 +1320,6 @@ def jugar_juego(juego_id):
                     'mensaje': 'No se encontró archivo .exe en el ZIP'
                 }), 400
             
-            # Intentar ejecutar el EXE
             try:
                 print(f"▶️ Ejecutando: {exe_path}")
                 subprocess.Popen([exe_path], cwd=os.path.dirname(exe_path))
@@ -1352,7 +1336,6 @@ def jugar_juego(juego_id):
                     'mensaje': f'Error ejecutando el juego: {e}'
                 }), 500
 
-        # Si es EXE: ejecutar directamente
         elif ext == '.exe':
             try:
                 import subprocess
@@ -1383,7 +1366,6 @@ def jugar_juego(juego_id):
         return jsonify({'exito': False, 'mensaje': f'Error: {ex}'}), 500
 
 
-# ===================== ENDPOINTS ADMIN - COMPRAS =====================
 
 @app.route('/admin/compras', methods=['GET'])
 def obtener_compras_admin():
@@ -1563,7 +1545,6 @@ def obtener_amigos(usuarioid):
     try:
         cursor = mysql.connection.cursor()
         
-        # Obtener amigos aceptados (en ambas direcciones)
         sql = """
             SELECT 
                 CASE 
@@ -1728,7 +1709,6 @@ def agregar_amigo():
         
         cursor = mysql.connection.cursor()
         
-        # Verificar que no ya exista amistad
         sql_check = """
             SELECT amistad_id FROM amigos
             WHERE (usuario1_id = %s AND usuario2_id = %s)
