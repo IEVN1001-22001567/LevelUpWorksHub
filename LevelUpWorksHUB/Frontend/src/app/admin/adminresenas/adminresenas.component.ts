@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { ResenasService } from '../../services/resenas.service';
 
 @Component({
   selector: 'app-admin-resenas',
@@ -9,64 +11,117 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './adminresenas.component.html',
   styles: []
 })
-export class AdminResenasComponent {
+export class AdminResenasComponent implements OnInit {
 
-  // --- VARIABLES DE ESTADO Y FILTROS ---
   activeFilter: 'todas' | 'publicadas' | 'pendientes' | 'rechazadas' = 'todas';
   searchTerm: string = '';
 
-  // Variables para controlar los modales (Ver y Editar)
   selectedReview: any = null;
   isEditing: boolean = false;
 
-  // --- DATOS SIMULADOS ---
-
-  // Estadísticas Generales
   stats = {
-    total: 10,
-    publicadas: 9,
-    pendientes: 1,
-    ratingPromedio: 4.5
+    total: 0,
+    publicadas: 0,
+    pendientes: 0,
+    ratingPromedio: 0
   };
 
-  // Estadísticas por Juego
-  gameStats = [
-    { name: 'Chainsaw of the Dead', rating: 4.5, count: 2 },
-    { name: 'Wyvern Quest', rating: 4.5, count: 4 },
-    { name: 'Burnout VR', rating: 4.7, count: 3 }
-  ];
+  gameStats: any[] = [];
+  reviews: any[] = [];
+  juegos: any[] = [];
+  baseUrl = 'http://127.0.0.1:5000';
 
-  // Lista de Reseñas
-  reviews = [
-    { id: 'rev-001', juego: 'Chainsaw of the Dead', usuario: 'ZombieHunter99', usuarioVerificado: true, rating: 5, titulo: 'El mejor juego de zombies que...', estado: 'Publicada', util: 156, reportes: 0, fecha: '15 oct 2025, 08:30' },
-    { id: 'rev-002', juego: 'Chainsaw of the Dead', usuario: 'SurvivalMaster', usuarioVerificado: true, rating: 4, titulo: 'Gran juego pero con algunos b...', estado: 'Publicada', util: 89, reportes: 0, fecha: '20 oct 2025, 03:15' },
-    { id: 'rev-003', juego: 'Wyvern Quest', usuario: 'DragonSlayer_Elite', usuarioVerificado: true, rating: 5, titulo: 'RPG de mundo abierto definitivo', estado: 'Publicada', util: 234, reportes: 0, fecha: '1 nov 2025, 10:45' },
-    { id: 'rev-004', juego: 'Wyvern Quest', usuario: 'RPGFanatic2025', usuarioVerificado: true, rating: 5, titulo: 'Cientos de horas de diversión', estado: 'Publicada', util: 178, reportes: 0, fecha: '5 nov 2025, 05:20' },
-    { id: 'rev-005', juego: 'Wyvern Quest', usuario: 'CasualGamer123', usuarioVerificado: true, rating: 3, titulo: 'Bueno pero muy exigente', estado: 'Publicada', util: 45, reportes: 0, fecha: '10 nov 2025, 07:30' },
-    { id: 'rev-006', juego: 'Burnout VR', usuario: 'VRHorrorFan', usuarioVerificado: true, rating: 5, titulo: '¡Terror en su máxima expresión!', estado: 'Publicada', util: 201, reportes: 0, fecha: '12 nov 2025, 14:00' },
-    { id: 'rev-007', juego: 'Burnout VR', usuario: 'ScaredEasily', usuarioVerificado: true, rating: 4, titulo: 'Demasiado aterrador para mí', estado: 'Publicada', util: 92, reportes: 0, fecha: '15 nov 2025, 12:30' },
-    { id: 'rev-008', juego: 'Burnout VR', usuario: 'VREnthusiast', usuarioVerificado: true, rating: 5, titulo: 'Aprovecha al máximo la VR', estado: 'Publicada', util: 167, reportes: 0, fecha: '18 nov 2025, 09:45' },
-    { id: 'rev-009', juego: 'Chainsaw of the Dead', usuario: 'NewPlayer2025', usuarioVerificado: false, rating: 4, titulo: 'Esperando revisión del adminis...', estado: 'Pendiente', util: 0, reportes: 0, fecha: '28 nov 2025, 04:00' },
-    { id: 'rev-010', juego: 'Wyvern Quest', usuario: 'FantasyLover88', usuarioVerificado: true, rating: 5, titulo: 'El mundo de fantasía más detal...', estado: 'Publicada', util: 143, reportes: 0, fecha: '20 nov 2025, 06:00' }
-  ];
+  constructor(
+    private resenasService: ResenasService,
+    private http: HttpClient
+  ) { }
 
-  // --- LÓGICA DE FILTRADO ---
+  ngOnInit() {
+    this.cargarJuegos();
+    this.cargarResenas();
+  }
+
+  cargarJuegos() {
+    this.http.get<any>(`${this.baseUrl}/tienda`).subscribe(
+      (data: any) => {
+        if (data.exito && data.juegos) {
+          this.juegos = data.juegos.map((j: any) => ({
+            id: j.juegoID,
+            nombre: j.titulo
+          }));
+        }
+      },
+      error => console.error('Error cargando juegos:', error)
+    );
+  }
+
+  cargarResenas() {
+    this.resenasService.obtenerResenasAdmin().subscribe(
+      (data: any) => {
+        if (data.exito) {
+          this.reviews = (data.resenas || []).map((r: any) => ({
+            ...r,
+            id: r.resenaID,
+            usuario: r.username,
+            juego: r.nombre_juego,
+            titulo: r.titulo,
+            estado: r.estado === 'publicada' ? 'Publicada' : (r.estado === 'pendiente' ? 'Pendiente' : 'Rechazada'),
+            util: r.util || 0,
+            reportes: r.reportes || 0,
+            fecha: r.fecha_publicacion || 'Sin fecha',
+            rating: r.rating || 0,
+            usuarioVerificado: false
+          }));
+          this.actualizarEstadisticas();
+        }
+      },
+      error => console.error('Error cargando reseñas:', error)
+    );
+  }
+
+  actualizarEstadisticas() {
+    this.stats.total = this.reviews.length;
+    this.stats.publicadas = this.reviews.filter(r => r.estado === 'Publicada').length;
+    this.stats.pendientes = this.reviews.filter(r => r.estado === 'Pendiente').length;
+    
+    // Calcular rating promedio
+    if (this.stats.publicadas > 0) {
+      const suma = this.reviews
+        .filter(r => r.estado === 'Publicada')
+        .reduce((acc, r) => acc + r.rating, 0);
+      this.stats.ratingPromedio = +(suma / this.stats.publicadas).toFixed(1);
+    }
+
+    // Estadísticas por juego
+    const juegosMap = new Map();
+    this.reviews.filter(r => r.estado === 'Publicada').forEach(r => {
+      if (!juegosMap.has(r.juego)) {
+        juegosMap.set(r.juego, { name: r.juego, ratings: [], count: 0 });
+      }
+      juegosMap.get(r.juego).ratings.push(r.rating);
+      juegosMap.get(r.juego).count++;
+    });
+
+    this.gameStats = Array.from(juegosMap.values()).map((game: any) => ({
+      name: game.name,
+      rating: (game.ratings.reduce((a: number, b: number) => a + b, 0) / game.ratings.length).toFixed(1),
+      count: game.count
+    }));
+  }
 
   get filteredReviews() {
     return this.reviews.filter(r => {
-      // 1. Filtro por Estado
       if (this.activeFilter !== 'todas') {
         if (this.activeFilter === 'publicadas' && r.estado !== 'Publicada') return false;
         if (this.activeFilter === 'pendientes' && r.estado !== 'Pendiente') return false;
         if (this.activeFilter === 'rechazadas' && r.estado !== 'Rechazada') return false;
       }
 
-      // 2. Filtro por Buscador (Si hay texto)
       if (this.searchTerm) {
         const term = this.searchTerm.toLowerCase();
-        return r.usuario.toLowerCase().includes(term) ||
-               r.juego.toLowerCase().includes(term) ||
-               r.titulo.toLowerCase().includes(term);
+        return r.usuario?.toLowerCase().includes(term) ||
+               r.juego?.toLowerCase().includes(term) ||
+               r.titulo?.toLowerCase().includes(term);
       }
 
       return true;
@@ -77,45 +132,74 @@ export class AdminResenasComponent {
     this.activeFilter = filter;
   }
 
-  // --- ACCIONES RÁPIDAS (BOTONES PEQUEÑOS) ---
+  aprobar(id: number) {
+    this.resenasService.aprobarResena(id).subscribe(
+      (data: any) => {
+        if (data.exito) {
+          alert('Reseña aprobada');
+          this.cargarResenas();
+        } else {
+          alert('Error: ' + (data.mensaje || 'No se pudo aprobar la reseña'));
+        }
+      },
+      error => {
+        console.error('Error aprobando reseña:', error);
+        alert('Error aprobando reseña: ' + (error.error?.mensaje || error.statusText));
+      }
+    );
+  }
 
-  aprobar(id: string) { alert('Reseña aprobada: ' + id); }
-  rechazar(id: string) { alert('Reseña rechazada: ' + id); }
+  rechazar(id: number) {
+    this.resenasService.rechazarResena(id).subscribe(
+      (data: any) => {
+        if (data.exito) {
+          alert('Reseña rechazada');
+          this.cargarResenas();
+        } else {
+          alert('Error: ' + (data.mensaje || 'No se pudo rechazar la reseña'));
+        }
+      },
+      error => {
+        console.error('Error rechazando reseña:', error);
+        alert('Error rechazando reseña: ' + (error.error?.mensaje || error.statusText));
+      }
+    );
+  }
 
-  eliminar(id: string) {
+  eliminar(id: number) {
     if(confirm('¿Eliminar reseña permanentemente?')) {
-      this.reviews = this.reviews.filter(r => r.id !== id);
+      this.resenasService.eliminarResena(id).subscribe(
+        (data: any) => {
+          if (data.exito) {
+            alert('Reseña eliminada');
+            this.cargarResenas();
+          }
+        },
+        error => alert('Error eliminando reseña')
+      );
     }
   }
 
-  // --- LÓGICA DE MODALES (VER / EDITAR) ---
-
-  // Abrir Modal de DETALLE (Ojito)
   verResena(review: any) {
-    this.selectedReview = { ...review }; // Creamos una copia
+    this.selectedReview = { ...review };
     this.isEditing = false;
   }
 
-  // Abrir Modal de EDICIÓN (Lápiz)
   editarResena(review: any) {
-    this.selectedReview = { ...review }; // Creamos una copia
+    this.selectedReview = { ...review };
     this.isEditing = true;
   }
 
-  // Cerrar Modal
   cerrarModal() {
     this.selectedReview = null;
     this.isEditing = false;
   }
 
-  // Guardar Cambios del Modal
   guardarCambios() {
-    alert('Cambios guardados correctamente para: ' + this.selectedReview.id);
-    // Aquí actualizamos la lista original con los datos editados
-    const index = this.reviews.findIndex(r => r.id === this.selectedReview.id);
-    if (index !== -1) {
-      this.reviews[index] = { ...this.selectedReview };
+    if (this.selectedReview) {
+      alert('Cambios guardados correctamente para: ' + this.selectedReview.id);
+      this.cargarResenas();
+      this.cerrarModal();
     }
-    this.cerrarModal();
   }
 }

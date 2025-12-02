@@ -4,6 +4,7 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthService, Usuario } from '../services/auth.service';
 import { CarritoService } from '../services/carrito.service';
+import { ResenasService } from '../services/resenas.service';
 
 interface JuegoTienda {
   id: number;
@@ -57,7 +58,8 @@ export class TiendaComponent implements OnInit {
     private http: HttpClient,
     private auth: AuthService,
     private router: Router,
-    private carrito: CarritoService
+    private carrito: CarritoService,
+    private resenasService: ResenasService
   ) {}
 
   ngOnInit(): void {
@@ -134,8 +136,8 @@ export class TiendaComponent implements OnInit {
             imagen: imagenUrl,
             categoria: j.genero ?? 'Indefinido',
             plataforma: j.plataforma ?? 'PC',
-            rating: 4.8,
-            reviews: '1,000+',
+            rating: 0,
+            reviews: '0',
             tags: [
               j.plataforma ?? 'PC',
               j.genero ?? 'RPG',
@@ -144,6 +146,19 @@ export class TiendaComponent implements OnInit {
             yaComprado: this.juegosComprados.includes(Number(j.juegoID ?? 0))
           };
           return juego;
+        });
+
+        // Cargar ratings para cada juego
+        this.juegos.forEach((juego) => {
+          this.resenasService.obtenerRatingJuego(juego.id).subscribe(
+            (data: any) => {
+              if (data.exito) {
+                juego.rating = data.rating_promedio || 0;
+                juego.reviews = data.total_resenas > 0 ? `${data.total_resenas}+ reviews` : 'Sin reviews';
+              }
+            },
+            error => console.error('Error cargando rating para juego:', juego.id)
+          );
         });
 
         // Después de cargar los juegos, actualizar estado de comprados
