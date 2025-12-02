@@ -1,24 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // ✅ Agregado para ngModel
+import { FormsModule } from '@angular/forms'; 
 import { HttpClientModule, HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-noticias',
   standalone: true,
-  imports: [CommonModule, FormsModule, HttpClientModule], // ✅ FormsModule incluido
+  imports: [CommonModule, FormsModule, HttpClientModule],
   templateUrl: './noticias.component.html',
   styleUrls: ['./noticias.component.css']
 })
 export class NoticiasComponent implements OnInit {
 
   private apiUrl = 'http://127.0.0.1:5000/noticias';
-
   categorias = ['Todas', 'Actualización', 'Logro', 'Premios', 'Desarrollo', 'Anuncio'];
 
   noticias: any[] = [];
+  correoNewsletter: string = ''; 
 
-  correoNewsletter: string = ''; // input del newsletter
+  // Variables para el modal
+  articuloSeleccionado: any = null;
+  modalVisible: boolean = false;
 
   constructor(private http: HttpClient) {}
 
@@ -43,7 +45,6 @@ export class NoticiasComponent implements OnInit {
     return this.noticias.filter(n => !n.featured);
   }
 
-  // 🔔 Función para suscribirse al newsletter
   suscribirse() {
     const correo = this.correoNewsletter.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -57,13 +58,24 @@ export class NoticiasComponent implements OnInit {
       .subscribe({
         next: (res: any) => {
           alert(res.mensaje);
-          this.correoNewsletter = ''; // limpiar input después de enviar
+          this.correoNewsletter = ''; 
         },
         error: (err) => {
           console.error(err);
           alert('Error al registrarte. Intenta de nuevo.');
         }
       });
+  }
+
+  // Funciones para el modal
+  abrirModal(articulo: any) {
+    this.articuloSeleccionado = articulo;
+    this.modalVisible = true;
+  }
+
+  cerrarModal() {
+    this.modalVisible = false;
+    this.articuloSeleccionado = null;
   }
 
 }
