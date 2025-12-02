@@ -95,6 +95,10 @@ export const routes: Routes = [
     path: 'adminlicencias',
     loadChildren: () => import('./admin/adminlicencias/adminlicencias.routes').then(m => m.ADMIN_LICENCIAS_ROUTES)
   },
+  {
+    path: 'admineventos',
+    loadChildren: () => import('./admin/admineventos/admineventos.routes').then(m => m.ADMIN_EVENTOS_ROUTES)
+  },
 
   {
     path: 'utl',

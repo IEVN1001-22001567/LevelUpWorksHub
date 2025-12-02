@@ -15,7 +15,7 @@
 
         <div class="grid md:grid-cols-2">
           <div class="relative h-96 overflow-hidden">
-            <img [src]="e.imagen" class="w-full h-full object-cover">
+            <img [src]="imagenBase64(e.imagen)" class="w-full h-full object-cover">
             <div class="absolute bottom-6 left-6 bg-primary text-primary-foreground text-6xl px-6 py-3 rounded-lg">
               {{ e.descuento }}
             </div>
@@ -30,7 +30,7 @@
             </div>
 
             <button class="bg-background hover:bg-card text-foreground px-8 py-4 rounded-lg">
-              Ver Todos los Descuentos
+              Ver
             </button>
           </div>
         </div>
@@ -48,7 +48,7 @@
         <div *ngFor="let e of eventosActivos" class="bg-background border-2 border-border rounded-lg overflow-hidden">
 
           <div class="relative h-56">
-            <img [src]="e.imagen" class="w-full h-full object-cover">
+            <img [src]="imagenBase64(e.imagen)" class="w-full h-full object-cover">
           </div>
 
           <div class="p-6">

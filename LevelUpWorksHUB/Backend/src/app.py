@@ -5,7 +5,9 @@ from config import config
 import random
 import string
 import os
+import base64
 from werkzeug.utils import secure_filename
+
 
 # Generar una contraseña temporal aleatoria
 def generar_password_temporal(longitud=8):
@@ -515,6 +517,162 @@ def upload_news():
     mysql.connection.commit()
 
     return jsonify({"status": "ok", "message": "Noticia guardada"})
+
+
+
+@app.route('/even_actu', methods=['GET'])
+def obtener_eventos():
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("SELECT * FROM even_actu ORDER BY fecha ASC")
+        data = cursor.fetchall()
+
+        columnas = [col[0] for col in cursor.description]
+        resultado = [dict(zip(columnas, fila)) for fila in data]
+
+        cursor.close()
+        return jsonify(resultado)
+
+    except Exception as ex:
+        print("ERROR en GET /eventos:", ex)
+        return jsonify({'error': str(ex)}), 500
+
+
+# ------------------------------------------
+#  POST - Crear Evento (RECIBE FORM-DATA)
+# ------------------------------------------
+@app.route('/even_actu', methods=['POST'])
+def crear_evento():
+    try:
+        titulo = request.form.get("titulo")
+        tipo = request.form.get("tipo")
+        fecha = request.form.get("fecha")
+        autor = request.form.get("autor")
+        descripcion = request.form.get("descripcion")
+        destacado = request.form.get("destacado")
+        estado = request.form.get("estado")
+
+        imagen_file = request.files.get("imagen")
+        imagen_base64 = None
+
+        if imagen_file:
+            import base64
+            imagen_base64 = base64.b64encode(imagen_file.read()).decode('utf-8')
+
+        cursor = mysql.connection.cursor()
+
+        sql = """
+            INSERT INTO even_actu 
+            (titulo, tipo, fecha, autor, descripcion, destacado, estado, imagen)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        cursor.execute(sql, (
+            titulo, tipo, fecha, autor,
+            descripcion, destacado, estado, imagen_base64
+        ))
+
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"exito": True})
+
+    except Exception as ex:
+        print("ERROR en POST /eventos:", ex)
+        return jsonify({'error': str(ex)})  
+
+
+
+# ------------------------------------------
+#  PUT - Editar Evento (RECIBE FORM-DATA)
+# ------------------------------------------
+@app.route('/even_actu/<int:even_actu_id>', methods=['PUT'])
+def editar_evento(even_actu_id):
+    try:
+        titulo = request.form.get("titulo")
+        tipo = request.form.get("tipo")
+        fecha = request.form.get("fecha")
+        autor = request.form.get("autor")
+        descripcion = request.form.get("descripcion")
+        destacado = request.form.get("destacado")
+        estado = request.form.get("estado")
+
+        imagen_file = request.files.get("imagen")
+        imagen_base64 = None
+
+        cursor = mysql.connection.cursor()
+
+        if imagen_file:
+            imagen_base64 = base64.b64encode(imagen_file.read()).decode('utf-8')
+
+            sql = """
+                UPDATE even_actu
+                SET titulo=%s, tipo=%s, fecha=%s, autor=%s,
+                    descripcion=%s, destacado=%s, estado=%s, imagen=%s
+                WHERE even_actu_id=%s
+            """
+            valores = (titulo, tipo, fecha, autor, descripcion, destacado, estado,
+                    imagen_base64, even_actu_id)
+        else:
+            sql = """
+                UPDATE even_actu
+                SET titulo=%s, tipo=%s, fecha=%s, autor=%s,
+                    descripcion=%s, destacado=%s, estado=%s
+                WHERE even_actu_id=%s
+            """
+            valores = (titulo, tipo, fecha, autor, descripcion, destacado, estado,
+                       even_actu_id)
+
+        cursor.execute(sql, valores)
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"exito": True})
+
+    except Exception as ex:
+        print("ERROR en PUT /eventos:", ex)
+        return jsonify({'error': str(ex)}), 500
+
+
+
+# ------------------------------------------
+#  DELETE
+# ------------------------------------------
+@app.route('/even_actu/<int:even_actu_id>', methods=['DELETE'])
+def eliminar_evento(even_actu_id):
+    try:
+        cursor = mysql.connection.cursor()
+        cursor.execute("DELETE FROM even_actu WHERE even_actu_id=%s", (even_actu_id,))
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({"exito": True, "mensaje": "Evento eliminado"})
+
+    except Exception as ex:
+        print("ERROR en DELETE /eventos:", ex)
+        return jsonify({'error': str(ex)}), 500
+
+
+@app.route('/newsletter', methods=['POST'])
+def suscribirse_newsletter():
+    try:
+        correo = request.json.get('correo')
+        if not correo:
+            return jsonify({'error': 'Correo es requerido'}), 400
+
+        cursor = mysql.connection.cursor()
+
+        # Insertar correo, ignorando duplicados
+        sql = "INSERT IGNORE INTO newsletter (correo) VALUES (%s)"
+        cursor.execute(sql, (correo,))
+        mysql.connection.commit()
+        cursor.close()
+
+        return jsonify({'exito': True, 'mensaje': 'Correo registrado correctamente'})
+
+    except Exception as ex:
+        print("ERROR en POST /newsletter:", ex)
+        return jsonify({'error': str(ex)}), 500
 
 
 

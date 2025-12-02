@@ -136,14 +136,16 @@
       </p>
 
       <div class="max-w-md mx-auto flex gap-2">
-        <input type="email"
-          placeholder="tu@email.com"
-          class="flex-1 px-4 py-3 rounded-lg border-2 border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:border-primary-foreground" />
-
-        <button class="bg-background hover:bg-card text-foreground px-6 py-3 rounded-lg transition-colors duration-200">
-          Suscribirse
-        </button>
-      </div>
+         <input type="email"
+            [(ngModel)]="correoNewsletter"
+            placeholder="tu@email.com"
+            class="flex-1 px-4 py-3 rounded-lg border-2 border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:border-primary-foreground" />
+  
+          <button (click)="suscribirse()"
+            class="bg-background hover:bg-card text-foreground px-6 py-3 rounded-lg transition-colors duration-200">
+             Suscribirse
+          </button>
+        </div>
 
     </div>
   </section>
