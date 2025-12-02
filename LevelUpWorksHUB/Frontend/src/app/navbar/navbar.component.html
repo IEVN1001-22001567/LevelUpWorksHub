@@ -91,6 +91,12 @@
               Licencias y Credenciales
             </a>
 
+            <a
+              [routerLink]="['/resenas']"
+              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
+              Reseñas
+            </a>
+
           </div>
         </div>
 
@@ -111,49 +117,56 @@
           <div
             class="absolute left-0 mt-2 w-72 bg-[#111] border-2 border-red-600 shadow-lg
             opacity-0 invisible group-hover:opacity-100 group-hover:visible
-            transition-all duration-200 rounded-lg z-50 flex flex-col">
-
-            <a 
+            transition-all duration-200 rounded-lg z-50 flex flex-col"
+          >
+            <a
               [routerLink]="['/adminjuegos']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
               Gestión de tienda
             </a>
 
-            <a 
+            <a
               [routerLink]="['/adminusuarios']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
               Gestión de usuarios
             </a>
 
-              <a
-              [routerLink]="['/admincompras']"
-              class="w-full text-left px-4 py-3 hover:bg-yellow-600 hover:text-black transition">
-              Gestión de compras
-            </a>
-
-            <a 
+            <a
               [routerLink]="['/adminnoticias']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
               Gestión de noticias
             </a>
 
-            <a 
-              [routerLink]="['/adminpsycho']"
+            <a
+              [routerLink]="['/adminneventos']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de noticias
+            </a>
+
+            <a
+              [routerLink]="['/admin/adminpsicowellness']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
               Gestión de PsicoWellness
             </a>
 
-            <a 
+            <a
               [routerLink]="['/admin/adminmensajeria']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
               Gestión de mensajería
             </a>
 
-            <a 
+            <a
               [routerLink]="['/admin/adminlicencias']"
               class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
               Gestión de licencias
             </a>
+
+            <a
+              [routerLink]="['/admin/adminresenas']"
+              class="w-full text-left px-4 py-3 hover:bg-red-600 hover:text-black transition">
+              Gestión de reseñas
+            </a>
+
           </div>
         </div>
 
