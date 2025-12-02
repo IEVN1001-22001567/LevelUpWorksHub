@@ -33,6 +33,18 @@ export class AdminpsychoComponent implements OnInit {
   ngOnInit() {
     this.cargarArticulos();
   }
+onImageSelected(event: any) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    this.articuloForm.url_imagen = reader.result as string;
+  };
+
+  reader.readAsDataURL(file); // convierte a Base64
+}
 
   // ===============================
   // Cargar artículos
