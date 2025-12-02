@@ -5,6 +5,7 @@ from config import config
 import random
 from datetime import datetime
 import string
+import base64
 import os
 from werkzeug.utils import secure_filename
 import traceback
