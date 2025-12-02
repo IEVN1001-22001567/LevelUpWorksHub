@@ -10,7 +10,7 @@ export interface Noticia {
   fecha: string;
   autor: string;
   descripcion: string;
-  imagen: string; // URL o base64
+  imagen: string; 
 }
 
 @Injectable({

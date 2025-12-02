@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-background">
 
-  <!-- Hero Section -->
-  <section class="bg-primary text-primary-foreground py-16">
+  <!-- Sección Destacada -->
+  <section class="bg-primary text-primary-foreground py-16" *ngIf="articuloDestacado">
     <div class="container mx-auto px-4">
       <h1 class="text-primary-foreground mb-4">Noticias Gaming</h1>
       <p class="text-lg max-w-2xl">
@@ -10,117 +10,80 @@
     </div>
   </section>
 
-  <!-- Filters -->
-  <section class="bg-card border-b-2 border-border py-6">
+  <section class="py-12 bg-background" *ngIf="articuloDestacado">
     <div class="container mx-auto px-4">
-      <div class="flex flex-wrap gap-3">
-        @for (category of categorias; track category) {
-          <button
-            class="px-6 py-2 rounded-full border-2 border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200">
-            {{ category }}
-          </button>
-        }
+      <div
+        class="bg-card border-2 border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-xl cursor-pointer"
+        (click)="abrirModal(articuloDestacado)">
+
+        <div class="grid md:grid-cols-2 gap-0">
+          <div class="relative h-80 md:h-auto">
+            <img [src]="articuloDestacado.imagen" [alt]="articuloDestacado.titulo"
+              class="w-full h-full object-cover" />
+            <div class="absolute top-4 left-4">
+              <span class="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm">
+                ⭐ Destacado
+              </span>
+            </div>
+          </div>
+
+          <div class="p-8 flex flex-col justify-center">
+            <div class="flex items-center gap-4 mb-4 text-muted-foreground text-sm">
+              <div class="flex items-center gap-2">
+                <span>📅</span>
+                <span>{{ articuloDestacado.fecha }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span>👤</span>
+                <span>{{ articuloDestacado.autor }}</span>
+              </div>
+            </div>
+
+            <h2 class="text-primary mb-4">{{ articuloDestacado.titulo }}</h2>
+            <p class="text-card-foreground mb-6">{{ articuloDestacado.descripcion }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Featured Article -->
-  @if (articuloDestacado) {
-    <section class="py-12 bg-background">
-      <div class="container mx-auto px-4">
-        <div
-          class="bg-card border-2 border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-xl">
-
-          <div class="grid md:grid-cols-2 gap-0">
-
-            <div class="relative h-80 md:h-auto">
-              <img [src]="articuloDestacado.imagen" [alt]="articuloDestacado.titulo"
-                class="w-full h-full object-cover" />
-              <div class="absolute top-4 left-4">
-                <span class="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm">
-                  ⭐ Destacado
-                </span>
-              </div>
-            </div>
-
-            <div class="p-8 flex flex-col justify-center">
-
-              <div class="flex items-center gap-4 mb-4 text-muted-foreground text-sm">
-                <div class="flex items-center gap-2">
-                  <span>📅</span>
-                  <span>{{ articuloDestacado.fecha }}</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span>👤</span>
-                  <span>{{ articuloDestacado.autor }}</span>
-                </div>
-              </div>
-
-              <h2 class="text-primary mb-4">{{ articuloDestacado.titulo }}</h2>
-
-              <p class="text-card-foreground mb-6">
-                {{ articuloDestacado.descripcion }}
-              </p>
-
-              <button
-                class="bg-primary hover:bg-accent text-primary-foreground px-6 py-3 rounded-lg inline-flex items-center gap-2 transition-colors duration-200">
-                Leer Artículo Completo →
-              </button>
-
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-  }
-
-  <!-- News Grid -->
+  <!-- Últimas Noticias -->
   <section class="py-12 bg-card">
     <div class="container mx-auto px-4">
       <h2 class="text-primary mb-8">Últimas Noticias</h2>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div *ngFor="let article of articulosNormales"
+          class="bg-background border-2 border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-xl group cursor-pointer"
+          (click)="abrirModal(article)">
 
-        @for (article of articulosNormales; track article.id) {
-
-          <div
-            class="bg-background border-2 border-border rounded-lg overflow-hidden hover:border-primary transition-all duration-300 hover:shadow-xl group cursor-pointer">
-
-            <div class="relative h-48 overflow-hidden">
-              <img [src]="article.imagen" [alt]="article.titulo"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              <div class="absolute top-3 right-3">
-                <span class="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs">
-                  {{ article.tipo }}
-                </span>
-              </div>
+          <div class="relative h-48 overflow-hidden">
+            <img [src]="article.imagen" [alt]="article.titulo"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            <div class="absolute top-3 right-3">
+              <span class="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs">
+                {{ article.tipo }}
+              </span>
             </div>
-
-            <div class="p-5">
-              <div class="flex items-center gap-3 mb-3 text-muted-foreground text-xs">
-                <span>📅</span>
-                <span>{{ article.fecha }}</span>
-              </div>
-
-              <h3 class="text-card-foreground mb-3 group-hover:text-primary transition-colors">
-                {{ article.titulo }}
-              </h3>
-
-              <p class="text-muted-foreground text-sm mb-4 line-clamp-2">
-                {{ article.descripcion }}
-              </p>
-
-              <button class="text-primary hover:text-accent inline-flex items-center gap-2 transition-colors duration-200">
-                Leer más →
-              </button>
-
-            </div>
-
           </div>
 
-        }
+          <div class="p-5">
+            <div class="flex items-center gap-3 mb-3 text-muted-foreground text-xs">
+              <span>📅</span>
+              <span>{{ article.fecha }}</span>
+            </div>
 
+            <h3 class="text-card-foreground mb-3 group-hover:text-primary transition-colors">
+              {{ article.titulo }}
+            </h3>
+
+            <p class="text-muted-foreground text-sm mb-4 line-clamp-2">
+              {{ article.descripcion }}
+            </p>
+          </div>
+
+          <p>Leer más </p>
+        </div>
       </div>
     </div>
   </section>
@@ -128,26 +91,46 @@
   <!-- Newsletter -->
   <section class="py-16 bg-primary">
     <div class="container mx-auto px-4 text-center">
-
       <h2 class="text-primary-foreground mb-4">Suscríbete a Nuestro Newsletter</h2>
-
       <p class="text-primary-foreground/90 mb-8 max-w-2xl mx-auto">
         Recibe las últimas noticias y actualizaciones directamente a tu correo
       </p>
 
       <div class="max-w-md mx-auto flex gap-2">
-         <input type="email"
-            [(ngModel)]="correoNewsletter"
-            placeholder="tu@email.com"
-            class="flex-1 px-4 py-3 rounded-lg border-2 border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:border-primary-foreground" />
-  
-          <button (click)="suscribirse()"
-            class="bg-background hover:bg-card text-foreground px-6 py-3 rounded-lg transition-colors duration-200">
-             Suscribirse
-          </button>
-        </div>
+        <input type="email"
+               [(ngModel)]="correoNewsletter"
+               placeholder="tu@email.com"
+               class="flex-1 px-4 py-3 rounded-lg border-2 border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:border-primary-foreground" />
 
+        <button (click)="suscribirse()"
+                class="bg-background hover:bg-card text-foreground px-6 py-3 rounded-lg transition-colors duration-200">
+          Suscribirse
+        </button>
+      </div>
     </div>
   </section>
+
+  <!-- Modal -->
+  <div *ngIf="modalVisible"
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+       (click)="cerrarModal()">
+
+    <div class="bg-card rounded-lg overflow-hidden w-11/12 md:w-1/2 relative"
+         (click)="$event.stopPropagation()">
+      <button (click)="cerrarModal()"
+              class="absolute top-3 right-3 text-xl font-bold text-primary-foreground hover:text-accent">✖</button>
+
+      <img [src]="articuloSeleccionado?.imagen" [alt]="articuloSeleccionado?.titulo" class="w-full h-64 object-cover" />
+
+      <div class="p-6">
+        <h2 class="text-primary mb-2">{{ articuloSeleccionado?.titulo }}</h2>
+        <div class="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+          <div class="flex items-center gap-2">📅 {{ articuloSeleccionado?.fecha }}</div>
+          <div class="flex items-center gap-2">👤 {{ articuloSeleccionado?.autor }}</div>
+        </div>
+        <p class="text-card-foreground">{{ articuloSeleccionado?.descripcion }}</p>
+      </div>
+    </div>
+  </div>
 
 </div>
