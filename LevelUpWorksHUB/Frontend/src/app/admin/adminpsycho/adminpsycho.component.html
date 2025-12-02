@@ -1,0 +1,171 @@
+<!-- ENCABEZADO NEGRO -->
+<div class="bg-black p-6 rounded-t-lg">
+  <div class="flex items-center space-x-3">
+    <i class="pi pi-heart text-yellow-400 text-3xl"></i>
+    <h1 class="text-2xl font-bold text-yellow-400">Panel de Administración — PsychoWellness</h1>
+  </div>
+  <p class="text-yellow-300 mt-1">
+    Gestión de artículos publicados en PsychoWellness.
+  </p>
+</div>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<div class="bg-neutral-900 p-6 shadow-md rounded-b-lg text-white">
+
+  <!-- ============================= -->
+  <!-- SECCIÓN: ARTÍCULOS PSYCHO -->
+  <!-- ============================= -->
+  <section class="mb-10">
+
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-xl font-bold flex items-center space-x-2">
+        <i class="pi pi-file text-yellow-400"></i>
+        <span>Artículos PsychoWellness</span>
+      </h2>
+
+      <button (click)="nuevoArticulo()"
+        class="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-4 py-2 rounded flex items-center space-x-2">
+        <i class="pi pi-plus"></i>
+        <span>Nuevo Artículo</span>
+      </button>
+    </div>
+
+    <!-- TABLA DE ARTÍCULOS -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-700 text-sm">
+        <thead class="bg-neutral-800">
+          <tr>
+            <th class="border border-gray-700 px-4 py-2 text-left">Título</th>
+            <th class="border border-gray-700 px-4 py-2 text-left">Categoría</th>
+            <th class="border border-gray-700 px-4 py-2 text-left">Resumen</th>
+            <th class="border border-gray-700 px-4 py-2 text-left">Tiempo lectura</th>
+            <th class="border border-gray-700 px-4 py-2 text-center">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let art of articulos" class="hover:bg-neutral-800">
+            <td class="border border-gray-700 px-4 py-2">{{ art.titulo }}</td>
+            <td class="border border-gray-700 px-4 py-2">{{ art.categoria }}</td>
+            <td class="border border-gray-700 px-4 py-2">{{ art.resumen }}</td>
+            <td class="border border-gray-700 px-4 py-2">{{ art.tiempo_lectura }}</td>
+
+            <td class="border border-gray-700 px-4 py-2 text-center">
+
+              <button (click)="editarArticulo(art)"
+                class="bg-blue-600 hover:bg-blue-500 px-4 py-2 rounded-lg text-white mx-1 text-sm font-semibold flex items-center space-x-2 justify-center w-full">
+                <i class="pi pi-pencil"></i>
+                <span>Editar</span>
+              </button>
+
+              <button (click)="eliminarArticulo(art.id_articulo)"
+                class="bg-red-600 hover:bg-red-500 px-4 py-2 rounded-lg text-white mx-1 text-sm font-semibold flex items-center space-x-2 justify-center w-full">
+                <i class="pi pi-trash"></i>
+                <span>Eliminar</span>
+              </button>
+
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+
+<!-- ========================================================= -->
+<!-- =============== MODAL (CREAR / EDITAR) ================== -->
+<!-- ========================================================= -->
+<div *ngIf="modalAbierto" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-neutral-900 w-full max-w-3xl p-8 rounded-xl shadow-lg border border-gray-700 relative max-h-[90vh] overflow-y-auto">
+
+    <!-- Cerrar -->
+    <button (click)="closeModal()" class="absolute top-3 right-3 text-gray-300 hover:text-white text-xl">✕</button>
+
+    <h2 class="text-xl font-bold text-yellow-400 mb-4 text-center">{{ modalTitulo }}</h2>
+
+    <form (ngSubmit)="guardarArticulo()" class="space-y-4">
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Título</label>
+        <input type="text" [(ngModel)]="articuloForm.titulo" name="titulo"
+          class="w-full bg-neutral-800 border border-gray-600 text-white p-2 rounded">
+      </div>
+
+      <div class="container overflow-y-auto max-h-screen p-4">
+        <label class="block text-sm text-gray-300 mb-2">Categoría</label>
+
+        <div class="grid grid-cols-2 gap-2">
+
+          <button type="button"
+            (click)="articuloForm.categoria='estres'"
+            [class.bg-yellow-500]="articuloForm.categoria==='estres'"
+            class="bg-neutral-800 border border-gray-600 text-white p-2 rounded hover:bg-neutral-700">
+            Estrés
+          </button>
+
+          <button type="button"
+            (click)="articuloForm.categoria='burnout'"
+            [class.bg-yellow-500]="articuloForm.categoria==='burnout'"
+            class="bg-neutral-800 border border-gray-600 text-white p-2 rounded hover:bg-neutral-700">
+            Burnout
+          </button>
+
+          <button type="button"
+            (click)="articuloForm.categoria='ansiedad'"
+            [class.bg-yellow-500]="articuloForm.categoria==='ansiedad'"
+            class="bg-neutral-800 border border-gray-600 text-white p-2 rounded hover:bg-neutral-700">
+            Ansiedad
+          </button>
+
+          <button type="button"
+            (click)="articuloForm.categoria='autocuidado'"
+            [class.bg-yellow-500]="articuloForm.categoria==='autocuidado'"
+            class="bg-neutral-800 border border-gray-600 text-white p-2 rounded hover:bg-neutral-700">
+            Autocuidado
+          </button>
+
+        </div>
+
+        <p class="text-xs text-gray-400 mt-1">Categoría seleccionada: <b>{{ articuloForm.categoria }}</b></p>
+
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Resumen</label>
+        <textarea rows="3" [(ngModel)]="articuloForm.resumen" name="resumen"
+          class="w-full bg-neutral-800 border border-gray-600 text-white p-2 rounded"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Contenido</label>
+        <textarea rows="4" [(ngModel)]="articuloForm.contenido" name="contenido"
+          class="w-full bg-neutral-800 border border-gray-600 text-white p-2 rounded"></textarea>
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Tiempo de lectura</label>
+        <input type="text" [(ngModel)]="articuloForm.tiempo_lectura" name="tiempo_lectura"
+          class="w-full bg-neutral-800 border border-gray-600 text-white p-2 rounded">
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">URL de imagen</label>
+        <input type="text" [(ngModel)]="articuloForm.url_imagen" name="url_imagen"
+          class="w-full bg-neutral-800 border border-gray-600 text-white p-2 rounded">
+      </div>
+
+      <div>
+        <label class="block text-sm text-gray-300 mb-1">Fecha publicación</label>
+        <input type="date" [(ngModel)]="articuloForm.fecha_publicacion" name="fecha_publicacion"
+          class="w-full bg-neutral-800 border border-gray-600 text-white p-2 rounded">
+      </div>
+
+      <button class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 rounded">
+        Guardar
+      </button>
+
+    </form>
+  </div>
+</div>

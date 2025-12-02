@@ -1,44 +1,141 @@
-<div class="p-6">
+<div class="p-6 min-h-screen bg-[#0f0f0f]">
 
   <div class="mb-8">
-    <h2 class="text-yellow-400 mb-2">Amigos y Mensajería</h2>
+    <h2 class="text-3xl font-bold text-yellow-400 mb-2">Amigos y Mensajería</h2>
     <p class="text-gray-400">Conecta con tus amigos y compañeros de juego</p>
+  </div>
+
+  <div *ngIf="errorMsg" class="mb-4 p-3 bg-red-900/30 border border-red-600 text-red-300 rounded">
+    ❌ {{ errorMsg }}
+  </div>
+  <div *ngIf="successMsg" class="mb-4 p-3 bg-green-900/30 border border-green-600 text-green-300 rounded">
+    ✅ {{ successMsg }}
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <!-- LISTA DE AMIGOS -->
     <div class="lg:col-span-2 space-y-4">
 
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-white">Lista de Amigos</h3>
-        <button class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded transition-colors">
-          Añadir Amigo
+      <div class="flex gap-2 mb-4 border-b border-yellow-500/20">
+        <button
+          [class.border-b-2]="tabActivo === 'amigos'"
+          [class.border-yellow-500]="tabActivo === 'amigos'"
+          [class.text-yellow-400]="tabActivo === 'amigos'"
+          [class.text-gray-400]="tabActivo !== 'amigos'"
+          (click)="tabActivo = 'amigos'"
+          class="pb-2 px-4 font-semibold transition-colors"
+        >
+          Amigos ({{ amigos.length }})
+        </button>
+        <button
+          [class.border-b-2]="tabActivo === 'solicitudes'"
+          [class.border-yellow-500]="tabActivo === 'solicitudes'"
+          [class.text-yellow-400]="tabActivo === 'solicitudes'"
+          [class.text-gray-400]="tabActivo !== 'solicitudes'"
+          (click)="tabActivo = 'solicitudes'"
+          class="pb-2 px-4 font-semibold transition-colors relative"
+        >
+          Solicitudes
+          <span *ngIf="solicitudes.length > 0" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            {{ solicitudes.length }}
+          </span>
         </button>
       </div>
 
-      <div *ngFor="let amigo of amigos"
-           class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-4 hover:border-yellow-500/50 transition-all flex items-center justify-between">
-
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 flex items-center justify-center border-2"
-               [style.border-color]="amigo.estado === 'online' ? 'green' : 'gray'">
-            <span class="text-yellow-400 text-xl">👤</span>
-          </div>
-
-          <div>
-            <h4 class="text-white">{{ amigo.nombre }}</h4>
-            <p style="font-size: 13px;"
-               [style.color]="amigo.estado === 'online' ? 'lightgreen' : 'gray'">
-              {{ amigo.juego }}
-            </p>
-          </div>
+      <div *ngIf="tabActivo === 'amigos'" class="space-y-4">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-white">Lista de Amigos</h3>
+          <button
+            class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-bold transition-colors flex items-center gap-2"
+            (click)="abrirBusqueda()"
+          >
+            <i class="pi pi-plus"></i>
+            Agregar Amigo
+          </button>
         </div>
 
-        <button (click)="seleccionarAmigo(amigo.id)"
-                class="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 p-2 rounded">
-          💬
-        </button>
+        <div *ngIf="amigos.length === 0" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-8 text-center">
+          <p class="text-gray-400">No tienes amigos aún</p>
+          <p class="text-gray-500 text-sm mt-2">Haz clic en "Agregar Amigo" para conectar con otros jugadores</p>
+        </div>
+
+        <div *ngFor="let amigo of amigos"
+             class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-4 hover:border-yellow-500/50 transition-all flex items-center justify-between group">
+
+          <div class="flex items-center gap-4 flex-1 cursor-pointer" (click)="seleccionarAmigo(amigo)">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 flex items-center justify-center border-2 overflow-hidden"
+                 [style.border-color]="amigo.estado === 'online' ? '#22c55e' : (amigo.estado === 'jugando' ? '#3b82f6' : '#808080')">
+              <img *ngIf="amigo.avatar" [src]="amigo.avatar" alt="Avatar" class="w-full h-full object-cover">
+              <span *ngIf="!amigo.avatar" class="text-yellow-400 text-lg">👤</span>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <h4 class="text-white font-semibold truncate">{{ amigo.nombre }}</h4>
+              <p class="text-sm font-medium"
+                 [style.color]="amigo.estado === 'online' ? '#22c55e' : (amigo.estado === 'jugando' ? '#60a5fa' : '#9ca3af')">
+                {{ amigo.estado === 'online' ? '🟢 En línea' : (amigo.estado === 'jugando' ? '🎮 ' + amigo.juego : '⚫ Desconectado') }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button
+              (click)="seleccionarAmigo(amigo)"
+              class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded transition-colors"
+              title="Enviar mensaje"
+            >
+              <i class="pi pi-comments"></i>
+            </button>
+            <button
+              (click)="eliminarAmigo(amigo)"
+              class="bg-red-600 hover:bg-red-500 text-white p-2 rounded transition-colors"
+              title="Eliminar amigo"
+            >
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="tabActivo === 'solicitudes'" class="space-y-4">
+        <div *ngIf="solicitudes.length === 0" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-8 text-center">
+          <p class="text-gray-400">No tienes solicitudes de amistad</p>
+          <p class="text-gray-500 text-sm mt-2">Las solicitudes que recibas aparecerán aquí</p>
+        </div>
+
+        <div *ngFor="let solicitud of solicitudes"
+             class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-4 hover:border-yellow-500/50 transition-all">
+
+          <div class="flex items-center gap-4 mb-3">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-yellow-500/30 to-yellow-600/10 flex items-center justify-center border-2 overflow-hidden">
+              <img *ngIf="solicitud.avatar" [src]="solicitud.avatar" alt="Avatar" class="w-full h-full object-cover">
+              <span *ngIf="!solicitud.avatar" class="text-yellow-400 text-lg">👤</span>
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <h4 class="text-white font-semibold truncate">{{ solicitud.nombre }}</h4>
+              <p class="text-xs text-gray-400">&#64;{{ solicitud.username }}</p>
+              <p class="text-xs text-gray-500">{{ solicitud.fecha_solicitud | date:'short' }}</p>
+            </div>
+          </div>
+
+          <div class="flex gap-2 justify-end">
+            <button
+              (click)="aceptarSolicitud(solicitud)"
+              class="bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded transition-colors font-semibold flex items-center gap-2"
+            >
+              <i class="pi pi-check"></i>
+              Aceptar
+            </button>
+            <button
+              (click)="rechazarSolicitud(solicitud)"
+              class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded transition-colors font-semibold flex items-center gap-2"
+            >
+              <i class="pi pi-times"></i>
+              Rechazar
+            </button>
+          </div>
+        </div>
       </div>
 
     </div>
@@ -46,36 +143,35 @@
     <!-- CHAT -->
     <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-4 flex flex-col h-[600px]">
 
-      <h3 class="text-white mb-4">
+      <h3 class="text-white font-bold mb-4 text-lg border-b border-yellow-500/20 pb-3">
         {{ obtenerNombreChat() }}
       </h3>
 
-      <div class="flex-1 bg-black/30 rounded-lg p-4 mb-4 overflow-y-auto">
+      <!-- MENSAJES -->
+      <div class="flex-1 bg-black/30 rounded-lg p-4 mb-4 overflow-y-auto space-y-3">
 
-        <div *ngIf="!amigoSeleccionadoId" class="text-gray-500 text-center">
-          Selecciona un amigo para chatear
+        <div *ngIf="!amigoSeleccionadoId" class="text-gray-500 text-center h-full flex items-center justify-center">
+          <p>Selecciona un amigo para chatear</p>
         </div>
 
-        <div *ngIf="amigoSeleccionadoId" class="space-y-3">
+        <div *ngFor="let msg of mensajesChat"
+             class="flex"
+             [style.justify-content]="esMensajePropio(msg.remitente_id) ? 'flex-end' : 'flex-start'">
 
-          <div *ngFor="let msg of mensajesChat"
-               class="flex"
-               [style.justify-content]="msg.remitente === 'Tú' ? 'flex-end' : 'flex-start'">
+          <div class="max-w-xs rounded-lg p-3 break-words"
+               [style.background]="esMensajePropio(msg.remitente_id) ? 'rgba(234,179,8,0.2)' : 'rgba(55,65,81,0.5)'"
+               [style.color]="esMensajePropio(msg.remitente_id) ? '#fff7d6' : '#e5e7eb'">
 
-            <div class="max-w-[70%] rounded-lg p-3"
-                 [style.background]="msg.remitente === 'Tú' ? 'rgba(234,179,8,0.2)' : 'rgba(55,65,81,0.5)'"
-                 [style.color]="msg.remitente === 'Tú' ? '#fff7d6' : '#e5e7eb'">
-
-              <p style="font-size: 11px; opacity: 0.7;">{{ msg.remitente }}</p>
-              <p>{{ msg.texto }}</p>
-
-            </div>
+            <p class="text-xs opacity-60 mb-1">
+              {{ msg.fecha_envio | date:'HH:mm' }}
+            </p>
+            <p class="text-sm">{{ msg.contenido }}</p>
           </div>
-
         </div>
 
       </div>
 
+      <!-- INPUT MENSAJE -->
       <div class="flex gap-2">
         <input
           type="text"
@@ -83,19 +179,83 @@
           [(ngModel)]="mensajeActual"
           (keyup.enter)="enviarMensaje()"
           [disabled]="!amigoSeleccionadoId"
-          class="flex-1 bg-black/50 border border-yellow-500/20 rounded px-4 py-2 text-white"
+          class="flex-1 bg-black/50 border border-yellow-500/20 rounded-lg px-4 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 disabled:opacity-50"
         />
 
         <button 
           (click)="enviarMensaje()"
           [disabled]="!amigoSeleccionadoId"
-          class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded disabled:opacity-50">
-          Enviar
+          class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center gap-1"
+        >
+          <i class="pi pi-send"></i>
+          <span class="hidden sm:inline">Enviar</span>
         </button>
       </div>
 
     </div>
 
+  </div>
+
+  <!-- MODAL BUSCAR AMIGOS -->
+  <div *ngIf="modalBusquedaOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+    <div class="bg-[#1a1a1a] border-2 border-yellow-600 rounded-lg w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
+
+      <!-- HEADER -->
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-bold text-yellow-400">Buscar Amigos</h3>
+        <button
+          (click)="cerrarBusqueda()"
+          class="text-gray-400 hover:text-white text-2xl"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- BUSCADOR -->
+      <div class="mb-6">
+        <input
+          type="text"
+          placeholder="Busca por nombre o username..."
+          [(ngModel)]="terminoBusqueda"
+          (input)="buscar()"
+          class="w-full bg-black/50 border border-yellow-500/20 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500"
+        />
+      </div>
+
+      <!-- RESULTADOS -->
+      <div class="space-y-3">
+        <div *ngIf="usuariosBusqueda.length === 0 && terminoBusqueda.length >= 2" class="text-center py-8 text-gray-500">
+          No se encontraron usuarios
+        </div>
+
+        <div *ngIf="terminoBusqueda.length < 2 && usuariosBusqueda.length === 0" class="text-center py-8 text-gray-400">
+          Escribe al menos 2 caracteres para buscar
+        </div>
+
+        <div *ngFor="let usuario of usuariosBusqueda"
+             class="bg-black/50 border border-yellow-500/20 rounded-lg p-4 flex items-center justify-between hover:border-yellow-500/50 transition">
+
+          <div class="flex items-center gap-3 flex-1">
+            <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center border">
+              <img *ngIf="usuario.avatar" [src]="usuario.avatar" alt="Avatar" class="w-full h-full object-cover rounded-full">
+              <span *ngIf="!usuario.avatar" class="text-yellow-400">👤</span>
+            </div>
+            <div>
+              <p class="font-semibold text-white">{{ usuario.nombre }}</p>
+              <p class="text-xs text-gray-400">&#64;{{ usuario.username }}</p>
+            </div>
+          </div>
+
+          <button
+            (click)="enviarSolicitudAmistad(usuario.usuarioid)"
+            class="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-bold transition-colors"
+          >
+            Agregar
+          </button>
+        </div>
+      </div>
+
+    </div>
   </div>
 
 </div>

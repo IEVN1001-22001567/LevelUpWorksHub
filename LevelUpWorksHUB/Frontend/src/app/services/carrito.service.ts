@@ -51,10 +51,12 @@ export class CarritoService {
     const existente = items.find(i => i.id === item.id);
 
     if (existente) {
-      existente.cantidad += item.cantidad;
-      this.sync([...items]);
+      // El juego ya está en el carrito, no permitir duplicados
+      console.warn('Este juego ya está en tu carrito. Solo puedes comprar una copia de cada juego.');
+      return false;
     } else {
       this.sync([...items, item]);
+      return true;
     }
   }
 
