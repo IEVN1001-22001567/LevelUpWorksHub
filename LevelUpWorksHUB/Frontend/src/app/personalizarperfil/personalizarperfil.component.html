@@ -62,7 +62,7 @@
             <span class="text-gray-400 ml-1">Nivel</span>
           </div>
           <div>
-            <span class="text-yellow-400">Miembro desde {{ user?.memberSince || '-' }}</span>
+            <span class="text-yellow-400">Miembro desde {{ profileData.registrofecha | date:'mediumDate' }}</span>
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@
       👤 Información
     </button>
 
-    <button
+<!--     <button
       (click)="setActiveTab('orders')"
       class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
       [ngClass]="activeTab === 'orders' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
@@ -147,7 +147,7 @@
       [ngClass]="activeTab === 'settings' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
     >
       🔔 Configuración
-    </button>
+    </button> -->
   </div>
 
   <!-- Tab Content -->

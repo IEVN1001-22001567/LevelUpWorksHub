@@ -3,7 +3,9 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService, Usuario } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+import { CommonModule, registerLocaleData } from '@angular/common';
+
+
 
 @Component({
   selector: 'app-personalizarperfil',
@@ -25,7 +27,8 @@ export class PersonalizarperfilComponent implements OnInit {
     email: '',
     phone: '',
     bio: '',
-    gamerTag: ''   // lo usamos solo en el front, mapeando a username
+    gamerTag: '',   // lo usamos solo en el front, mapeando a username
+    registrofecha: ''
   };
 
   avatarInitial: string = '';
@@ -65,6 +68,7 @@ export class PersonalizarperfilComponent implements OnInit {
     this.profileData.phone    = this.user.telefono || '';
     this.profileData.bio      = this.user.biografia || '';
     this.profileData.gamerTag = this.user.username || '';
+    this.profileData.registrofecha = this.user.registrofecha || '';
 
     this.avatarInitial = (this.profileData.name || this.profileData.gamerTag || '?')
       .charAt(0)
@@ -93,6 +97,7 @@ export class PersonalizarperfilComponent implements OnInit {
       this.profileData.phone    = this.user.telefono || '';
       this.profileData.bio      = this.user.biografia || '';
       this.profileData.gamerTag = this.user.username || '';
+      this.profileData.registrofecha = this.user.fecharegistro || '';
     }
     this.selectedAvatarFile = null;
 
