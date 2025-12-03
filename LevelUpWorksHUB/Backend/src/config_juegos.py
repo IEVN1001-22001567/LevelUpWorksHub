@@ -1,6 +1,3 @@
-"""
-Configuración para guardar instaladores en una carpeta externa local
-"""
 import os
 
 class DevelopmentConfig():
