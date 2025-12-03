@@ -1,4 +1,3 @@
-// src/app/services/carrito.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -51,7 +50,6 @@ export class CarritoService {
     const existente = items.find(i => i.id === item.id);
 
     if (existente) {
-      // El juego ya está en el carrito, no permitir duplicados
       console.warn('Este juego ya está en tu carrito. Solo puedes comprar una copia de cada juego.');
       return false;
     } else {
@@ -92,7 +90,7 @@ export class CarritoService {
       items: items.map(item => ({
         juegoID: item.id,
         titulo: item.titulo,
-        descripcion: '', // si quieres puedes mandar algo
+        descripcion: '',
         precio: item.precio,
         cantidad: item.cantidad
       }))

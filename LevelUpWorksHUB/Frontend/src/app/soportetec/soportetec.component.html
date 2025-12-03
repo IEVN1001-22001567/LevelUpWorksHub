@@ -1,6 +1,4 @@
 <div class="min-h-screen bg-background">
-
-  <!-- HERO -->
   <section class="bg-primary text-primary-foreground py-16 text-center">
     <div class="text-5xl mb-4">🎧</div>
     <h1 class="text-4xl font-bold mb-4">Soporte Técnico</h1>
@@ -8,8 +6,6 @@
       Estamos aquí para ayudarte 24/7. Tu satisfacción es nuestra prioridad
     </p>
   </section>
-
-  <!-- MÉTODOS DE CONTACTO -->
   <section class="py-16">
     <h2 class="text-primary text-center mb-8 text-3xl font-semibold">Contáctanos</h2>
 
@@ -33,8 +29,6 @@
       </div>
     </div>
   </section>
-
-  <!-- ENLACES RÁPIDOS -->
   <section class="py-12">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
 
@@ -52,8 +46,6 @@
             <p class="text-muted-foreground text-sm">{{ e.descripcion }}</p>
           </div>
         </div>
-
-        <!-- Botones solo para Reportar Error -->
         <ng-container *ngIf="e.titulo === 'Reportar un Error'">
           <button class="bg-red-600 text-white px-3 py-1 rounded shadow mt-3 w-full hover:bg-red-700"
                   (click)="abrirModal('Crear Ticket')">
@@ -69,8 +61,6 @@
       </div>
     </div>
   </section>
-
-  <!-- FAQ -->
   <section class="py-16 bg-card">
     <h2 class="text-primary text-center mb-8 text-3xl font-semibold">Preguntas Frecuentes</h2>
 
@@ -99,7 +89,6 @@
 
   </section>
 
-  <!-- CREAR TICKET -->
   <section class="py-16 bg-primary">
     <div class="container mx-auto px-4 text-center">
       <h2 class="text-primary-foreground mb-4 text-3xl font-bold">¿No encontraste lo que buscabas?</h2>
@@ -114,37 +103,31 @@
     </div>
   </section>
 
-  <!-- MODALES -->
   <div *ngIf="modalAbierto" 
        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
 
     <div class="bg-card rounded-xl shadow-2xl w-full max-w-lg p-6 relative">
 
-      <!-- Cerrar -->
       <button class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-2xl"
               (click)="cerrarModal()">✖</button>
 
-      <!-- CHAT -->
       <div *ngIf="modalContenido === 'Chat en Vivo'">
         <h2 class="text-2xl font-bold text-card-foreground mb-4">💬 Chat en Vivo</h2>
         <p class="text-muted-foreground">Próximamente podrás hablar con un agente en tiempo real.</p>
       </div>
 
-      <!-- CORREO -->
       <div *ngIf="modalContenido === 'Correo Electrónico'">
         <h2 class="text-2xl font-bold text-card-foreground mb-4">📧 Enviar Correo</h2>
         <p class="text-muted-foreground">Envíanos un mensaje a:</p>
         <p class="font-bold text-primary mt-2 text-lg">soporte&#64;leveluphub.com</p>
       </div>
 
-      <!-- TELÉFONO -->
       <div *ngIf="modalContenido === 'Llamada Telefónica'">
         <h2 class="text-2xl font-bold text-card-foreground mb-4">📞 Llamar al Soporte</h2>
         <p class="font-bold text-card-foreground text-xl">+52 55 1234 5678</p>
         <p class="text-sm text-muted-foreground mt-2">Horario: L-V 9AM–6PM</p>
       </div>
 
-      <!-- CREAR TICKET -->
       <div *ngIf="modalContenido === 'Crear Ticket'">
         <h2 class="text-2xl font-bold text-card-foreground mb-4">🛠️ Crear Ticket</h2>
 
@@ -165,7 +148,6 @@
         </button>
       </div>
 
-      <!-- CONSULTAR TICKETS -->
       <div *ngIf="modalContenido === 'Consultar Tickets'"
            class="fixed inset-0 flex items-center justify-center p-4 z-50">
 

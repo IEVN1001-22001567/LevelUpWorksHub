@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms'; // Para el buscador
 })
 export class AdminLicenciasComponent {
 
-  // Estadísticas (Simuladas según imagen)
   stats = {
     total: 3,
     activas: 3,
@@ -19,7 +18,6 @@ export class AdminLicenciasComponent {
     suspendidas: 0
   };
 
-  // Datos de la tabla
   licencias = [
     {
       id: 1,
@@ -53,7 +51,6 @@ export class AdminLicenciasComponent {
     }
   ];
 
-  // Filtro de búsqueda
   searchTerm: string = '';
 
   eliminarLicencia(id: number) {

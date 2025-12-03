@@ -38,7 +38,6 @@ export class EventosService {
       }
     }
 
-    // Si la imagen viene como archivo, se manda
     if (data.imagenFile) {
       fd.append('imagen', data.imagenFile);
     }

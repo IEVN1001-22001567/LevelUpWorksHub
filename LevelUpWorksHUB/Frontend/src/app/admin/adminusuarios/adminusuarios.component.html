@@ -1,12 +1,9 @@
 <div class="min-h-screen bg-background">
-
-  <!-- Hero -->
   <section class="bg-primary text-primary-foreground py-16">
     <div class="container mx-auto px-4">
       <div class="flex items-center justify-between">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <!-- icono simple: -->
             <span class="inline-block w-8 h-8 bg-primary rounded flex items-center justify-center text-primary-foreground font-bold">U</span>
             <h1 class="text-primary-foreground text-2xl font-semibold">Gestión de Usuarios</h1>
           </div>
@@ -19,17 +16,12 @@
 >
   + Agregar Usuario
 </button>
-<!-- Modal NUEVO USUARIO -->
 <div *ngIf="modalNuevoOpen" class="fixed inset-0 z-50 flex items-center justify-center">
-  <!-- Fondo oscuro -->
   <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" (click)="cerrarModalNuevoUsuario()"></div>
-
-  <!-- Caja principal -->
   <div
     class="relative w-full max-w-lg bg-card border-2 border-yellow-600/70 rounded-2xl shadow-xl z-10
            px-6 py-5"
   >
-    <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-2">
         <div class="w-9 h-9 rounded-full bg-yellow-500 flex items-center justify-center text-black font-bold">
@@ -45,7 +37,6 @@
         </div>
       </div>
 
-      <!-- Botón cerrar -->
       <button
         type="button"
         (click)="cerrarModalNuevoUsuario()"
@@ -55,7 +46,6 @@
       </button>
     </div>
 
-    <!-- Mensajes -->
     <div *ngIf="errorMsg" class="mb-3 text-sm text-red-400 bg-red-900/20 border border-red-700/60 rounded-lg px-3 py-2">
       {{ errorMsg }}
     </div>
@@ -63,7 +53,6 @@
       {{ successMsg }}
     </div>
 
-    <!-- Formulario -->
     <div class="space-y-4">
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -135,7 +124,6 @@
       </div>
     </div>
 
-    <!-- Footer botones -->
     <div class="flex justify-end gap-2 mt-6">
       <button
         type="button"
@@ -163,7 +151,6 @@
     </div>
   </section>
 
-  <!-- Estadísticas -->
   <section class="py-8 bg-card border-b-2 border-border">
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -200,7 +187,6 @@
     </div>
   </section>
 
-  <!-- Filtros y búsqueda -->
   <section class="py-6 bg-background border-b-2 border-border">
     <div class="container mx-auto px-4">
       <div class="flex flex-col md:flex-row gap-4 items-center">
@@ -238,7 +224,6 @@
     </div>
   </section>
 
-  <!-- Lista de usuarios -->
   <section class="py-8 bg-background">
     <div class="container mx-auto px-4">
       <div class="space-y-4">
@@ -263,8 +248,6 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Stats -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
                 <div>
                   <p class="text-xs text-muted-foreground">Miembro desde</p>
@@ -283,8 +266,6 @@
                   <p class="text-sm text-green-500">${{ user.gastoTotal.toFixed(2) }}</p>
                 </div>
               </div>
-
-              <!-- Acciones -->
               <div class="flex flex-wrap gap-2 lg:flex-col lg:w-auto">
                 <button (click)="editarUsuario(user)" class="px-3 py-2 border border-border rounded hover:border-primary">Editar</button>
 
@@ -300,7 +281,6 @@
           </div>
         </div>
 
-        <!-- vacío -->
         <div *ngIf="usuariosFiltrados.length === 0" class="bg-card border-2 rounded-lg p-12 text-center">
           <p class="text-card-foreground mb-2">No se encontraron usuarios</p>
           <p class="text-muted-foreground">Intenta ajustar los filtros de búsqueda</p>
@@ -309,7 +289,6 @@
     </div>
   </section>
 
-  <!-- Modal edición (simple) -->
   <div *ngIf="modalEditarOpen" class="fixed inset-0 z-50 flex items-center justify-center">
     <div class="absolute inset-0 bg-black/60" (click)="cancelarEdicion()"></div>
 

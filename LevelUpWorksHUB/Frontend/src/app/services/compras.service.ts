@@ -39,32 +39,22 @@ export class ComprasService {
 
   constructor(private http: HttpClient) { }
 
-  /**
-   * Obtiene todas las compras del sistema
-   */
   obtenerTodasLasCompras(): Observable<ComprasResponse> {
     return this.http.get<ComprasResponse>(`${this.baseUrl}/admin/compras`);
   }
 
-  /**
-   * Obtiene las compras de un usuario específico
-   */
   obtenerComprasUsuario(usuarioid: number): Observable<ComprasResponse> {
     return this.http.get<ComprasResponse>(`${this.baseUrl}/admin/compras?usuarioid=${usuarioid}`);
   }
 
-  /**
-   * Actualiza el estado de una compra
-   */
+
   actualizarEstadoCompra(comprasID: number, nuevoEstado: string): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/admin/compras/${comprasID}`, {
       estado: nuevoEstado
     });
   }
 
-  /**
-   * Elimina una compra
-   */
+
   eliminarCompra(comprasID: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/admin/compras/${comprasID}`);
   }

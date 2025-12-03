@@ -5,8 +5,6 @@ import { AuthService, Usuario } from '../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, registerLocaleData } from '@angular/common';
 
-
-
 @Component({
   selector: 'app-personalizarperfil',
   standalone: true,
@@ -27,7 +25,7 @@ export class PersonalizarperfilComponent implements OnInit {
     email: '',
     phone: '',
     bio: '',
-    gamerTag: '',   // lo usamos solo en el front, mapeando a username
+    gamerTag: '',
     registrofecha: ''
   };
 
@@ -37,8 +35,6 @@ export class PersonalizarperfilComponent implements OnInit {
   cargando = false;
   errorMsg = '';
   successMsg = '';
-
-  // Tabs dummy (las dejamos vacías para que no den errores)
   orders: any[] = [];
   wishlist: any[] = [];
   paymentMethods: any[] = [];
@@ -60,8 +56,6 @@ export class PersonalizarperfilComponent implements OnInit {
     }
 
     this.isAdmin = this.user.rol === 'admin';
-
-    // Mapeamos campos
     this.profileData.avatar   = this.user.avatar || '';
     this.profileData.name     = this.user.nombre || '';
     this.profileData.email    = this.user.email  || '';
@@ -131,8 +125,6 @@ export class PersonalizarperfilComponent implements OnInit {
 
     const formData = new FormData();
     formData.append('usuarioid', this.user.usuarioid.toString());
-
-    // Mapeo DIRECTO a columnas de la BD
     formData.append('username', this.profileData.gamerTag || '');
     formData.append('nombre',   this.profileData.name || '');
     formData.append('telefono', this.profileData.phone || '');
@@ -162,8 +154,6 @@ export class PersonalizarperfilComponent implements OnInit {
             this.avatarInitial = (this.profileData.name || this.profileData.gamerTag || '?')
               .charAt(0)
               .toUpperCase();
-
-            // Guardamos usuario actualizado globalmente
             this.authService.guardarUsuario(res.usuario);
 
             this.isEditing = false;

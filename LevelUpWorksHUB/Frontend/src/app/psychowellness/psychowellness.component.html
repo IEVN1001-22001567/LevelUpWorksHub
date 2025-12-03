@@ -1,5 +1,3 @@
-
-  <!-- TÍTULO -->
   <h1 class="text-4xl font-bold text-yellow-500 mb-6 text-center">
     PsychoWellness
   </h1>
@@ -12,18 +10,12 @@
     <p class="text-gray-300">
       Inspirado en <span class="text-red-400 font-semibold">BurnOut</span>, este espacio está dedicado a tu salud mental y bienestar emocional.
     </p>
-
-    <!-- Tags -->
     <div class="flex flex-wrap gap-3 mt-4">
       <span class="px-3 py-1 text-xs bg-red-700/50 border border-red-500 rounded-full">Prevención de Burnout</span>
       <span class="px-3 py-1 text-xs bg-yellow-700/40 border border-yellow-500 rounded-full">Manejo del Estrés</span>
       <span class="px-3 py-1 text-xs bg-blue-700/40 border border-blue-500 rounded-full">Salud Mental</span>
     </div>
   </div>
-
-  <!-- ======================
-       RECOMENDACIONES (estáticas)
-       ====================== -->
   <section class="mb-8">
     <h2 class="text-2xl text-yellow-400 font-semibold mb-3">Recomendaciones rápidas</h2>
     <div class="grid md:grid-cols-2 gap-4">
@@ -36,8 +28,6 @@
       </div>
     </div>
   </section>
-
-  <!-- FILTRO DE CATEGORÍAS -->
   <div class="flex flex-wrap justify-center gap-3 mb-6">
 
     <button
@@ -71,21 +61,15 @@
     >Autocuidado</button>
 
   </div>
-
-  <!-- GRID DE ARTÍCULOS -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
     <div
       *ngFor="let art of filteredArticles"
       class="bg-[#1a1a1a] border border-yellow-500/20 rounded-xl p-5 hover:shadow-yellow-500/30 hover:shadow-lg transition cursor-pointer h-full flex flex-col"
     >
-
-      <!-- Imagen opcional -->
       <div *ngIf="art.url_imagen" class="mb-3">
         <img [src]="art.url_imagen" alt="{{ art.titulo }}" class="w-full h-40 object-cover rounded-md border border-white/5">
       </div>
-
-      <!-- Categoría y tiempo -->
       <div class="flex justify-between mb-3 items-start gap-2">
         <span
           [ngClass]="getCategoryBadgeClasses(art.categoria)"
@@ -98,18 +82,12 @@
           {{ art.tiempo_lectura }}
         </span>
       </div>
-
-      <!-- Título -->
       <h3 class="text-yellow-500 font-semibold text-lg mb-2">
         {{ art.titulo }}
       </h3>
-
-      <!-- Resumen -->
       <p class="text-gray-300 text-sm line-clamp-3 mb-4">
         {{ art.resumen }}
       </p>
-
-      <!-- Botón Leer -->
       <div class="mt-auto text-right">
         <button
           (click)="setSelectedArticle(art)"
@@ -121,38 +99,26 @@
 
     </div>
   </div>
-
-  <!-- MODAL DE ARTÍCULO -->
   <div
     *ngIf="selectedArticle"
     class="fixed inset-0 bg-black/80 flex items-center justify-center p-6 z-50"
   >
     <div class="bg-[#1a1a1a] rounded-xl max-w-2xl w-full p-6 border border-yellow-500/20 overflow-y-auto max-h-[90vh]">
-
-      <!-- Título -->
       <h2 class="text-2xl font-bold text-yellow-500 mb-3">
         {{ selectedArticle.titulo }}
       </h2>
-
-      <!-- Imagen modal -->
       <div *ngIf="selectedArticle.url_imagen" class="mb-4">
         <img [src]="selectedArticle.url_imagen" alt="{{ selectedArticle.titulo }}" class="w-full h-56 object-cover rounded-md border border-white/5">
       </div>
-
-      <!-- Categoría -->
       <span
         [ngClass]="getCategoryBadgeClasses(selectedArticle.categoria)"
         class="px-3 py-1 rounded-full text-xs"
       >
         {{ getCategoryLabel(selectedArticle.categoria) }}
       </span>
-
-      <!-- Contenido -->
       <p class="text-gray-300 mt-4 whitespace-pre-line leading-relaxed">
         {{ selectedArticle.contenido }}
       </p>
-
-      <!-- Cerrar -->
       <div class="mt-6 text-right">
         <button
           (click)="closeArticle()"
@@ -164,5 +130,4 @@
 
     </div>
   </div>
-
 </div>

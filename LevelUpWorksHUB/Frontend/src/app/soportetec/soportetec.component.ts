@@ -15,7 +15,6 @@ export class SoporteTecComponent implements OnInit {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // -------------------- datos visuales --------------------
 metodosContacto = [
   { titulo: 'Chat en Vivo', descripcion: 'Habla con un agente', disponibilidad: '24/7', accion: 'Abrir Chat', emoji: '💬' },
   { titulo: 'Correo Electrónico', descripcion: 'Responderemos pronto', disponibilidad: 'Tiempo estimado: 1-3 h', accion: 'Enviar Correo', emoji: '📧' },
@@ -40,7 +39,6 @@ enlacesRapidos = [
     ]},
   ];
 
-  // -------------------- Datos usuario --------------------
   correoUsuario: string = '';
 
   ngOnInit() {
@@ -48,7 +46,6 @@ enlacesRapidos = [
     if (usuario) this.correoUsuario = usuario.email;
   }
 
-  // -------------------- Modal --------------------
   modalAbierto = false;
   modalContenido = "";
 
@@ -59,7 +56,6 @@ enlacesRapidos = [
     if (nombre === 'Consultar Tickets') {
       if (!this.correoUsuario) return alert("Debes iniciar sesión para consultar tus tickets");
 
-      // Trae solo los tickets del usuario loggeado
       this.http.get<any[]>(`http://127.0.0.1:5000/soporte/tickets?correo=${this.correoUsuario}`)
         .subscribe({
           next: data => this.tickets = data,
@@ -72,7 +68,6 @@ enlacesRapidos = [
     this.modalAbierto = false;
   }
 
-  // -------------------- Crear Ticket --------------------
   formTicket = {
     asunto: "",
     descripcion: ""
@@ -98,7 +93,6 @@ enlacesRapidos = [
       });
   }
 
-  // -------------------- Consultar Tickets --------------------
   tickets: any[] = [];
 
 }
