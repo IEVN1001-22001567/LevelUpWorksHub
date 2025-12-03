@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
-// ---- INTERFACES ----
 interface Article {
   id: number;
   titulo: string;
@@ -32,20 +31,9 @@ interface Recommendation {
 })
 export class PsychowellnessComponent implements OnInit {
 
-  // -------------------------
-  //     STATE DEL CLIENTE
-  // -------------------------
   filterCategory: 'all' | Article['categoria'] = 'all';
   selectedArticle: Article | null = null;
-
-  // -------------------------
-  //       ARTICLES
-  // -------------------------
-  articles: Article[] = []; // Viene del backend
-
-  // -------------------------
-  //     RECOMENDACIONES (estáticas)
-  // -------------------------
+  articles: Article[] = [];
   recommendations: Recommendation[] = [
     {
       id: 1,
@@ -71,9 +59,6 @@ export class PsychowellnessComponent implements OnInit {
     }
   ];
 
-  // -------------------------
-  // ARTICLES ESTÁTICOS (NO BORRAR)
-  // -------------------------
   staticArticles: Article[] = [
     {
       id: 0,
@@ -107,17 +92,12 @@ export class PsychowellnessComponent implements OnInit {
     this.loadArticles();
   }
 
-  // -------------------------
-  //  CARGAR ARTÍCULOS DESDE BACKEND
-  // -------------------------
+
   loadArticles() {
-    // Ajusta la URL si tu API escucha en otro puerto o ruta
     this.http.get<Article[]>('http://localhost:5000/psycho/articulos')
       .subscribe({
         next: (data: any) => {
-          // Si tu backend devuelve un objeto con { articulos: [...] } detectarlo:
           const payload = Array.isArray(data) ? data : (data?.articulos ?? []);
-          // Normalizamos categorías y campos esperados
           this.articles = payload.map((a: any, idx: number) => ({
             id: a.id_articulo ?? a.id ?? idx + 1000,
             titulo: a.titulo ?? a.title ?? 'Sin título',
@@ -131,13 +111,11 @@ export class PsychowellnessComponent implements OnInit {
         },
         error: err => {
           console.error('Error cargando artículos:', err);
-          // no sobrescribimos staticArticles: articles queda vacío y el getter usará staticArticles
           this.articles = [];
         }
       });
   }
 
-  // Normaliza cualquier variante de texto a nuestros 4 valores permitidos
   normalizeCategory(raw: string): Article['categoria'] {
     if (!raw) return 'estres';
     const c = raw.toString().trim().toLowerCase();
@@ -145,14 +123,9 @@ export class PsychowellnessComponent implements OnInit {
     if (['burnout'].includes(c)) return 'burnout';
     if (['ansiedad','anxiety'].includes(c)) return 'ansiedad';
     if (['autocuidado','selfcare','self-care'].includes(c)) return 'autocuidado';
-    // si no coincide devuelve 'estres' por defecto para que no se rompa la UI
     return 'estres';
   }
 
-  // -------------------------
-  //      FILTROS
-  // -------------------------
-  // Unimos static + backend y aplicamos filtro
   get filteredArticles(): Article[] {
     const all = [...this.staticArticles, ...this.articles];
     if (this.filterCategory === 'all') return all;
@@ -164,9 +137,6 @@ export class PsychowellnessComponent implements OnInit {
     this.filterCategory = cat;
   }
 
-  // -------------------------
-  //   ABRIR Y CERRAR MODAL
-  // -------------------------
   setSelectedArticle(article: Article) {
     this.selectedArticle = article;
   }
@@ -175,9 +145,6 @@ export class PsychowellnessComponent implements OnInit {
     this.selectedArticle = null;
   }
 
-  // -------------------------
-  //     CLASES DE BADGES
-  // -------------------------
   getCategoryBadgeClasses(category: Article['categoria']): string {
     switch (category) {
       case 'estres': return 'bg-orange-500/20 text-orange-300 border border-orange-600/30';

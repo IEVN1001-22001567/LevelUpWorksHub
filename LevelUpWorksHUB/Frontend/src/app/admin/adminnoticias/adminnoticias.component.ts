@@ -32,7 +32,6 @@ export class AdminNoticiasComponent implements OnInit {
 
   constructor(private http: HttpClient) {}
 
-  // 🚀 Cargar noticias desde la base de datos al iniciar
   ngOnInit(): void {
     this.cargarNoticias();
   }
@@ -68,7 +67,6 @@ export class AdminNoticiasComponent implements OnInit {
   this.imagenPreview = noticia.imagen || null;
 }
 
-  // 📌 Convertir imagen local a BASE64
   onImagenSeleccionada(event: any) {
     const archivo = event.target.files[0];
     if (!archivo) return;
@@ -83,10 +81,8 @@ export class AdminNoticiasComponent implements OnInit {
     reader.readAsDataURL(archivo);
   }
 
-  // 📌 Guardar en base de datos
   guardarNoticia() {
     if (this.editando) {
-      // --- PUT actualizar ---
       this.http.put(`${this.apiUrl}/${this.noticiaForm.noticiaid}`, this.noticiaForm) .subscribe({
         next: () => {
           this.cargarNoticias();
@@ -96,7 +92,6 @@ export class AdminNoticiasComponent implements OnInit {
       });
 
     } else {
-      // --- POST crear ---
       this.http.post(this.apiUrl, this.noticiaForm).subscribe({
         next: () => {
           this.cargarNoticias();

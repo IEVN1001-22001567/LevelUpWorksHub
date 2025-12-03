@@ -31,8 +31,6 @@
           class="text-card-foreground hover:text-primary transition-colors duration-200">
           Tienda
         </a>
-
-        <!-- HUB GAMER DROPDOWN -->
         <div class="relative group">
 
           <button class="flex items-center gap-2 text-card-foreground hover:text-primary transition duration-200">
@@ -40,7 +38,6 @@
             <span class="text-sm">▼</span>
           </button>
 
-          <!-- MENU -->
           <div
             class="absolute left-0 mt-2 w-64 bg-[#111] border-2 border-yellow-600 shadow-lg
             opacity-0 invisible group-hover:opacity-100 group-hover:visible
@@ -48,8 +45,6 @@
 
             <a [routerLink]="['/biblioteca']" class="px-4 py-3 hover:bg-yellow-600 hover:text-black transition">Biblioteca de juegos</a>
 
-<!--             <a [routerLink]="['/actualizaciones']" class="px-4 py-3 hover:bg-yellow-600 hover:text-black transition">Centro de actualizaciones</a>
- -->
             <a [routerLink]="['/noticias']" class="px-4 py-3 hover:bg-yellow-600 hover:text-black transition">Noticias</a>
 
             <a [routerLink]="['/eventos']" class="px-4 py-3 hover:bg-yellow-600 hover:text-black transition">Eventos y promociones</a>
@@ -70,7 +65,6 @@
           Soporte Técnico
         </a>
 
-        <!-- 🔐 PANEL ADMIN SOLO PARA ADMIN -->
         <div class="relative group" *ngIf="esAdmin">
           <button class="flex items-center gap-2 text-red-400 hover:text-red-300 transition duration-200">
             Panel Admin
@@ -103,10 +97,7 @@
 
       </nav>
 
-      <!-- USER & CART -->
       <div class="flex items-center gap-3">
-
-        <!-- Si NO hay usuario logueado -->
         <ng-container *ngIf="!user; else usuarioLogueado">
           <a [routerLink]="['/login']" class="bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:bg-accent transition">
             Iniciar Sesión
@@ -116,8 +107,6 @@
             Carrito
           </a>
         </ng-container>
-
-        <!-- Si SÍ hay usuario -->
         <ng-template #usuarioLogueado>
           <div class="relative">
             <button

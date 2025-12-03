@@ -84,7 +84,6 @@ export class AdminResenasComponent implements OnInit {
     this.stats.publicadas = this.reviews.filter(r => r.estado === 'Publicada').length;
     this.stats.pendientes = this.reviews.filter(r => r.estado === 'Pendiente').length;
     
-    // Calcular rating promedio
     if (this.stats.publicadas > 0) {
       const suma = this.reviews
         .filter(r => r.estado === 'Publicada')
@@ -92,7 +91,6 @@ export class AdminResenasComponent implements OnInit {
       this.stats.ratingPromedio = +(suma / this.stats.publicadas).toFixed(1);
     }
 
-    // Estadísticas por juego
     const juegosMap = new Map();
     this.reviews.filter(r => r.estado === 'Publicada').forEach(r => {
       if (!juegosMap.has(r.juego)) {

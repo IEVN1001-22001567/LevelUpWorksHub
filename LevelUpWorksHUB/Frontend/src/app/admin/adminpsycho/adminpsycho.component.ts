@@ -43,12 +43,9 @@ onImageSelected(event: any) {
     this.articuloForm.url_imagen = reader.result as string;
   };
 
-  reader.readAsDataURL(file); // convierte a Base64
+  reader.readAsDataURL(file);
 }
 
-  // ===============================
-  // Cargar artículos
-  // ===============================
   cargarArticulos() {
     this.http.get("http://localhost:5000/psycho/articulos")
       .subscribe((data: any) => {
@@ -56,9 +53,6 @@ onImageSelected(event: any) {
       });
   }
 
-  // ===============================
-  // Modal
-  // ===============================
   nuevoArticulo() {
     this.modalTitulo = "Nuevo Artículo";
     this.articuloForm = {
@@ -84,12 +78,8 @@ onImageSelected(event: any) {
     this.modalAbierto = false;
   }
 
-  // ===============================
-  // Guardar
-  // ===============================
   guardarArticulo() {
 
-    // EDITAR
     if (this.articuloForm.id_articulo) {
       this.http.put(
         `http://localhost:5000/psycho/articulos/${this.articuloForm.id_articulo}`,
@@ -99,7 +89,6 @@ onImageSelected(event: any) {
       });
 
     } else {
-      // CREAR
       this.http.post(
         "http://localhost:5000/psycho/articulos",
         this.articuloForm
@@ -111,9 +100,6 @@ onImageSelected(event: any) {
     this.modalAbierto = false;
   }
 
-  // ===============================
-  // Eliminar
-  // ===============================
   eliminarArticulo(id: number) {
     this.http.delete(`http://localhost:5000/psycho/articulos/${id}`)
       .subscribe(() => {

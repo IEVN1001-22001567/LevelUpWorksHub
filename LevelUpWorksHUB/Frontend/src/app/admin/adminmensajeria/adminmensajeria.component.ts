@@ -85,14 +85,12 @@ export class AdminMensajeriaComponent implements OnInit {
       },
       error => {
         console.error('Error cargando mensajes:', error);
-        // Si el endpoint no existe, intentar obtener de otra forma
         this.cargarMensajesAlternativo();
       }
     );
   }
 
   cargarMensajesAlternativo() {
-    // Fallback: intentar obtener mensajes desde el endpoint admin
     this.http.get<any>(`${this.adminUrl}/mensajes`).subscribe(
       (data: any) => {
         if (data.exito) {

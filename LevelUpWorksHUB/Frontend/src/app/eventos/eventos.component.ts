@@ -18,7 +18,6 @@ export class EventosComponent implements OnInit {
 
   private API_URL = 'http://127.0.0.1:5000/even_actu';
 
-  // Modal
   eventoSeleccionado: any = null;
   modalVisible: boolean = false;
 
@@ -49,7 +48,6 @@ export class EventosComponent implements OnInit {
     return `data:image/jpeg;base64,${imagen}`;
   }
 
-  // Modal
   abrirModal(evento: any) {
     this.eventoSeleccionado = evento;
     this.modalVisible = true;
@@ -60,7 +58,6 @@ export class EventosComponent implements OnInit {
     this.eventoSeleccionado = null;
   }
 
-  // trackBy para ngFor (opcional)
   trackById(index: number, item: any) {
     return item.id;
   }

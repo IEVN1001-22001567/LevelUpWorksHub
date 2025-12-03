@@ -21,7 +21,6 @@ export interface Usuario {
 })
 export class AuthService {
 
-  // OJO: sin /api aquí
   private baseUrl = 'http://127.0.0.1:5000';
 
   private usuarioSubject = new BehaviorSubject<Usuario | null>(this.obtenerUsuario());

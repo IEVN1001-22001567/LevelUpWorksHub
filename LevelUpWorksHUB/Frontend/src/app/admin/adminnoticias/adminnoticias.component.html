@@ -69,9 +69,6 @@
   <div class="h-1 bg-[#ffc107] w-full mt-12"></div>
 </div>
 
-
-
-<!-- FORMULARIO -->
 <div *ngIf="mostrarFormulario" class="min-h-screen bg-[#121212] px-6 py-12 text-white">
 
   <div class="max-w-2xl mx-auto bg-[#1a1a1a] p-8 rounded-xl border border-gray-800 shadow-xl">
@@ -106,9 +103,6 @@
         <span>Descripción</span>
         <textarea [(ngModel)]="noticiaForm.descripcion" name="descripcion" rows="4" class="w-full p-3 rounded bg-gray-800 mt-1"></textarea>
       </label>
-
-
-      <!-- INPUT DE IMAGEN -->
       <label class="block mb-3">
         <span>Imagen</span>
 
@@ -118,8 +112,6 @@
                class="w-full p-3 rounded bg-gray-800 mt-1" />
 
       </label>
-
-      <!-- PREVIEW -->
       <div *ngIf="imagenPreview" class="mt-4">
         <p class="text-gray-400 text-sm mb-2">Vista previa:</p>
         <img [src]="imagenPreview" class="w-40 h-40 object-cover rounded border border-gray-700">

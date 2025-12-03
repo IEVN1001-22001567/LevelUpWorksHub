@@ -33,17 +33,11 @@ interface Usuario {
 export class AdminUsuariosComponent implements OnInit {
 
   usuarios: Usuario[] = [];
-
-  // filtros
   terminoBusqueda = '';
   filtroRol: 'all' | RolUsuario = 'all';
   filtroEstado: 'all' | EstadoUsuario = 'all';
-
-  // edición
   usuarioEditando: Usuario | null = null;
   modalEditarOpen = false;
-
-  // NUEVO: modal para crear usuario
   modalNuevoOpen = false;
   nuevoUsuario = {
     username: '',
@@ -100,7 +94,6 @@ export class AdminUsuariosComponent implements OnInit {
       });
   }
 
-  // getters de estadísticas...
   get totalUsuarios() { return this.usuarios.length; }
   get cantidadAdmins() { return this.usuarios.filter(u => u.rol === 'admin').length; }
   get cantidadClientes() { return this.usuarios.filter(u => u.rol === 'client').length; }
@@ -127,7 +120,6 @@ export class AdminUsuariosComponent implements OnInit {
     });
   }
 
-  // ====== EDICIÓN EXISTENTE ======
   editarUsuario(u: Usuario) {
     this.usuarioEditando = { ...u };
     this.modalEditarOpen = true;
@@ -210,7 +202,6 @@ export class AdminUsuariosComponent implements OnInit {
     return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
-  // ====== NUEVO USUARIO ======
   abrirModalNuevoUsuario() {
     this.modalNuevoOpen = true;
     this.errorMsg = '';

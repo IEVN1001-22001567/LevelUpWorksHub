@@ -17,8 +17,6 @@ export class NoticiasComponent implements OnInit {
 
   noticias: any[] = [];
   correoNewsletter: string = ''; 
-
-  // Variables para el modal
   articuloSeleccionado: any = null;
   modalVisible: boolean = false;
 
@@ -67,7 +65,6 @@ export class NoticiasComponent implements OnInit {
       });
   }
 
-  // Funciones para el modal
   abrirModal(articulo: any) {
     this.articuloSeleccionado = articulo;
     this.modalVisible = true;

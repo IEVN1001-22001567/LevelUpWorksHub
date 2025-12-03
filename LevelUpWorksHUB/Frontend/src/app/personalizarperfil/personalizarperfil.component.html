@@ -1,5 +1,4 @@
 <div class="container mx-auto px-4 py-8 text-sm">
-  <!-- Mensajes -->
   <div *ngIf="errorMsg" class="mb-4 text-red-400 text-sm">
     {{ errorMsg }}
   </div>
@@ -7,10 +6,8 @@
     {{ successMsg }}
   </div>
 
-  <!-- Profile Header -->
   <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-8 mb-8">
     <div class="flex flex-col md:flex-row items-start md:items-center gap-6">
-      <!-- Avatar -->
       <div class="relative">
         <div class="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 flex items-center justify-center bg-yellow-500 text-black text-3xl">
   <img
@@ -24,8 +21,6 @@
   <span *ngIf="!profileData.avatar">{{ avatarInitial }}</span>
 </div>
 
-
-        <!-- Botón cambiar avatar -->
         <label
           *ngIf="isEditing"
           class="absolute bottom-0 right-0 bg-yellow-500 text-black p-2 rounded-full hover:bg-yellow-600 transition-colors cursor-pointer"
@@ -34,8 +29,6 @@
           <input type="file" accept="image/*" class="hidden" (change)="onAvatarChange($event)" />
         </label>
       </div>
-
-      <!-- Info básica -->
       <div class="flex-1">
         <div class="flex items-center gap-3 mb-2">
           <h1 class="text-white text-xl font-semibold">
@@ -67,7 +60,6 @@
         </div>
       </div>
 
-      <!-- Botones editar/guardar -->
       <div>
         <button
           *ngIf="!isEditing"
@@ -99,7 +91,6 @@
     </div>
   </div>
 
-  <!-- Tabs Navigation -->
   <div class="flex gap-2 mb-6 overflow-x-auto border-b border-yellow-500/20 pb-2">
     <button
       (click)="setActiveTab('info')"
@@ -108,53 +99,9 @@
     >
       👤 Información
     </button>
-
-<!--     <button
-      (click)="setActiveTab('orders')"
-      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
-      [ngClass]="activeTab === 'orders' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
-    >
-      🛍 Mis Pedidos
-    </button>
-
-    <button
-      (click)="setActiveTab('wishlist')"
-      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
-      [ngClass]="activeTab === 'wishlist' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
-    >
-      ❤️ Lista de Deseos
-    </button>
-
-    <button
-      (click)="setActiveTab('payment')"
-      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
-      [ngClass]="activeTab === 'payment' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
-    >
-      💳 Pagos
-    </button>
-
-    <button
-      (click)="setActiveTab('addresses')"
-      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
-      [ngClass]="activeTab === 'addresses' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
-    >
-      📍 Direcciones
-    </button>
-
-    <button
-      (click)="setActiveTab('settings')"
-      class="px-6 py-3 rounded-t transition-all whitespace-nowrap"
-      [ngClass]="activeTab === 'settings' ? 'bg-yellow-500 text-black' : 'text-gray-400 hover:text-gray-300'"
-    >
-      🔔 Configuración
-    </button> -->
   </div>
-
-  <!-- Tab Content -->
   <div class="mb-8">
-    <!-- Información Personal -->
     <div *ngIf="activeTab === 'info'" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Info Personal -->
       <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
         <h3 class="text-white mb-4 text-lg">Información Personal</h3>
         <div class="space-y-4">
@@ -188,7 +135,6 @@
         </div>
       </div>
 
-      <!-- Info Gamer -->
       <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
         <h3 class="text-white mb-4 text-lg">Información de Gamer</h3>
         <div class="space-y-4">
@@ -204,7 +150,6 @@
         </div>
       </div>
 
-      <!-- Bio -->
       <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6 md:col-span-2">
         <h3 class="text-white mb-4 text-lg">Biografía</h3>
         <textarea
@@ -217,8 +162,6 @@
         ></textarea>
       </div>
     </div>
-
-    <!-- Mis Pedidos -->
     <div *ngIf="activeTab === 'orders'" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
       <h3 class="text-white mb-4 text-lg">Historial de Pedidos</h3>
       <div class="space-y-4" *ngIf="orders.length; else noOrders">
@@ -242,8 +185,6 @@
         <p class="text-gray-400 text-sm">Aún no tienes pedidos.</p>
       </ng-template>
     </div>
-
-    <!-- Lista de Deseos -->
     <div *ngIf="activeTab === 'wishlist'" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
       <h3 class="text-white mb-4 text-lg">Lista de Deseos</h3>
       <div class="space-y-4" *ngIf="wishlist.length; else noWishlist">
@@ -303,8 +244,6 @@
         <p class="text-gray-400 text-sm">No tienes métodos de pago guardados.</p>
       </ng-template>
     </div>
-
-    <!-- Direcciones -->
     <div *ngIf="activeTab === 'addresses'" class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-white text-lg">Direcciones de Envío</h3>
@@ -343,10 +282,7 @@
         <p class="text-gray-400 text-sm">Aún no has agregado direcciones.</p>
       </ng-template>
     </div>
-
-    <!-- Configuración -->
     <div *ngIf="activeTab === 'settings'" class="space-y-6">
-      <!-- Notificaciones -->
       <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
         <h3 class="text-white mb-4 text-lg">Notificaciones</h3>
         <div class="space-y-3">
@@ -380,7 +316,6 @@
         </div>
       </div>
 
-      <!-- Seguridad -->
       <div class="bg-[#1a1a1a] border border-yellow-500/20 rounded-lg p-6">
         <h3 class="text-white mb-4 text-lg">Seguridad</h3>
         <div class="space-y-3">

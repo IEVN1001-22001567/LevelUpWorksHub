@@ -1,6 +1,4 @@
 <div class="min-h-screen bg-background">
-
-  <!-- Sección Destacada -->
   <section class="bg-primary text-primary-foreground py-16" *ngIf="articuloDestacado">
     <div class="container mx-auto px-4">
       <h1 class="text-primary-foreground mb-4">Noticias Gaming</h1>
@@ -47,7 +45,6 @@
     </div>
   </section>
 
-  <!-- Últimas Noticias -->
   <section class="py-12 bg-card">
     <div class="container mx-auto px-4">
       <h2 class="text-primary mb-8">Últimas Noticias</h2>
@@ -88,7 +85,6 @@
     </div>
   </section>
 
-  <!-- Newsletter -->
   <section class="py-16 bg-primary">
     <div class="container mx-auto px-4 text-center">
       <h2 class="text-primary-foreground mb-4">Suscríbete a Nuestro Newsletter</h2>
@@ -110,7 +106,6 @@
     </div>
   </section>
 
-  <!-- Modal -->
   <div *ngIf="modalVisible"
        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
        (click)="cerrarModal()">
