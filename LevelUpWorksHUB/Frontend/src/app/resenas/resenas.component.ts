@@ -99,8 +99,6 @@ cargarResenasGenerales() {
     this.resenasService.obtenerResenasJuego(juego.id).subscribe(
       (data: any) => {
         if (data.exito && data.resenas) {
-
-          // 🔥 Aquí asignamos nombre_juego para que tu filtro funcione
           const resenasConNombre = data.resenas.map((r: any) => ({
             ...r,
             nombre_juego: juego.name
@@ -259,7 +257,6 @@ aplicarFiltros() {
   get reviewsFiltradas() {
     let filtradas = [...this.reviews];
 
-    // Filtrar por juego
     if (this.filters.game !== 'Todos los juegos') {
       filtradas = filtradas.filter(r => r.nombre_juego === this.filters.game);
     }

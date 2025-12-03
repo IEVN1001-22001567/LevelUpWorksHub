@@ -1,16 +1,12 @@
 <div class="min-h-screen bg-background">
-
-  <!-- HERO -->
   <section class="bg-primary text-primary-foreground py-16">
     <div class="container mx-auto px-4 text-center">
       <div class="inline-flex items-center gap-2 mb-4">
         <i class="fa-solid fa-download text-4xl"></i>
       </div>
-
       <h1 class="text-primary-foreground mb-4">
         Centro de Actualizaciones
       </h1>
-
       <p class="text-lg max-w-2xl mx-auto text-primary-foreground/90">
         Mantente al día con las últimas actualizaciones, parches y contenido nuevo de tus juegos favoritos
       </p>
@@ -18,13 +14,9 @@
   </section>
 
 
-  <!-- TABS -->
   <section class="py-16 bg-background">
     <div class="container mx-auto px-4">
-
-      <!-- Buttons -->
       <div class="grid grid-cols-5 bg-secondary rounded-lg overflow-hidden mb-8">
-
         <button
           class="py-3 text-center hover:bg-primary/30 transition"
           [class.bg-primary]="selectedTab === 'all'"
@@ -67,7 +59,6 @@
 
       </div>
 
-      <!-- CONTENT -->
       <div class="space-y-6">
 
         <div
@@ -77,26 +68,18 @@
           <div class="p-6">
 
             <div class="flex justify-between gap-4">
-
-              <!-- LEFT -->
               <div class="flex-1">
 
                 <div class="flex items-center gap-3 mb-2">
-
-                  <!-- ICON -->
                   <span class="text-primary text-xl">
                     <i *ngIf="update.type === 'content'" class="fa-solid fa-gift"></i>
                     <i *ngIf="update.type === 'patch'" class="fa-solid fa-wand-magic-sparkles"></i>
                     <i *ngIf="update.type === 'event'" class="fa-solid fa-bolt"></i>
                     <i *ngIf="update.type === 'hotfix'" class="fa-solid fa-bug"></i>
                   </span>
-
-                  <!-- TYPE -->
                   <span class="px-3 py-1 bg-secondary rounded-lg text-sm">
                     {{ update.type | titlecase }}
                   </span>
-
-                  <!-- VERSION -->
                   <span class="px-3 py-1 border border-primary text-primary rounded-lg text-sm">
                     {{ update.version }}
                   </span>
@@ -118,20 +101,14 @@
                 </p>
 
               </div>
-
-              <!-- DOWNLOAD BUTTON -->
               <button class="bg-primary hover:bg-accent text-primary-foreground px-6 py-2 rounded-lg transition">
                 Descargar
               </button>
 
             </div>
-
-            <!-- DESCRIPTION -->
             <p class="text-card-foreground mt-4">
               {{ update.description }}
             </p>
-
-            <!-- CHANGES -->
             <div class="border border-border rounded-lg p-4 mt-4">
 
               <h4 class="text-primary mb-3">Cambios principales:</h4>
@@ -148,8 +125,6 @@
           </div>
 
         </div>
-
-        <!-- EMPTY -->
         <div *ngIf="filterUpdates().length === 0" class="text-center py-12">
           <p class="text-muted-foreground">
             No hay actualizaciones de este tipo en este momento

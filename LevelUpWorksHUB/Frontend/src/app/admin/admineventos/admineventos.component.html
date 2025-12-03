@@ -1,6 +1,4 @@
 <div class="p-8 bg-black-100 min-h-screen">
-
-    <!-- TÍTULO + BOTÓN CREAR -->
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-gray-700">Gestión de Eventos</h1>
 
@@ -10,17 +8,12 @@
             Crear Evento
         </button>
     </div>
-
-    <!-- FORMULARIO CREAR / EDITAR -->
     <div *ngIf="mostrarFormulario" class="bg-black p-6 rounded-lg shadow-lg mb-8">
 
         <h2 class="text-xl font-semibold mb-4">
             {{ editando ? 'Editar Evento' : 'Crear Nuevo Evento' }}
         </h2>
-
-        <!-- FORM -->
        <form #formEvento="ngForm" class="grid grid-cols-1 md:grid-cols-2 gap-4" (submit)="false">
-    <!-- TÍTULO -->
     <div>
         <label class="font-semibold">Título:</label>
         <input type="text" 
@@ -29,8 +22,6 @@
                required
                class="w-full p-2 border rounded-lg">
     </div>
-
-    <!-- TIPO -->
     <div>
         <label class="font-semibold">Tipo:</label>
         <input type="text" 
@@ -39,8 +30,6 @@
                required
                class="w-full p-2 border rounded-lg">
     </div>
-
-    <!-- FECHA -->
     <div>
         <label class="font-semibold">Fecha:</label>
         <input type="date" 
@@ -49,8 +38,6 @@
                required
                class="w-full p-2 border rounded-lg">
     </div>
-
-    <!-- AUTOR -->
     <div>
         <label class="font-semibold">Autor:</label>
         <input type="text" 
@@ -59,8 +46,6 @@
                required
                class="w-full p-2 border rounded-lg">
     </div>
-
-    <!-- DESTACADO -->
     <div>
         <label class="font-semibold">¿Evento destacado?</label>
                 <select [(ngModel)]="noticiaForm.destacado" name="destacado" class="w-full p-2 border rounded-lg">
@@ -68,8 +53,6 @@
                     <option [ngValue]="0">No</option>
                 </select>
     </div>
-
-    <!-- ESTADO -->
     <div>
         <label class="font-semibold">Estado:</label>
         <select [(ngModel)]="noticiaForm.estado" 
@@ -79,22 +62,15 @@
             <option value="proximo">Próximo</option>
         </select>
     </div>
-
-    <!-- DESCRIPCIÓN -->
     <div class="md:col-span-2">
         <label class="font-semibold">Descripción:</label>
         <textarea [(ngModel)]="noticiaForm.descripcion"
                   name="descripcion"
                   class="w-full p-2 border rounded-lg h-28"></textarea>
     </div>
-
-    <!-- IMAGEN -->
     <div class="md:col-span-2">
         <label class="font-semibold">Imagen:</label>
         <input type="file" class="w-full p-2 border rounded-lg" (change)="onImagenSeleccionada($event)" accept="image/*">
-
-
-        <!-- PREVIEW IMG -->
         <div *ngIf="imagenPreview" class="mt-3">
             <img [src]="imagenPreview" alt="Preview"
                 class="w-40 h-40 object-cover border rounded-lg">
@@ -102,9 +78,6 @@
     </div>
 
 </form>
-
-
-        <!-- BOTONES GUARDAR / CANCELAR -->
         <div class="flex gap-4 mt-6">
             <button
             type="button"
@@ -121,8 +94,6 @@
             </button>
         </div>
     </div>
-
-    <!-- TABLA DE EVENTOS -->
     <div class="bg-black rounded-lg shadow-lg p-6">
         <h2 class="text-xl font-semibold mb-4">Lista de Eventos</h2>
 
@@ -141,22 +112,16 @@
             </thead>
 
             <tbody>
-
                 <tr *ngFor="let ev of noticias" class="hover:bg-gray-100">
-
                     <td class="p-2 border">{{ ev.even_actu_id }}</td>
-
                     <td class="p-2 border text-center">
                         <img *ngIf="ev.imagen"
                             [src]="'data:image/png;base64,' + ev.imagen"
                             class="w-16 h-16 object-cover rounded border mx-auto">
-
                     </td>
 
                     <td class="p-2 border">{{ ev.titulo }}</td>
                     <td class="p-2 border">{{ ev.tipo }}</td>
-
-                    <!-- DESTACADO -->
                     <td class="p-2 border">
                         <span
                             class="px-3 py-1 rounded text-white"
@@ -164,8 +129,6 @@
                             {{ ev.destacado ? 'Sí' : 'No' }}
                         </span>
                     </td>
-
-                    <!-- ESTADO -->
                     <td class="p-2 border">
                         <span
                             class="px-3 py-1 rounded text-white"
@@ -195,5 +158,4 @@
             </tbody>
         </table>
     </div>
-
 </div>

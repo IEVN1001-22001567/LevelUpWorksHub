@@ -18,7 +18,7 @@ interface GameUpdate {
   imports: [
     NgFor,
     NgIf,
-    TitleCasePipe   // ⬅⬅⬅ AQUI PARA QUE SIRVA titlecase
+    TitleCasePipe
   ],
   templateUrl: './actualizaciones.component.html'
 })

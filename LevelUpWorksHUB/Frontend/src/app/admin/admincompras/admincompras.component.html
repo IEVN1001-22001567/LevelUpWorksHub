@@ -1,4 +1,3 @@
-<!-- ENCABEZADO AMARILLO -->
 <div class="bg-yellow-500 p-6 rounded-t-lg">
   <div class="flex items-center space-x-3">
     <i class="pi pi-shopping-bag text-black text-3xl"></i>
@@ -7,10 +6,7 @@
   <p class="text-black mt-1">Panel administrativo para gestionar todas las compras y pedidos</p>
 </div>
 
-<!-- CONTENIDO GENERAL -->
 <div class="bg-[#1a1a1a] p-6 rounded-b-lg">
-
-  <!-- MENSAJES DE ERROR/CARGA -->
   <div *ngIf="cargando" class="mb-4 p-4 bg-blue-900 border border-blue-600 text-blue-200 rounded">
     ⏳ Cargando compras...
   </div>
@@ -18,8 +14,6 @@
   <div *ngIf="errorMsg" class="mb-4 p-4 bg-red-900 border border-red-600 text-red-200 rounded">
     ❌ {{ errorMsg }}
   </div>
-
-  <!-- TARJETAS DE ESTADÍSTICAS -->
   <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
 
     <div class="bg-[#121212] border border-yellow-600 p-4 rounded-lg">
@@ -52,14 +46,10 @@
       <p class="text-2xl font-bold text-yellow-500">${{ ingresosTotales.toFixed(2) }}</p>
     </div>
   </div>
-
-  <!-- TABLA GRANDE DE COMPRAS -->
   <div class="bg-[#121212] border border-yellow-600 p-6 rounded-xl">
 
     <h2 class="text-yellow-500 text-xl font-semibold">Compras Registradas</h2>
     <p class="text-gray-400 mb-4">Gestiona todas las compras del sistema</p>
-
-    <!-- INPUT BUSCAR -->
     <div class="mb-4">
       <input
         type="text"
@@ -69,13 +59,9 @@
         (input)="filtrarCompras()"
       />
     </div>
-
-    <!-- MENSAJE SI NO HAY COMPRAS -->
     <div *ngIf="!cargando && comprasFiltradas.length === 0" class="text-center py-6 text-gray-400">
       <p>No hay compras registradas</p>
     </div>
-
-    <!-- TABLA -->
     <div class="overflow-x-auto" *ngIf="comprasFiltradas.length > 0">
       <table class="w-full text-left text-gray-300">
         <thead>
@@ -136,7 +122,5 @@
         </tbody>
       </table>
     </div>
-
   </div>
-
 </div>
