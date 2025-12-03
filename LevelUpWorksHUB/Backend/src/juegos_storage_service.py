@@ -1,49 +1,23 @@
-"""
-Servicio para manejar archivos de juegos en carpeta externa local
-"""
 import os
 import shutil
 from datetime import datetime
 
 class JuegosStorageService:
-    """
-    Gestiona el almacenamiento de juegos en una carpeta externa local
-    """
     
     def __init__(self, carpeta_juegos):
-        """
-        Inicializa el servicio
-        
-        Args:
-            carpeta_juegos: Ruta de la carpeta donde guardar juegos
-                          Ej: r'C:\JuegosLevelUp'
-        """
         self.carpeta_juegos = carpeta_juegos
         self.crear_carpeta()
         print(f"✅ StorageService iniciado en: {self.carpeta_juegos}")
     
     def crear_carpeta(self):
-        """Crea la carpeta si no existe"""
         os.makedirs(self.carpeta_juegos, exist_ok=True)
     
     def guardar_archivo(self, archivo_origen, nombre_archivo):
-        """
-        Guarda un archivo en la carpeta de juegos
-        
-        Args:
-            archivo_origen: Ruta temporal del archivo
-            nombre_archivo: Nombre final del archivo
-        
-        Returns:
-            Diccionario con ruta y tamaño del archivo guardado
-        """
         try:
             ruta_destino = os.path.join(self.carpeta_juegos, nombre_archivo)
             
-            # Copiar archivo
             shutil.copy2(archivo_origen, ruta_destino)
             
-            # Obtener tamaño
             tamaño = os.path.getsize(ruta_destino)
             
             print(f"✅ Archivo guardado: {nombre_archivo} ({tamaño/1024/1024:.2f} MB)")
@@ -63,35 +37,18 @@ class JuegosStorageService:
             }
     
     def obtener_ruta_archivo(self, nombre_archivo):
-        """
-        Obtiene la ruta completa de un archivo
-        
-        Args:
-            nombre_archivo: Nombre del archivo
-        
-        Returns:
-            Ruta completa o None si no existe
-        """
+
         ruta = os.path.join(self.carpeta_juegos, nombre_archivo)
         if os.path.exists(ruta):
             return ruta
         return None
     
     def archivo_existe(self, nombre_archivo):
-        """Verifica si un archivo existe"""
         ruta = os.path.join(self.carpeta_juegos, nombre_archivo)
         return os.path.exists(ruta)
     
     def obtener_info_archivo(self, nombre_archivo):
-        """
-        Obtiene información de un archivo
-        
-        Args:
-            nombre_archivo: Nombre del archivo
-        
-        Returns:
-            Diccionario con info del archivo
-        """
+
         ruta = os.path.join(self.carpeta_juegos, nombre_archivo)
         
         if not os.path.exists(ruta):
@@ -110,12 +67,7 @@ class JuegosStorageService:
         }
     
     def listar_archivos(self):
-        """
-        Lista todos los archivos en la carpeta de juegos
-        
-        Returns:
-            Lista de archivos con información
-        """
+
         archivos = []
         try:
             for archivo in os.listdir(self.carpeta_juegos):
@@ -152,15 +104,7 @@ class JuegosStorageService:
             return None
     
     def eliminar_archivo(self, nombre_archivo):
-        """
-        Elimina un archivo
-        
-        Args:
-            nombre_archivo: Nombre del archivo
-        
-        Returns:
-            True si se eliminó, False si error
-        """
+
         try:
             ruta = os.path.join(self.carpeta_juegos, nombre_archivo)
             if os.path.exists(ruta):
@@ -175,12 +119,7 @@ class JuegosStorageService:
             return False
     
     def obtener_tamaño_total(self):
-        """
-        Obtiene el tamaño total de todos los archivos
-        
-        Returns:
-            Tamaño en bytes
-        """
+
         tamaño_total = 0
         for archivo in self.listar_archivos():
             tamaño_total += archivo['tamaño']
