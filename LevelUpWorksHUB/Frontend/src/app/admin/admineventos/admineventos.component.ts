@@ -74,11 +74,7 @@ export class AdminEventosComponent implements OnInit {
   onImagenSeleccionada(event: any) {
   const archivo = event.target.files[0];
   if (!archivo) return;
-
-  // Guardar el archivo real para enviar a Flask
   this.noticiaForm.imagenFile = archivo;
-
-  // Mostrar preview
   const reader = new FileReader();
   reader.onload = () => {
   this.imagenPreview = reader.result as string;
@@ -88,10 +84,7 @@ export class AdminEventosComponent implements OnInit {
 
 
 guardarNoticia() {
-  // Asegurarnos del tipo numérico
   this.noticiaForm.destacado = Number(this.noticiaForm.destacado);
-
-  // DEBUG rápido: ver qué vamos a enviar
   console.log('Enviando evento:', this.noticiaForm);
 
   if (this.editando) {
