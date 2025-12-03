@@ -9,7 +9,7 @@ interface Game {
   price: number;
   genre: string;
   description: string;
-  image: string;       // URL completa para mostrar en el front
+  image: string;
   platform: string;
   publishDate?: string;
   hoursPlayed?: number;
@@ -62,7 +62,7 @@ export class AdminJuegosComponent implements OnInit {
     this.cargarJuegos();
   }
 
-  // ================== CARGAR JUEGOS ==================
+  // 0CARGAR JUEGOS
   cargarJuegos() {
     this.errorMsg = '';
     this.cargando = true;
@@ -96,7 +96,7 @@ export class AdminJuegosComponent implements OnInit {
     });
   }
 
-  // ================== AGREGAR ==================
+  // AGREGAR
   startAdd() {
     this.isAdding = true;
     this.editingId = null;
@@ -117,7 +117,7 @@ export class AdminJuegosComponent implements OnInit {
 
   }
 
-  // ================== SELECCIÓN DE IMAGEN ==================
+  //SELECCIÓN DE IMAGEN
   onImageSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) {
@@ -137,7 +137,7 @@ export class AdminJuegosComponent implements OnInit {
     reader.readAsDataURL(file);
   }
 
-  // ================== GUARDAR (crear o editar) ==================
+  // GUARDAR (crear o editar)
   saveGame() {
     this.errorMsg = '';
     this.successMsg = '';
@@ -147,7 +147,7 @@ export class AdminJuegosComponent implements OnInit {
       return;
     }
 
-    // ---- CREAR ----
+    //CREAR
     if (this.isAdding) {
       const fd = new FormData();
       fd.append('title', this.formData.title);
@@ -205,7 +205,7 @@ export class AdminJuegosComponent implements OnInit {
       return;
     }
 
-    // ---- EDITAR ----
+    //EDITAR
     if (this.editingId) {
       const fd = new FormData();
       fd.append('title', this.formData.title);
@@ -214,7 +214,7 @@ export class AdminJuegosComponent implements OnInit {
       fd.append('description', this.formData.description || '');
       fd.append('price', String(this.formData.price ?? 0));
 
-      // si el admin seleccionó nueva imagen, la mandamos
+      // si el admin seleccionó nueva imagen
       if (this.selectedImageFile) {
         fd.append('image', this.selectedImageFile);
       }
@@ -260,7 +260,7 @@ export class AdminJuegosComponent implements OnInit {
     }
   }
 
-  // ================== ELIMINAR (API) ==================
+  //ELIMINAR (API)
   deleteGame(id: string) {
     if (!confirm('¿Seguro que deseas eliminar este juego?')) return;
 
@@ -283,7 +283,7 @@ export class AdminJuegosComponent implements OnInit {
     });
   }
 
-  // ================== EDITAR (llenar formulario) ==================
+  //EDITAR (llenar formulario)
   startEdit(game: Game) {
     this.isAdding = false;
     this.editingId = game.id;
@@ -303,7 +303,7 @@ export class AdminJuegosComponent implements OnInit {
     this.previewImage = game.image || null;
   }
 
-  // ================== CANCELAR ==================
+  // CANCELAR
   cancel() {
     this.isAdding = false;
     this.editingId = null;

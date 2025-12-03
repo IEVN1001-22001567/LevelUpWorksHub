@@ -11,7 +11,7 @@ export interface JuegoBiblioteca {
   descripcion?: string;
   precio?: number;
   divisa?: string;
-  // algunos endpoints usan 'fecha_compra' y otros 'fechacompra'
+
   fecha_compra?: string;
   fechacompra?: string;
 }
@@ -24,9 +24,7 @@ export class BibliotecaService {
 
   constructor(private http: HttpClient) {}
 
-  // 👈 ESTE ES EL ÚNICO MÉTODO QUE USAREMOS
   obtenerBiblioteca(usuarioid: number): Observable<{ exito: boolean; juegos: JuegoBiblioteca[] }> {
-    // Usar endpoint /api/mis-juegos para incluir portada y juegoID
     return this.http.get<{ exito: boolean; juegos: JuegoBiblioteca[] }>(
       `${this.baseUrl}/api/mis-juegos?usuarioid=${usuarioid}`
     );

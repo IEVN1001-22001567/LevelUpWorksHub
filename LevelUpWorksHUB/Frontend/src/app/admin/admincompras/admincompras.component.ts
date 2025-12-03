@@ -16,7 +16,7 @@ export class AdminComprasComponent implements OnInit {
   compras: Compra[] = [];
   comprasFiltradas: Compra[] = [];
   searchTerm: string = '';
-  
+
   cargando = false;
   errorMsg = '';
 
@@ -34,9 +34,7 @@ export class AdminComprasComponent implements OnInit {
     this.cargarCompras();
   }
 
-  /**
-   * Carga todas las compras desde el backend
-   */
+
   cargarCompras(): void {
     this.cargando = true;
     this.errorMsg = '';
@@ -44,7 +42,7 @@ export class AdminComprasComponent implements OnInit {
     this.comprasService.obtenerTodasLasCompras().subscribe({
       next: (res) => {
         this.cargando = false;
-        
+
         if (res.exito && res.compras) {
           this.compras = res.compras;
           this.comprasFiltradas = [...this.compras];
@@ -62,9 +60,7 @@ export class AdminComprasComponent implements OnInit {
     });
   }
 
-  /**
-   * Calcula las estadísticas de las compras
-   */
+
   calcularEstadisticas(): void {
     this.totalCompras = this.compras.length;
     this.completadas = this.compras.filter(c => c.estado === 'pagado').length;
@@ -74,12 +70,10 @@ export class AdminComprasComponent implements OnInit {
     this.ingresosTotales = this.compras.reduce((sum, c) => sum + (c.precio || 0), 0);
   }
 
-  /**
-   * Filtra las compras según el término de búsqueda
-   */
+
   filtrarCompras(): void {
     const term = this.searchTerm.toLowerCase().trim();
-    
+
     if (!term) {
       this.comprasFiltradas = [...this.compras];
       return;
@@ -95,9 +89,7 @@ export class AdminComprasComponent implements OnInit {
     });
   }
 
-  /**
-   * Obtiene el color del badge según el estado
-   */
+
   getEstadoBadgeClass(estado: string): string {
     switch (estado.toLowerCase()) {
       case 'pagado':
@@ -113,9 +105,7 @@ export class AdminComprasComponent implements OnInit {
     }
   }
 
-  /**
-   * Obtiene el texto del estado formateado
-   */
+
   getEstadoTexto(estado: string): string {
     switch (estado.toLowerCase()) {
       case 'pagado':
@@ -131,9 +121,7 @@ export class AdminComprasComponent implements OnInit {
     }
   }
 
-  /**
-   * Elimina una compra
-   */
+
   eliminarCompra(compra: Compra): void {
     if (!confirm(`¿Estás seguro de que deseas eliminar esta compra (ID: ${compra.comprasID})?`)) {
       return;
@@ -155,9 +143,7 @@ export class AdminComprasComponent implements OnInit {
     });
   }
 
-  /**
-   * Cambia el estado de una compra
-   */
+
   cambiarEstado(compra: Compra, nuevoEstado: string): void {
     this.comprasService.actualizarEstadoCompra(compra.comprasID, nuevoEstado).subscribe({
       next: (res) => {
@@ -175,9 +161,7 @@ export class AdminComprasComponent implements OnInit {
     });
   }
 
-  /**
-   * Abre un modal para ver detalles de una compra
-   */
+ 
   verDetalles(compra: Compra): void {
     alert(`
       ID: ${compra.comprasID}

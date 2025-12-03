@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 
-// ---- INTERFACES ----
+
 interface Article {
   id: number;
   titulo: string;
@@ -32,20 +32,14 @@ interface Recommendation {
 })
 export class PsychowellnessComponent implements OnInit {
 
-  // -------------------------
-  //     STATE DEL CLIENTE
-  // -------------------------
+
   filterCategory: 'all' | Article['categoria'] = 'all';
   selectedArticle: Article | null = null;
 
-  // -------------------------
-  //       ARTICLES
-  // -------------------------
+
   articles: Article[] = []; // Viene del backend
 
-  // -------------------------
-  //     RECOMENDACIONES (estáticas)
-  // -------------------------
+
   recommendations: Recommendation[] = [
     {
       id: 1,
@@ -71,9 +65,7 @@ export class PsychowellnessComponent implements OnInit {
     }
   ];
 
-  // -------------------------
-  // ARTICLES ESTÁTICOS (NO BORRAR)
-  // -------------------------
+
   staticArticles: Article[] = [
     {
       id: 0,
@@ -107,9 +99,7 @@ export class PsychowellnessComponent implements OnInit {
     this.loadArticles();
   }
 
-  // -------------------------
-  //  CARGAR ARTÍCULOS DESDE BACKEND
-  // -------------------------
+
   loadArticles() {
     // Ajusta la URL si tu API escucha en otro puerto o ruta
     this.http.get<Article[]>('http://localhost:5000/psycho/articulos')
@@ -137,7 +127,7 @@ export class PsychowellnessComponent implements OnInit {
       });
   }
 
-  // Normaliza cualquier variante de texto a nuestros 4 valores permitidos
+
   normalizeCategory(raw: string): Article['categoria'] {
     if (!raw) return 'estres';
     const c = raw.toString().trim().toLowerCase();
@@ -149,10 +139,7 @@ export class PsychowellnessComponent implements OnInit {
     return 'estres';
   }
 
-  // -------------------------
-  //      FILTROS
-  // -------------------------
-  // Unimos static + backend y aplicamos filtro
+
   get filteredArticles(): Article[] {
     const all = [...this.staticArticles, ...this.articles];
     if (this.filterCategory === 'all') return all;
@@ -164,9 +151,7 @@ export class PsychowellnessComponent implements OnInit {
     this.filterCategory = cat;
   }
 
-  // -------------------------
-  //   ABRIR Y CERRAR MODAL
-  // -------------------------
+
   setSelectedArticle(article: Article) {
     this.selectedArticle = article;
   }
@@ -175,9 +160,7 @@ export class PsychowellnessComponent implements OnInit {
     this.selectedArticle = null;
   }
 
-  // -------------------------
-  //     CLASES DE BADGES
-  // -------------------------
+
   getCategoryBadgeClasses(category: Article['categoria']): string {
     switch (category) {
       case 'estres': return 'bg-orange-500/20 text-orange-300 border border-orange-600/30';

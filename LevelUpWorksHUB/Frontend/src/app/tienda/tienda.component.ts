@@ -65,7 +65,7 @@ export class TiendaComponent implements OnInit {
     this.cargarJuegos();
   }
 
-  // ===== SESIÓN =====
+
   suscribirUsuario() {
     this.auth.user$.subscribe((user) => {
       this.usuarioActual = user;
@@ -80,14 +80,14 @@ export class TiendaComponent implements OnInit {
     });
   }
 
-  // ===== CARGAR JUEGOS COMPRADOS DEL USUARIO =====
+
   cargarJuegosComprados(usuarioid: number) {
     this.http.get<any>(`${this.baseUrl}/api/mis-juegos?usuarioid=${usuarioid}`).subscribe({
       next: (res: any) => {
         if (res && res.exito && res.juegos) {
           // Extraer los IDs de los juegos comprados
           this.juegosComprados = res.juegos.map((j: any) => j.juegoID);
-          
+
           // Actualizar el estado de yaComprado en los juegos ya cargados
           this.actualizarEstadoJuegosComprados();
         }
@@ -98,7 +98,7 @@ export class TiendaComponent implements OnInit {
     });
   }
 
-  // ===== ACTUALIZAR ESTADO DE JUEGOS COMPRADOS =====
+
   actualizarEstadoJuegosComprados() {
     this.juegos = this.juegos.map((juego) => ({
       ...juego,
@@ -106,7 +106,7 @@ export class TiendaComponent implements OnInit {
     }));
   }
 
-  // ===== CARGAR JUEGOS DESDE /tienda =====
+
   cargarJuegos() {
     this.cargando = true;
     this.errorMsg = '';
@@ -146,7 +146,7 @@ export class TiendaComponent implements OnInit {
           return juego;
         });
 
-        // Después de cargar los juegos, actualizar estado de comprados
+
         this.actualizarEstadoJuegosComprados();
       },
       error: (err: any) => {
@@ -157,7 +157,7 @@ export class TiendaComponent implements OnInit {
     });
   }
 
-  // ===== COMPRAR =====
+
   onComprar(juego: JuegoTienda) {
     if (!this.isLoggedIn || !this.usuarioActual) {
       this.irALogin();
@@ -173,20 +173,20 @@ export class TiendaComponent implements OnInit {
     });
 
     if (agregado) {
-      // después de agregar al carrito, lo mandamos al carrito
+
       this.router.navigate(['/carrito']);
     } else {
-      // Mostrar alerta si el juego ya está en el carrito
+
       alert(`${juego.titulo} ya está en tu carrito. Solo puedes comprar una copia de cada juego.`);
     }
   }
 
-  // ===== VER EN BIBLIOTECA =====
+
   irABiblioteca() {
     this.router.navigate(['/biblioteca']);
   }
 
-  // ===== IR A LOGIN CON ROUTER =====
+  
   irALogin() {
     this.router.navigate(['/login']);
   }

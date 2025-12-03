@@ -1,4 +1,3 @@
-// src/app/biblioteca/biblioteca.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -63,7 +62,7 @@ export class BibliotecaComponent implements OnInit {
     });
   }
 
-  // Filtro simple por nombre
+
   juegosFiltrados(): JuegoBiblioteca[] {
     const term = this.searchTerm.toLowerCase().trim();
     if (!term) return this.juegos;
@@ -72,18 +71,18 @@ export class BibliotecaComponent implements OnInit {
     );
   }
 
-  // Solo para que no truene el HTML si tienes botones "Descargar/Jugar"
+
   descargar(juego: JuegoBiblioteca) {
     console.log('Descargando juego (blob):', juego);
     const baseUrl = 'http://127.0.0.1:5000';
     const url = `${baseUrl}/api/juego/descargar/${juego.juegoID}`;
 
-    // Pedimos la respuesta como blob y observamos la respuesta completa para leer headers
+
     this.http.get(url, { responseType: 'blob', observe: 'response' }).subscribe({
       next: (response) => {
         const blob = response.body as Blob;
 
-        // Si el backend devolvió JSON con error, el tipo será application/json
+
         const contentType = blob.type || '';
         if (contentType.includes('application/json')) {
           // Leer texto y parsear JSON para mostrar mensaje
@@ -101,7 +100,7 @@ export class BibliotecaComponent implements OnInit {
           return;
         }
 
-        // Determinar nombre de archivo desde header Content-Disposition o fallback
+
         let filename = juego.titulo || 'juego';
         const cd = response.headers.get('content-disposition');
         if (cd) {
@@ -109,7 +108,7 @@ export class BibliotecaComponent implements OnInit {
           if (match && match[1]) filename = decodeURIComponent(match[1]);
         }
 
-        // Crear URL y forzar descarga
+
         const downloadUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = downloadUrl;
@@ -129,11 +128,11 @@ export class BibliotecaComponent implements OnInit {
 
   jugar(juego: JuegoBiblioteca) {
     console.log('Reproduciendo juego:', juego);
+
     
-    // Llamar al endpoint para ejecutar el juego
     const baseUrl = 'http://127.0.0.1:5000';
     const url = `${baseUrl}/api/juego/jugar/${juego.juegoID}`;
-    
+
     this.http.get<any>(url).subscribe({
       next: (res) => {
         if (res.exito) {

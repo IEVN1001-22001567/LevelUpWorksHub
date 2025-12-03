@@ -11,21 +11,21 @@ import { FormsModule } from '@angular/forms';
 })
 export class ResenasComponent {
 
-  // Resumen de calificaciones (Parte superior)
+
   gameStats = [
     { name: 'Chainsaw of the Dead', rating: 4.5, count: 2 },
     { name: 'Wyvern Quest', rating: 4.5, count: 4 },
     { name: 'Burnout VR', rating: 4.7, count: 3 }
   ];
 
-  // Filtros
+
   filters = {
     game: 'Todos los juegos',
     rating: 'Todos los ratings',
     sort: 'Más recientes'
   };
 
-  // Lista de Reseñas (Datos de tus imágenes)
+
   reviews = [
     {
       id: 1,
@@ -36,7 +36,7 @@ export class ResenasComponent {
       game: 'Wyvern Quest',
       content: 'La atención al detalle en este juego es asombrosa. Cada aldea tiene su propia cultura, las misiones secundarias son tan buenas como la principal, y el lore es profundísimo. Un verdadero RPG de nueva generación.',
       user: 'DragonSlayer01',
-      votes: 0 // No sale en la foto, lo pongo en 0
+      votes: 0
     },
     {
       id: 2,
@@ -54,7 +54,7 @@ export class ResenasComponent {
       title: 'Demasiado aterrador para mí',
       verified: true,
       date: '15 nov 2025',
-      rating: 4, // 4 estrellas en la imagen
+      rating: 4,
       game: 'Burnout VR',
       content: 'Es un juego increíble técnicamente, pero es tan aterrador que no puedo jugar más de 20 minutos seguidos. Los desarrolladores lograron su objetivo de asustar. ¡Tal vez demasiado bien!',
       user: 'ScaredEasily',
@@ -69,7 +69,7 @@ export class ResenasComponent {
       game: 'Burnout VR',
       content: 'Si buscas la experiencia de terror más intensa en VR, este es tu juego. Me ha hecho gritar en voz alta más de una vez. La inmersión es total y los sustos están perfectamente diseñados.',
       user: 'HorrorFanatic',
-      votes: 0 // Dato no visible, pongo 0
+      votes: 0
     },
     {
       id: 5,
@@ -84,7 +84,7 @@ export class ResenasComponent {
     }
   ];
 
-  // Acción del botón
+
   escribirResena() {
     alert('Abrir modal para escribir reseña...');
   }

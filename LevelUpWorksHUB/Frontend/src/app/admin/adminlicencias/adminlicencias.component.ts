@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms'; // Para el buscador
 })
 export class AdminLicenciasComponent {
 
-  // Estadísticas (Simuladas según imagen)
+  // Estadísticas
   stats = {
     total: 3,
     activas: 3,

@@ -34,9 +34,8 @@ export class AdminpsychoComponent implements OnInit {
     this.cargarArticulos();
   }
 
-  // ===============================
   // Cargar artículos
-  // ===============================
+
   cargarArticulos() {
     this.http.get("http://localhost:5000/psycho/articulos")
       .subscribe((data: any) => {
@@ -44,9 +43,7 @@ export class AdminpsychoComponent implements OnInit {
       });
   }
 
-  // ===============================
   // Modal
-  // ===============================
   nuevoArticulo() {
     this.modalTitulo = "Nuevo Artículo";
     this.articuloForm = {
@@ -72,9 +69,7 @@ export class AdminpsychoComponent implements OnInit {
     this.modalAbierto = false;
   }
 
-  // ===============================
   // Guardar
-  // ===============================
   guardarArticulo() {
 
     // EDITAR
@@ -99,9 +94,8 @@ export class AdminpsychoComponent implements OnInit {
     this.modalAbierto = false;
   }
 
-  // ===============================
   // Eliminar
-  // ===============================
+
   eliminarArticulo(id: number) {
     this.http.delete(`http://localhost:5000/psycho/articulos/${id}`)
       .subscribe(() => {

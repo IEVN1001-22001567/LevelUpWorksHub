@@ -30,14 +30,13 @@ export class LoginComponent {
     private router: Router
   ) {}
 
-  // ===== MODO LOGIN / REGISTRO (coincide con tu HTML) =====
+
   toggleMode(mode: 'login' | 'register') {
     this.isLoginMode = (mode === 'login');
     this.errorMsg = '';
     this.successMsg = '';
   }
 
-  // ===== FORM SUBMIT (coincide con tu HTML) =====
   onSubmit() {
     if (this.isLoginMode) {
       this.onLogin();
@@ -46,7 +45,7 @@ export class LoginComponent {
     }
   }
 
-  // ===== LOGIN (igual a como te funcionaba antes) =====
+
   onLogin() {
     if (!this.email || !this.password) {
       this.errorMsg = 'Ingresa tu correo y contraseña';
@@ -77,7 +76,7 @@ export class LoginComponent {
     });
   }
 
-  // ===== REGISTRO (mismo estilo que antes) =====
+
   onRegister() {
     if (!this.username || !this.email || !this.password) {
       this.errorMsg = 'Completa todos los campos';
@@ -108,7 +107,7 @@ export class LoginComponent {
     });
   }
 
-  // ===== OLVIDÓ CONTRASEÑA (coincide con tu HTML: olvidoContrasena) =====
+
   olvidoContrasena() {
     if (!this.email || !this.newPassword) {
       this.errorMsg = 'Ingresa tu correo y la nueva contraseña';

@@ -11,17 +11,15 @@ import { FormsModule } from '@angular/forms';
 })
 export class AdminResenasComponent {
 
-  // --- VARIABLES DE ESTADO Y FILTROS ---
+
   activeFilter: 'todas' | 'publicadas' | 'pendientes' | 'rechazadas' = 'todas';
   searchTerm: string = '';
 
-  // Variables para controlar los modales (Ver y Editar)
+
   selectedReview: any = null;
   isEditing: boolean = false;
 
-  // --- DATOS SIMULADOS ---
 
-  // Estadísticas Generales
   stats = {
     total: 10,
     publicadas: 9,
@@ -29,14 +27,14 @@ export class AdminResenasComponent {
     ratingPromedio: 4.5
   };
 
-  // Estadísticas por Juego
+
   gameStats = [
     { name: 'Chainsaw of the Dead', rating: 4.5, count: 2 },
     { name: 'Wyvern Quest', rating: 4.5, count: 4 },
     { name: 'Burnout VR', rating: 4.7, count: 3 }
   ];
 
-  // Lista de Reseñas
+
   reviews = [
     { id: 'rev-001', juego: 'Chainsaw of the Dead', usuario: 'ZombieHunter99', usuarioVerificado: true, rating: 5, titulo: 'El mejor juego de zombies que...', estado: 'Publicada', util: 156, reportes: 0, fecha: '15 oct 2025, 08:30' },
     { id: 'rev-002', juego: 'Chainsaw of the Dead', usuario: 'SurvivalMaster', usuarioVerificado: true, rating: 4, titulo: 'Gran juego pero con algunos b...', estado: 'Publicada', util: 89, reportes: 0, fecha: '20 oct 2025, 03:15' },
@@ -50,7 +48,6 @@ export class AdminResenasComponent {
     { id: 'rev-010', juego: 'Wyvern Quest', usuario: 'FantasyLover88', usuarioVerificado: true, rating: 5, titulo: 'El mundo de fantasía más detal...', estado: 'Publicada', util: 143, reportes: 0, fecha: '20 nov 2025, 06:00' }
   ];
 
-  // --- LÓGICA DE FILTRADO ---
 
   get filteredReviews() {
     return this.reviews.filter(r => {
@@ -61,7 +58,7 @@ export class AdminResenasComponent {
         if (this.activeFilter === 'rechazadas' && r.estado !== 'Rechazada') return false;
       }
 
-      // 2. Filtro por Buscador (Si hay texto)
+
       if (this.searchTerm) {
         const term = this.searchTerm.toLowerCase();
         return r.usuario.toLowerCase().includes(term) ||
@@ -77,7 +74,7 @@ export class AdminResenasComponent {
     this.activeFilter = filter;
   }
 
-  // --- ACCIONES RÁPIDAS (BOTONES PEQUEÑOS) ---
+
 
   aprobar(id: string) { alert('Reseña aprobada: ' + id); }
   rechazar(id: string) { alert('Reseña rechazada: ' + id); }
@@ -88,30 +85,28 @@ export class AdminResenasComponent {
     }
   }
 
-  // --- LÓGICA DE MODALES (VER / EDITAR) ---
 
-  // Abrir Modal de DETALLE (Ojito)
   verResena(review: any) {
-    this.selectedReview = { ...review }; // Creamos una copia
+    this.selectedReview = { ...review };
     this.isEditing = false;
   }
 
-  // Abrir Modal de EDICIÓN (Lápiz)
+
   editarResena(review: any) {
     this.selectedReview = { ...review }; // Creamos una copia
     this.isEditing = true;
   }
 
-  // Cerrar Modal
+
   cerrarModal() {
     this.selectedReview = null;
     this.isEditing = false;
   }
 
-  // Guardar Cambios del Modal
+
   guardarCambios() {
     alert('Cambios guardados correctamente para: ' + this.selectedReview.id);
-    // Aquí actualizamos la lista original con los datos editados
+  
     const index = this.reviews.findIndex(r => r.id === this.selectedReview.id);
     if (index !== -1) {
       this.reviews[index] = { ...this.selectedReview };
